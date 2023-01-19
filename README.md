@@ -3,7 +3,7 @@ English | [中文](README_CN.md)
 
 ## Introduce
 A high performance admin project framework with `Hertz` and `Ent`
-- High productivity: an enterprise management system can be built in a short time.
+- High productivity: An enterprise management system can be built in a short time.
 - High performance: Uses the [Hertz framework](https://github.com/cloudwego/hertz), the most powerful in Go. ByteDance has deployed tens of thousands of services using it.
 - Modularity: Referring to the DDD design concept, the module design is more concise and convenient.
 - Routing interfaces: Refer to the [Google Open Platform](https://github.com/googleapis/googleapis) and use Protobuf to define interface specifications.
@@ -21,13 +21,13 @@ A high performance admin project framework with `Hertz` and `Ent`
 
 ## Built-in features
 1. User management: The user is the system operator, and this function mainly completes the system user configuration.
-2. Menu management: configure system menus, operation permissions, button permission identification, etc.
+2. Menu management: Configure system menus, operation permissions, button permission identification, etc.
 3. Role management: Assign permissions in the role menu and set the permission division of roles.
-4. Dictionary management: maintain some relatively fixed data that is often used in the system.
-5. Operation log: system normal operation log records and queries; System exception information logging and querying.
-6. Online users: active user token status monitoring in the current system.
-7. File management: file upload, S3 (Aliyun OSS) multiple upload methods adapted.
-8. OAuth2.0 login: support Google, Github, Wecom, etc.
+4. Dictionary management: Maintain some relatively fixed data that is often used in the system.
+5. Operation log: System normal operation log records and queries; System exception information logging and querying.
+6. Online users: Active user token status monitoring in the current system.
+7. File management: File upload, S3 (Aliyun OSS) multiple upload methods adapted.
+8. OAuth2.0 login: Support Google, Github, Wecom, etc.
 9. Common tools: Integrate common toolkits and command line tools in pkg package.
 
 ## Interface IDL
@@ -86,6 +86,7 @@ cd formulago && docker-compose up
 ```
 cd formulago
 go build -o formulago &&./formulago
+
 # init Database Table data by http request
 @router yourHost/api/initDatabase [GET]
 enjoy it!
