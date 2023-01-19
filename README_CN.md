@@ -4,9 +4,9 @@
 ## 简介
 一个高性能的企业后台管理框架，使用`Hertz`与`Ent`
 - 高生产率：短时间即可搭建一个企业管理系统。
-- 高性能：使用Go里最强性能的[Hertz框架](https://github.com/cloudwego/hertz)。字节跳动已经在上万个服务上部署应用。
+- 高性能：使用Go里最强性能的 [Hertz 框架](https://github.com/cloudwego/hertz)。字节跳动已经在上万个服务上部署应用。
 - 模块化：参考DDD设计理念，模块设计更简洁、更方便。
-- 路由接口：参考[Google开放平台](https://github.com/googleapis/googleapis)，使用Proto定义接口规范。
+- 路由接口：参考[ Google 开放平台](https://github.com/googleapis/googleapis)，使用 Protobuf 定义接口规范。
 - 面向接口开发，更好拓展与单元测试。
 
 ## 架构图
@@ -31,7 +31,7 @@
 9. 常用工具：在pkg包集成常用的工具包和命令行工具。
 
 ## 接口定义
-本项目使用`Protobuf` IDL 定义`HTTP` 接口。对应的admin模块相关接口在[admin.proto](api/admin/admin.proto)文件中定义。
+本项目使用`Protobuf` IDL 定义`HTTP` 接口。对应的admin模块相关接口在 [admin.proto](api/admin/admin.proto) 文件中定义。
 
 ## 代码生成
 
