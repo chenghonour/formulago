@@ -8,7 +8,7 @@ require (
 	github.com/aliyun/aliyun-oss-go-sdk v2.2.6+incompatible
 	github.com/casbin/casbin/v2 v2.60.0
 	github.com/casbin/ent-adapter v0.2.2
-	github.com/cloudwego/hertz v0.5.1-0.20230111090756-6e0a35d48c68
+	github.com/cloudwego/hertz v0.5.1
 	github.com/cockroachdb/errors v1.9.0
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/hertz-contrib/jwt v1.0.1
