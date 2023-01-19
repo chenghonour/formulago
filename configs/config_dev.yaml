@@ -1,0 +1,60 @@
+Name: FormulaGo
+IsProd: false
+Host: 0.0.0.0
+Port: 8191
+Timeout: 30000
+
+Captcha:
+  KeyLong: 5
+  ImgWidth: 240
+  ImgHeight: 80
+
+Auth:
+  OAuthKey: OauthJf3z1n2xxx2cr1
+  AccessSecret: D86VKDtsJf3z1nxxxxtsJf3z1n5
+  AccessExpire: 259200 # seconds, 3 days
+
+Redis:
+  Host: 127.0.0.1
+  Port: 6379
+  Type: node
+
+Database:
+  Type: mysql
+  Host: 127.0.0.1
+  Port: 3306
+  DBName: formula_go
+  Username: root # set your username
+  Password: password # set your password
+  MaxOpenConn: 100
+  SSLMode: false
+  CacheTime: 5
+
+Casbin:
+  ModelText: |
+    [request_definition]
+    r = sub, obj, act
+    [policy_definition]
+    p = sub, obj, act
+    [role_definition]
+    g = _, _
+    [policy_effect]
+    e = some(where (p.eft == allow))
+    [matchers]
+    m = r.sub == p.sub && keyMatch2(r.obj,p.obj) && r.act == p.act
+
+# Simple Storage Service
+S3:
+  Type: "AliyunOSS"
+  AliyunOSS:
+    Endpoint:   "oss-cn-shenzhen.aliyuncs.com"
+    BucketName: "xxxxx"
+    BasePath: "xxxxx"
+    SecretID: "LTAI5t9YQEF4uAxxxxxxxxxxxx"
+    SecretKey: "WUintXCcccuwFWOV8FAxxxxxxxxxxxx"
+    Domain: "oss.xxx.com"
+
+# Wecom（企业微信）
+Wecom:
+  CorpId: "wwxeddc2dddd8cxxx"
+  SecretId: "x7T_hcxv8qxxxabRobddddcNActLf3b5xxxT_I"
