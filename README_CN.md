@@ -88,6 +88,7 @@ cd formulago
 go build -o formulago &&./formulago
 
 # 项目运行后，HTTP Get请求以下路由，将会初始化数据库表数据
+# 初始管理员账号: admin/admin123
 @router yourHost/api/initDatabase [GET]
 enjoy it!
 ```

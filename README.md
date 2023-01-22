@@ -88,6 +88,7 @@ cd formulago
 go build -o formulago &&./formulago
 
 # init Database Table data by http request
+# Administrator account: admin/admin123
 @router yourHost/api/initDatabase [GET]
 enjoy it!
 ```
