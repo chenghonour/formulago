@@ -28,7 +28,7 @@ func LogsMiddleware() app.HandlerFunc {
 		logs.Method = string(c.Request.Method())
 		logs.Api = string(c.Request.Path())
 		logs.UserAgent = string(c.Request.Header.UserAgent())
-		logs.Ip = string(c.Request.Header.Host())
+		logs.Ip = c.ClientIP()
 		// ReqContent
 		reqBodyStr := string(c.Request.Body())
 		if len(reqBodyStr) > 200 {
