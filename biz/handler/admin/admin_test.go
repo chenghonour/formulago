@@ -2,20 +2,20 @@ package admin
 
 import (
 	"bytes"
+	"formulago/api/model/admin"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/json"
 	"github.com/cloudwego/hertz/pkg/common/test/assert"
 	"github.com/cloudwego/hertz/pkg/common/ut"
-	"formulago/api/model/admin"
 	"testing"
 )
 
 func TestHealthCheck(t *testing.T) {
 	h := server.Default()
 	h.GET("/api/health", HealthCheck)
-	json := `{"version":"v0.0.1"}`
+	jsonStr := `{"version":"v0.0.1"}`
 	w := ut.PerformRequest(h.Engine, "GET", "/api/health",
-		&ut.Body{Body: bytes.NewBufferString(json), Len: len(json)},
+		&ut.Body{Body: bytes.NewBufferString(jsonStr), Len: len(jsonStr)},
 		ut.Header{Key: "Connection", Value: "close"},
 		ut.Header{Key: "Content-Type", Value: "application/json"})
 	resp := w.Result()
@@ -39,4 +39,18 @@ func TestCaptcha(t *testing.T) {
 	assert.DeepEqual(t, 200, resp.StatusCode())
 	assert.DeepEqual(t, admin.ErrCode_Success, captchaInfoResp.ErrCode)
 	assert.DeepEqual(t, "success", captchaInfoResp.ErrMsg)
+}
+
+func TestStructToProto(t *testing.T) {
+	h := server.Default()
+	h.POST("/api/structToProto", StructToProto)
+	jsonStr := `{"structStr":"// test struct\ntype a struct {\n\t// primary key\n\tID uint64 \n\t// name\n\tName string\n\t// created time\n\tCreatedAt time.Time \n}"}`
+	w := ut.PerformRequest(h.Engine, "POST", "/api/structToProto",
+		&ut.Body{Body: bytes.NewBufferString(jsonStr), Len: len(jsonStr)},
+		ut.Header{Key: "Connection", Value: "close"},
+		ut.Header{Key: "Content-Type", Value: "application/json"})
+	resp := w.Result()
+	assert.DeepEqual(t, 200, resp.StatusCode())
+	assert.DeepEqual(t, `{"errCode":0,"errMsg":"success","protoStr":"// test struct\nmessage a {\n  // primary key\n  uint64 ID = 1;\n  // name\n  string name = 2;\n  // created time\n  string createdAt = 3;\n}\n"}`,
+		string(resp.Body()))
 }

@@ -4,15 +4,15 @@ package admin
 
 import (
 	"context"
-	"github.com/cloudwego/hertz/pkg/protocol/consts"
-	"github.com/jinzhu/copier"
 	"formulago/biz/domain"
 	logic "formulago/biz/logic/admin"
 	"formulago/data"
+	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"github.com/jinzhu/copier"
 	"strconv"
 
-	"github.com/cloudwego/hertz/pkg/app"
 	"formulago/api/model/admin"
+	"github.com/cloudwego/hertz/pkg/app"
 )
 
 // CreateAuthority .

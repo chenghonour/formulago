@@ -4,17 +4,17 @@ package admin
 
 import (
 	"context"
-	"github.com/jinzhu/copier"
 	"formulago/biz/domain"
 	"formulago/biz/handler/middleware"
 	logic "formulago/biz/logic/admin"
 	"formulago/configs"
 	"formulago/data"
+	"github.com/jinzhu/copier"
 	"strings"
 
+	admin "formulago/api/model/admin"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
-	admin "formulago/api/model/admin"
 )
 
 // CreateProvider .

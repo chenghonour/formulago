@@ -5,8 +5,11 @@ package admin
 
 import (
 	"context"
+	"fmt"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"regexp"
+	"strings"
 
 	"formulago/api/model/admin"
 	logic "formulago/biz/logic/admin"
@@ -79,4 +82,95 @@ func Captcha(ctx context.Context, c *app.RequestContext) {
 	resp.ImgPath = b64s
 
 	c.JSON(consts.StatusOK, resp)
+}
+
+// StructToProto .
+// @router /api/structToProto [POST]
+func StructToProto(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req admin.ProtoReq
+	resp := new(admin.ProtoResp)
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrMsg = err.Error()
+		c.JSON(consts.StatusBadRequest, resp)
+		return
+	}
+	// StructToProto
+	var list = strings.Split(req.StructStr, "\n")
+	var sBuilder strings.Builder
+	var sort = 1
+	var isInner = false
+	for _, l := range list {
+		l = strings.TrimSpace(l)
+		// first proto message line
+		if name := getStructName(l); name != "" {
+			sBuilder.WriteString(fmt.Sprintf("message %s {\n", name))
+			isInner = true
+			continue
+		}
+		// no change to comments
+		if strings.Contains(l, "//") {
+			if isInner {
+				sBuilder.WriteString(fmt.Sprintf("  %s\n", l))
+				continue
+			}
+			sBuilder.WriteString(fmt.Sprintf("%s\n", l))
+			continue
+		}
+		// transform to proto
+		lList := strings.Split(l, " ")
+		if len(lList) >= 2 {
+			sBuilder.WriteString(fmt.Sprintf("  %s %s = %d;\n", getProtoType(lList[1]), smallCamelString(lList[0]), sort))
+			sort++
+		}
+	}
+	// end proto message line
+	sBuilder.WriteString("}\n")
+
+	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrMsg = "success"
+	resp.ProtoStr = sBuilder.String()
+
+	c.JSON(consts.StatusOK, resp)
+}
+
+func smallCamelString(s string) string {
+	if len(s) == 0 {
+		return s
+	}
+	if len(s) == 1 {
+		return strings.ToLower(s)
+	}
+	if s == "ID" {
+		return s
+	}
+	return strings.ToLower(s[:1]) + s[1:]
+}
+
+func getProtoType(s string) string {
+	switch s {
+	case "int":
+		return "int32"
+	case "time.Time":
+		return "string"
+	case "float32":
+		return "float"
+	case "float64":
+		return "double"
+	case "[]byte":
+		return "bytes"
+	default:
+		return s
+	}
+}
+
+func getStructName(s string) string {
+	re := regexp.MustCompile(`type +([a-zA-Z1-9]+) +struct {`)
+	list := re.FindStringSubmatch(s)
+	if len(list) > 1 {
+		return list[1]
+	}
+	return ""
 }

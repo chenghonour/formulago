@@ -3,8 +3,8 @@
 package Admin
 
 import (
-	"github.com/cloudwego/hertz/pkg/app/server"
 	admin "formulago/biz/handler/admin"
+	"github.com/cloudwego/hertz/pkg/app/server"
 )
 
 /*
@@ -23,6 +23,7 @@ func Register(r *server.Hertz) {
 		_api.GET("/health", append(_healthcheckMw(), admin.HealthCheck)...)
 		_api.GET("/initDatabase", append(_initdatabaseMw(), admin.InitDatabase)...)
 		_api.POST("/register", append(_registerMw(), admin.Register)...)
+		_api.POST("/structToProto", append(_structtoprotoMw(), admin.StructToProto)...)
 		{
 			_admin := _api.Group("/admin", _adminMw()...)
 			_admin.GET("/role", append(_rolebyidMw(), admin.RoleByID)...)

@@ -387,3 +387,8 @@ func _oauthloginMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _structtoprotoMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

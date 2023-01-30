@@ -8,9 +8,9 @@ import (
 	logic "formulago/biz/logic/admin"
 	"formulago/data"
 
+	admin "formulago/api/model/admin"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
-	admin "formulago/api/model/admin"
 )
 
 // GetLogsList .

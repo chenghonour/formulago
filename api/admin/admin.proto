@@ -27,6 +27,22 @@ service admin {
   rpc Captcha (Empty) returns (CaptchaInfoResp) {
     option (api.get) = "/api/captcha";
   }
+  // StructToProto | 转换struct至proto类型数据
+  rpc StructToProto (ProtoReq) returns (ProtoResp) {
+    option (api.post) = "/api/structToProto";
+  }
+}
+
+// The request of proto | proto请求类型数据
+message ProtoReq {
+  string structStr = 1[(api.body)="structStr, required"];
+}
+
+// The information of proto | proto类型数据
+message ProtoResp {
+  ErrCode errCode = 1;
+  string errMsg = 2;
+  string protoStr = 3;
 }
 
 // The information of captcha | 验证码数据
