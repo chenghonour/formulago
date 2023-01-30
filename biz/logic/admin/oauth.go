@@ -106,8 +106,8 @@ func (o *Oauth) List(ctx context.Context, req *domain.OauthListReq) (list []*dom
 			TokenUrl:     provider.TokenURL,
 			AuthStyle:    provider.AuthStyle,
 			InfoUrl:      provider.InfoURL,
-			CreatedAt:    provider.CreatedAt.Unix(),
-			UpdatedAt:    provider.UpdatedAt.Unix(),
+			CreatedAt:    provider.CreatedAt.Format("2006-01-02 15:04:05"),
+			UpdatedAt:    provider.UpdatedAt.Format("2006-01-02 15:04:05"),
 		})
 	}
 	total, _ = o.Data.DBClient.OauthProvider.Query().Where(predicates...).Count(ctx)

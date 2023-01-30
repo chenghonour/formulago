@@ -36,9 +36,11 @@ func GetLogsList(ctx context.Context, c *app.RequestContext) {
 	logsListReq.Operator = req.Operator
 	switch req.Success {
 	case "true":
-		*logsListReq.Success = true
+		success := true
+		logsListReq.Success = &success
 	case "false":
-		*logsListReq.Success = false
+		success := false
+		logsListReq.Success = &success
 	default:
 		logsListReq.Success = nil
 	}

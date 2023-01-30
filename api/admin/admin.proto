@@ -754,8 +754,8 @@ message ProviderInfo {
   string tokenUrl = 8;
   uint64 authStyle = 9;
   string infoUrl = 10;
-  int64  createdAt = 11;
-  int64  updatedAt = 12;
+  string  createdAt = 11;
+  string  updatedAt = 12;
 }
 
 message ProviderListReq {

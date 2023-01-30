@@ -113,6 +113,7 @@ func TokenList(ctx context.Context, c *app.RequestContext) {
 		tokenInfo.UserName = token.UserName
 		tokenInfo.CreatedAt = token.CreatedAt
 		tokenInfo.UpdatedAt = token.UpdatedAt
+		tokenInfo.ExpiredAt = token.ExpiredAt
 		resp.Data = append(resp.Data, &tokenInfo)
 	}
 	resp.Total = uint64(total)

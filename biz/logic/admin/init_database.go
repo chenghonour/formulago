@@ -44,7 +44,7 @@ func (I *InitDatabase) InitDatabase(ctx context.Context) error {
 	// judge if the initialization had been done
 	check, err := I.DB.API.Query().Count(ctx)
 	if InitDatabaseStatus || check > 0 {
-		return errors.New("database had been initialized")
+		return errors.New("Database had been initialized")
 	}
 
 	// insert init data

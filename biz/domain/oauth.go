@@ -28,8 +28,8 @@ type ProviderInfo struct {
 	TokenUrl     string
 	AuthStyle    uint64
 	InfoUrl      string
-	CreatedAt    int64
-	UpdatedAt    int64
+	CreatedAt    string
+	UpdatedAt    string
 }
 
 type OauthListReq struct {

@@ -93,12 +93,13 @@ func newJWT(config configs.Config, db *Data.Data, enforcer *casbin.Enforcer) (jw
 				if err := c.BindAndValidate(&loginVal); err != nil {
 					return "", err
 				}
-				// verify captcha
-				valid := logic.CaptchaStore.Verify(loginVal.CaptchaID, loginVal.Captcha, true)
-				if !valid {
-					return nil, errors.New("invalid captcha")
+				// verify captcha while IsProd is true
+				if config.IsProd {
+					valid := logic.CaptchaStore.Verify(loginVal.CaptchaID, loginVal.Captcha, true)
+					if !valid {
+						return nil, errors.New("invalid captcha")
+					}
 				}
-
 				// Login
 				username := loginVal.Username
 				password := loginVal.Password
