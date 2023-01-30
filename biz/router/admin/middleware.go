@@ -4,6 +4,8 @@ package Admin
 
 import (
 	"formulago/biz/handler/middleware"
+	"formulago/configs"
+	"formulago/data"
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
@@ -40,7 +42,9 @@ func _registerMw() []app.HandlerFunc {
 func _adminMw() []app.HandlerFunc {
 	// your code...
 	// add jwt Auth middleware
-	return []app.HandlerFunc{middleware.GetJWTMiddleware().MiddlewareFunc(), middleware.LogsMiddleware()}
+	return []app.HandlerFunc{middleware.GetJWTMiddleware(configs.Data(), data.Default(), data.CasbinEnforcer()).MiddlewareFunc(),
+		middleware.LogsMiddleware(data.Default()),
+		middleware.ForbidOperation(configs.Data())}
 }
 
 func _rolebyidMw() []app.HandlerFunc {

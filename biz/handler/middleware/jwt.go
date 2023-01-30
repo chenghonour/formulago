@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 FormulaGo Authors
+ * Copyright 2023 FormulaGo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  */
@@ -42,16 +42,12 @@ var (
 	jwtMiddleware = new(jwt.HertzJWTMiddleware)
 )
 
-// init the jwt middleware
-func init() {
-	var err error
-	jwtMiddleware, err = newJWT(configs.Data(), Data.Default(), Data.CasbinEnforcer())
+// GetJWTMiddleware returns a new JWT middleware.
+func GetJWTMiddleware(c configs.Config, d *Data.Data, e *casbin.Enforcer) *jwt.HertzJWTMiddleware {
+	jwtMiddleware, err := newJWT(c, d, e)
 	if err != nil {
 		hlog.Fatal(err, "JWT Init Error")
 	}
-}
-
-func GetJWTMiddleware() *jwt.HertzJWTMiddleware {
 	return jwtMiddleware
 }
 

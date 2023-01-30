@@ -1,4 +1,5 @@
 Name: FormulaGo
+IsDemo: false  # true: demo mode, forbid operations like create, update, delete
 IsProd: false
 Host: 0.0.0.0
 Port: 8191

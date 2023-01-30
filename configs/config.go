@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 FormulaGo Authors
+ * Copyright 2023 FormulaGo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  */
@@ -71,6 +71,7 @@ func load() (config Config, err error) {
 // Config is the configuration of the project.
 type Config struct {
 	Name     string     `yaml:"Name"`
+	IsDemo   bool       `yaml:"IsDemo"`
 	IsProd   bool       `yaml:"IsProd"`
 	Host     string     `yaml:"Host"`
 	Port     int        `yaml:"Port"`

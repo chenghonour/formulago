@@ -212,5 +212,5 @@ func OauthCallback(ctx context.Context, c *app.RequestContext) {
 	ctx = context.WithValue(ctx, "OAuthKey", configs.Data().Auth.OAuthKey)
 	c.Set("provider", callbackReq.ProviderName)
 	c.Set("credential", userInfo.Credential)
-	middleware.GetJWTMiddleware().LoginHandler(ctx, c)
+	middleware.GetJWTMiddleware(configs.Data(), data.Default(), data.CasbinEnforcer()).LoginHandler(ctx, c)
 }

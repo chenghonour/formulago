@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 FormulaGo Authors
+ * Copyright 2023 FormulaGo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  */
@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-func LogsMiddleware() app.HandlerFunc {
+func LogsMiddleware(d *data.Data) app.HandlerFunc {
 	return func(ctx context.Context, c *app.RequestContext) {
 		// pre-handle
 		start := time.Now()
@@ -61,7 +61,7 @@ func LogsMiddleware() app.HandlerFunc {
 		if !ok {
 			userIDStr = "anonymous, no jwt login userinfo in cache"
 		}
-		u, exist := data.Default().Cache.Get("UserID2Username" + userIDStr)
+		u, exist := d.Cache.Get("UserID2Username" + userIDStr)
 		if !exist || u == nil {
 			username = "anonymous, no jwt login userinfo in cache"
 		}

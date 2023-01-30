@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 FormulaGo Authors
+ * Copyright 2023 FormulaGo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  */
@@ -64,7 +64,7 @@ type MenuInfoTree struct {
 
 // MenuParam is the menu parameter structure.data stored at the table `sys_menu_params`
 type MenuParam struct {
-	ID uint64
+	ID        uint64
 	MenuID    uint64
 	Type      string
 	Key       string
