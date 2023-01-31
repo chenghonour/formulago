@@ -28,7 +28,8 @@
 6. 在线用户：当前系统中活跃用户Token状态监控。
 7. 文件管理：文件上传，S3(Aliyun OSS)多种上传方式适配。
 8. OAuth2.0登录：支持Google, Github, Wecom 等OAuth2.0认证登录, 可以自己拓展。
-9. 常用工具：在pkg包集成常用的工具包和命令行工具。
+9. 常用工具：在pkg包集成常用的工具包。
+10. 开发工具：提供便捷的Struct与Protobuf转换工具，Struct to Protobuf，Delete Struct Tag等。
 
 ## 接口定义
 本项目使用`Protobuf` IDL 定义`HTTP` 接口。对应的admin模块相关接口在 [admin.proto](api/admin/admin.proto) 文件中定义。

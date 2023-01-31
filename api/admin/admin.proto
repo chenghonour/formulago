@@ -27,15 +27,26 @@ service admin {
   rpc Captcha (Empty) returns (CaptchaInfoResp) {
     option (api.get) = "/api/captcha";
   }
+  // DeleteStructTag | 去掉struct tag
+  rpc DeleteStructTag (StructReq) returns (StructResp) {
+    option (api.post) = "/api/deleteStructTag";
+  }
   // StructToProto | 转换struct至proto类型数据
-  rpc StructToProto (ProtoReq) returns (ProtoResp) {
+  rpc StructToProto (StructReq) returns (ProtoResp) {
     option (api.post) = "/api/structToProto";
   }
 }
 
-// The request of proto | proto请求类型数据
-message ProtoReq {
+// The request of struct | struct请求类型数据
+message StructReq {
   string structStr = 1[(api.body)="structStr, required"];
+}
+
+// The information of struct | struct类型数据
+message StructResp {
+  ErrCode errCode = 1;
+  string errMsg = 2;
+  string structStr = 3;
 }
 
 // The information of proto | proto类型数据

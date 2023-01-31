@@ -396,3 +396,8 @@ func _structtoprotoMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _deletestructtagMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

@@ -20,6 +20,7 @@ func Register(r *server.Hertz) {
 	{
 		_api := root.Group("/api", _apiMw()...)
 		_api.GET("/captcha", append(_captchaMw(), admin.Captcha)...)
+		_api.POST("/deleteStructTag", append(_deletestructtagMw(), admin.DeleteStructTag)...)
 		_api.GET("/health", append(_healthcheckMw(), admin.HealthCheck)...)
 		_api.GET("/initDatabase", append(_initdatabaseMw(), admin.InitDatabase)...)
 		_api.POST("/register", append(_registerMw(), admin.Register)...)

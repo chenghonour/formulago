@@ -41,6 +41,20 @@ func TestCaptcha(t *testing.T) {
 	assert.DeepEqual(t, "success", captchaInfoResp.ErrMsg)
 }
 
+func TestDeleteStructTag(t *testing.T) {
+	h := server.Default()
+	h.POST("/api/deleteStructTag", DeleteStructTag)
+	jsonStr := "{\"structStr\":\"// test struct\\ntype a struct {\\n\\t// primary key\\n\\tID uint64 `json:\\\"ID\\\"`\\n\\t// name\\n\\tName string `json:\\\"name\\\"`\\n\\t// created time\\n\\tCreatedAt time.Time `json:\\\"created_at\\\"`\\n}\"}"
+	w := ut.PerformRequest(h.Engine, "POST", "/api/deleteStructTag",
+		&ut.Body{Body: bytes.NewBufferString(jsonStr), Len: len(jsonStr)},
+		ut.Header{Key: "Connection", Value: "close"},
+		ut.Header{Key: "Content-Type", Value: "application/json"})
+	resp := w.Result()
+	assert.DeepEqual(t, 200, resp.StatusCode())
+	assert.DeepEqual(t, `{"errCode":0,"errMsg":"success","structStr":"// test struct\ntype a struct {\n  // primary key\n  ID uint64 \n  // name\n  Name string \n  // created time\n  CreatedAt time.Time \n}\n"}`,
+		string(resp.Body()))
+}
+
 func TestStructToProto(t *testing.T) {
 	h := server.Default()
 	h.POST("/api/structToProto", StructToProto)

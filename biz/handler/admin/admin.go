@@ -84,11 +84,61 @@ func Captcha(ctx context.Context, c *app.RequestContext) {
 	c.JSON(consts.StatusOK, resp)
 }
 
+// DeleteStructTag .
+// @router /api/deleteStructTag [POST]
+func DeleteStructTag(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req admin.StructReq
+	resp := new(admin.StructResp)
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrMsg = err.Error()
+		c.JSON(consts.StatusBadRequest, resp)
+		return
+	}
+	// StructToProto
+	var list = strings.Split(req.StructStr, "\n")
+	var sBuilder strings.Builder
+	var isInner = false
+	for _, l := range list {
+		l = strings.TrimSpace(l)
+		// first proto message line
+		if name := getStructName(l); name != "" {
+			sBuilder.WriteString(fmt.Sprintf("type %s struct {\n", name))
+			isInner = true
+			continue
+		}
+		// no change to comments
+		if strings.Contains(l, "//") {
+			if isInner {
+				sBuilder.WriteString(fmt.Sprintf("  %s\n", l))
+				continue
+			}
+			sBuilder.WriteString(fmt.Sprintf("%s\n", l))
+			continue
+		}
+		// transform to proto
+		lList := strings.Split(l, " ")
+		if len(lList) >= 2 {
+			sBuilder.WriteString(fmt.Sprintf("  %s %s \n", lList[0], lList[1]))
+		}
+	}
+	// end proto message line
+	sBuilder.WriteString("}\n")
+
+	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrMsg = "success"
+	resp.StructStr = sBuilder.String()
+
+	c.JSON(consts.StatusOK, resp)
+}
+
 // StructToProto .
 // @router /api/structToProto [POST]
 func StructToProto(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req admin.ProtoReq
+	var req admin.StructReq
 	resp := new(admin.ProtoResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {

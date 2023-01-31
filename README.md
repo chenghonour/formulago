@@ -28,7 +28,8 @@ A high performance admin project framework with `Hertz` and `Ent`
 6. Online users: Active user token status monitoring in the current system.
 7. File management: File upload, S3 (Aliyun OSS) multiple upload methods adapted.
 8. OAuth2.0 login: Support Google, Github, Wecom, etc.
-9. Common tools: Integrate common toolkits and command line tools in pkg package.
+9. Common tools: Integrate common toolkits in pkg package.
+10. Develop tools: Provide convenient Struct to Protobuf conversion tools, Struct to Protobuf, Delete Struct Tag, etc.
 
 ## Interface IDL
 
