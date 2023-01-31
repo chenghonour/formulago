@@ -141,9 +141,6 @@ func newJWT(config configs.Config, db *Data.Data, enforcer *casbin.Enforcer) (jw
 				hlog.Error(err, "jwtLogin error, store token error")
 				return nil, err
 			}
-			// store UserID-Username in cache
-			Data.Default().Cache.Set("UserID2Username"+strconv.Itoa(int(res.UserID)), res.Username, time.Duration(config.Auth.AccessExpire)*time.Second)
-
 			// return the payload
 			// take str roleID, userID into PayloadMap
 			payloadMap := make(map[string]interface{})

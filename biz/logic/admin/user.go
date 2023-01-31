@@ -17,6 +17,7 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/jinzhu/copier"
 	"strconv"
+	"time"
 )
 
 type User struct {
@@ -88,7 +89,15 @@ func (u *User) ChangePassword(ctx context.Context, userID uint64, oldPassword, n
 	return err
 }
 
-func (u *User) UserInfo(ctx context.Context, id uint64) (userInfo domain.UserInfo, err error) {
+func (u *User) UserInfo(ctx context.Context, id uint64) (userInfo *domain.UserInfo, err error) {
+	userInfo = new(domain.UserInfo)
+	// get user info from cache
+	userInterface, exist := u.Data.Cache.Get("userInfo" + strconv.Itoa(int(id)))
+	if exist {
+		if u, ok := userInterface.(*domain.UserInfo); ok {
+			return u, nil
+		}
+	}
 	// get user info from db
 	userEnt, err := u.Data.DBClient.User.Query().Where(user.IDEQ(id)).First(ctx)
 	if err != nil {
@@ -102,13 +111,15 @@ func (u *User) UserInfo(ctx context.Context, id uint64) (userInfo domain.UserInf
 		return userInfo, err
 	}
 	// role info from cache
-	roleInterface, exist := data.Default().Cache.Get("roleData" + strconv.Itoa(int(userInfo.RoleID)))
+	roleInterface, exist := u.Data.Cache.Get("roleData" + strconv.Itoa(int(userInfo.RoleID)))
 	if exist {
 		if role, ok := roleInterface.(*ent.Role); ok {
 			userInfo.RoleName = role.Name
 			userInfo.RoleValue = role.Value
 		}
 	}
+	// set user to cache
+	u.Data.Cache.Set("userInfo"+strconv.Itoa(int(userInfo.ID)), &userInfo, 72*time.Hour)
 	return
 }
 

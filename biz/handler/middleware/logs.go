@@ -13,6 +13,7 @@ import (
 	"formulago/data"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
+	"strconv"
 	"time"
 )
 
@@ -52,22 +53,19 @@ func LogsMiddleware(d *data.Data) app.HandlerFunc {
 		// username from jwt login cache
 		v, exist := c.Get("userID")
 		if !exist || v == nil {
-			v = "anonymous, no jwt login userinfo in cache"
+			v = "0"
 		}
 		var userIDStr string
-		var username string
+		var username = "anonymous"
 		var ok bool
 		userIDStr, ok = v.(string)
 		if !ok {
-			userIDStr = "anonymous, no jwt login userinfo in cache"
+			userIDStr = "0"
 		}
-		u, exist := d.Cache.Get("UserID2Username" + userIDStr)
-		if !exist || u == nil {
-			username = "anonymous, no jwt login userinfo in cache"
-		}
-		username, ok = u.(string)
-		if !ok {
-			username = "anonymous, no jwt login userinfo in cache"
+		userID, _ := strconv.Atoi(userIDStr)
+		userInfo, _ := admin.NewUser(d).UserInfo(ctx, uint64(userID))
+		if userInfo != nil {
+			username = userInfo.Username
 		}
 		logs.Operator = username
 
