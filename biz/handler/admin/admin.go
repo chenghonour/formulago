@@ -97,13 +97,13 @@ func DeleteStructTag(ctx context.Context, c *app.RequestContext) {
 		c.JSON(consts.StatusBadRequest, resp)
 		return
 	}
-	// StructToProto
-	var list = strings.Split(req.StructStr, "\n")
+	// delete struct tag
+	list := strings.Split(req.StructStr, "\n")
 	var sBuilder strings.Builder
-	var isInner = false
+	isInner := false
 	for _, l := range list {
 		l = strings.TrimSpace(l)
-		// first proto message line
+		// first struct message line
 		if name := getStructName(l); name != "" {
 			sBuilder.WriteString(fmt.Sprintf("type %s struct {\n", name))
 			isInner = true
@@ -118,13 +118,13 @@ func DeleteStructTag(ctx context.Context, c *app.RequestContext) {
 			sBuilder.WriteString(fmt.Sprintf("%s\n", l))
 			continue
 		}
-		// transform to proto
+		// delete struct tag
 		lList := strings.Split(l, " ")
 		if len(lList) >= 2 {
 			sBuilder.WriteString(fmt.Sprintf("  %s %s \n", lList[0], lList[1]))
 		}
 	}
-	// end proto message line
+	// end struct message line
 	sBuilder.WriteString("}\n")
 
 	resp.ErrCode = admin.ErrCode_Success
