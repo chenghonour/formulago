@@ -153,7 +153,7 @@ func (I *InitDatabase) insertRoleData(ctx context.Context) error {
 // insert init API data
 func (I *InitDatabase) insertApiData(ctx context.Context) error {
 	var apis []*ent.APICreate
-	apis = make([]*ent.APICreate, 57)
+	apis = make([]*ent.APICreate, 59)
 	// USER
 	apis[0] = I.DB.API.Create().
 		SetPath("/api/admin/user/login").
@@ -505,6 +505,18 @@ func (I *InitDatabase) insertApiData(ctx context.Context) error {
 		SetAPIGroup("token").
 		SetMethod("POST")
 
+	apis[57] = I.DB.API.Create().
+		SetPath("/api/admin/logs/list").
+		SetDescription("apiDesc.getLogsList").
+		SetAPIGroup("logs").
+		SetMethod("GET")
+
+	apis[58] = I.DB.API.Create().
+		SetPath("/api/admin/logs/deleteAll").
+		SetDescription("apiDesc.deleteLogs").
+		SetAPIGroup("logs").
+		SetMethod("DELETE")
+
 	err := I.DB.API.CreateBulk(apis...).Exec(ctx)
 	if err != nil {
 		return errors.Wrap(err, "db failed")
@@ -515,7 +527,7 @@ func (I *InitDatabase) insertApiData(ctx context.Context) error {
 // init menu data
 func (I *InitDatabase) insertMenuData(ctx context.Context) error {
 	var menus []*ent.MenuCreate
-	menus = make([]*ent.MenuCreate, 19)
+	menus = make([]*ent.MenuCreate, 18)
 	menus[0] = I.DB.Menu.Create().
 		SetMenuLevel(0).
 		SetMenuType(0).
@@ -532,11 +544,11 @@ func (I *InitDatabase) insertMenuData(ctx context.Context) error {
 		SetMenuLevel(1).
 		SetMenuType(1).
 		SetParentID(1).
-		SetPath("/api/admin/dashboard").
+		SetPath("/dashboard/workbench/index").
 		SetName("Dashboard").
 		SetComponent("/dashboard/workbench/index").
 		SetOrderNo(0).
-		SetTitle("route.dashboard").
+		SetTitle("控制台").
 		SetIcon("ant-design:home-outlined").
 		SetHideMenu(false)
 
@@ -548,7 +560,7 @@ func (I *InitDatabase) insertMenuData(ctx context.Context) error {
 		SetName("System Management").
 		SetComponent("LAYOUT").
 		SetOrderNo(1).
-		SetTitle("route.systemManagementTitle").
+		SetTitle("系统管理").
 		SetIcon("ant-design:tool-outlined").
 		SetHideMenu(false)
 
@@ -556,11 +568,11 @@ func (I *InitDatabase) insertMenuData(ctx context.Context) error {
 		SetMenuLevel(2).
 		SetMenuType(1).
 		SetParentID(3).
-		SetPath("/api/admin/menu").
+		SetPath("/sys/menu/index").
 		SetName("MenuManagement").
 		SetComponent("/sys/menu/index").
 		SetOrderNo(1).
-		SetTitle("route.menuManagementTitle").
+		SetTitle("菜单管理").
 		SetIcon("ant-design:bars-outlined").
 		SetHideMenu(false)
 
@@ -568,11 +580,11 @@ func (I *InitDatabase) insertMenuData(ctx context.Context) error {
 		SetMenuLevel(2).
 		SetMenuType(1).
 		SetParentID(3).
-		SetPath("/api/admin/role").
+		SetPath("/sys/role/index").
 		SetName("Role Management").
 		SetComponent("/sys/role/index").
 		SetOrderNo(2).
-		SetTitle("route.roleManagementTitle").
+		SetTitle("角色管理").
 		SetIcon("ant-design:user-outlined").
 		SetHideMenu(false)
 
@@ -580,11 +592,11 @@ func (I *InitDatabase) insertMenuData(ctx context.Context) error {
 		SetMenuLevel(2).
 		SetMenuType(1).
 		SetParentID(3).
-		SetPath("/api/admin/api").
+		SetPath("/sys/api/index").
 		SetName("API Management").
 		SetComponent("/sys/api/index").
-		SetOrderNo(4).
-		SetTitle("route.apiManagementTitle").
+		SetOrderNo(3).
+		SetTitle("API管理").
 		SetIcon("ant-design:api-outlined").
 		SetHideMenu(false)
 
@@ -592,135 +604,123 @@ func (I *InitDatabase) insertMenuData(ctx context.Context) error {
 		SetMenuLevel(2).
 		SetMenuType(1).
 		SetParentID(3).
-		SetPath("/api/admin/user").
+		SetPath("/sys/user/index").
 		SetName("User Management").
 		SetComponent("/sys/user/index").
-		SetOrderNo(3).
-		SetTitle("route.userManagementTitle").
+		SetOrderNo(4).
+		SetTitle("用户管理").
 		SetIcon("ant-design:user-outlined").
 		SetHideMenu(false)
 
 	menus[7] = I.DB.Menu.Create().
-		SetMenuLevel(1).
-		SetMenuType(1).
-		SetParentID(1).
-		SetPath("/api/admin/file").
-		SetName("File Management").
-		SetComponent("/file/index").
-		SetOrderNo(2).
-		SetTitle("route.fileManagementTitle").
-		SetIcon("ant-design:folder-open-outlined").
-		SetHideMenu(true)
-
-	menus[8] = I.DB.Menu.Create().
 		SetMenuLevel(2).
 		SetMenuType(1).
 		SetParentID(3).
-		SetPath("/api/admin/dictionary").
+		SetPath("/sys/dictionary/index").
 		SetName("Dictionary Management").
 		SetComponent("/sys/dictionary/index").
 		SetOrderNo(5).
-		SetTitle("route.dictionaryManagementTitle").
+		SetTitle("字典管理").
 		SetIcon("ant-design:book-outlined").
 		SetHideMenu(false)
 
-	menus[9] = I.DB.Menu.Create().
+	menus[8] = I.DB.Menu.Create().
 		SetMenuLevel(2).
 		SetMenuType(2).
 		SetParentID(3).
-		SetPath("/api/admin/dictionary/detail").
+		SetPath("/sys/dictionary/detail").
 		SetName("Dictionary Detail").
 		SetComponent("/sys/dictionary/detail").
-		SetOrderNo(1).
-		SetTitle("route.dictionaryDetailManagementTitle").
+		SetOrderNo(6).
+		SetTitle("字典明细").
 		SetIcon("ant-design:align-left-outlined").
 		SetHideMenu(true)
+
+	menus[9] = I.DB.Menu.Create().
+		SetMenuLevel(2).
+		SetMenuType(1).
+		SetParentID(3).
+		SetPath("/sys/oauth/index").
+		SetName("Oauth Management").
+		SetComponent("/sys/oauth/index").
+		SetOrderNo(7).
+		SetTitle("Oauth管理").
+		SetIcon("ant-design:unlock-filled").
+		SetHideMenu(false)
 
 	menus[10] = I.DB.Menu.Create().
 		SetMenuLevel(2).
 		SetMenuType(1).
 		SetParentID(3).
-		SetPath("/api/admin/oauth").
-		SetName("Oauth Management").
-		SetComponent("/sys/oauth/index").
-		SetOrderNo(6).
-		SetTitle("route.oauthManagement").
-		SetIcon("ant-design:unlock-filled").
+		SetPath("/sys/token/index").
+		SetName("Token Management").
+		SetComponent("/sys/token/index").
+		SetOrderNo(8).
+		SetTitle("Token管理").
+		SetIcon("ant-design:lock-outlined").
 		SetHideMenu(false)
 
 	menus[11] = I.DB.Menu.Create().
 		SetMenuLevel(2).
 		SetMenuType(1).
 		SetParentID(3).
-		SetPath("/api/admin/token").
-		SetName("Token Management").
-		SetComponent("/sys/token/index").
-		SetOrderNo(7).
-		SetTitle("route.tokenManagement").
-		SetIcon("ant-design:lock-outlined").
-		SetHideMenu(false)
-
-	menus[12] = I.DB.Menu.Create().
-		SetMenuLevel(2).
-		SetMenuType(1).
-		SetParentID(3).
 		SetPath("/sys/logs/index").
 		SetName("Logs Management").
 		SetComponent("/sys/logs/index").
-		SetOrderNo(8).
+		SetOrderNo(9).
 		SetTitle("日志管理").
 		SetIcon("ant-design:profile-twotone").
 		SetHideMenu(false)
 
-	menus[13] = I.DB.Menu.Create().
+	menus[12] = I.DB.Menu.Create().
 		SetMenuLevel(1).
 		SetMenuType(0).
 		SetParentID(1).
 		SetPath("").
 		SetName("Other Pages").
 		SetComponent("LAYOUT").
-		SetOrderNo(4).
-		SetTitle("route.otherPages").
+		SetOrderNo(2).
+		SetTitle("其他页面").
 		SetIcon("ant-design:question-circle-outlined").
-		SetHideMenu(true)
+		SetHideMenu(false)
 
-	menus[14] = I.DB.Menu.Create().
+	menus[13] = I.DB.Menu.Create().
 		SetMenuLevel(2).
 		SetMenuType(1).
 		SetParentID(13).
 		SetPath("/sys/oauth/callback").
 		SetName("OauthCallbackPage").
 		SetComponent("/sys/oauth/callback").
-		SetOrderNo(2).
+		SetOrderNo(1).
 		SetTitle("回调页面").
 		SetIcon("ant-design:android-filled").
-		SetHideMenu(false)
+		SetHideMenu(true)
 
-	menus[15] = I.DB.Menu.Create().
+	menus[14] = I.DB.Menu.Create().
 		SetMenuLevel(1).
 		SetMenuType(1).
 		SetParentID(13).
-		SetPath("/api/admin/profile").
+		SetPath("/sys/profile/index").
 		SetName("Profile").
 		SetComponent("/sys/profile/index").
-		SetOrderNo(3).
-		SetTitle("route.userProfileTitle").
+		SetOrderNo(2).
+		SetTitle("用户信息").
 		SetIcon("ant-design:profile-outlined").
-		SetHideMenu(true)
+		SetHideMenu(false)
 
-	menus[16] = I.DB.Menu.Create().
+	menus[15] = I.DB.Menu.Create().
 		SetMenuLevel(1).
 		SetMenuType(0).
 		SetParentID(1).
 		SetPath("").
 		SetName("Dev Tool").
 		SetComponent("LAYOUT").
-		SetOrderNo(5).
+		SetOrderNo(3).
 		SetTitle("开发工具").
 		SetIcon("ant-design:api-filled").
-		SetHideMenu(true)
+		SetHideMenu(false)
 
-	menus[17] = I.DB.Menu.Create().
+	menus[16] = I.DB.Menu.Create().
 		SetMenuLevel(2).
 		SetMenuType(1).
 		SetParentID(16).
@@ -732,7 +732,7 @@ func (I *InitDatabase) insertMenuData(ctx context.Context) error {
 		SetIcon("ant-design:disconnect-outlined").
 		SetHideMenu(false)
 
-	menus[18] = I.DB.Menu.Create().
+	menus[17] = I.DB.Menu.Create().
 		SetMenuLevel(2).
 		SetMenuType(1).
 		SetParentID(16).
