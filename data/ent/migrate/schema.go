@@ -108,7 +108,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime, Comment: "created time"},
 		{Name: "updated_at", Type: field.TypeTime, Comment: "last update time"},
 		{Name: "menu_level", Type: field.TypeUint32, Comment: "menu level | 菜单层级"},
-		{Name: "menu_type", Type: field.TypeUint32, Comment: "menu type | 菜单类型 （菜单或目录）0 目录 1 菜单"},
+		{Name: "menu_type", Type: field.TypeUint32, Comment: "menu type | 菜单类型 0 目录 1 菜单 2 按钮"},
 		{Name: "path", Type: field.TypeString, Nullable: true, Comment: "index path | 菜单路由路径", Default: ""},
 		{Name: "name", Type: field.TypeString, Comment: "index name | 菜单名称"},
 		{Name: "redirect", Type: field.TypeString, Nullable: true, Comment: "redirect path | 跳转路径 （外链）", Default: ""},

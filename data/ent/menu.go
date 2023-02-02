@@ -25,7 +25,7 @@ type Menu struct {
 	ParentID uint64 `json:"parent_id,omitempty"`
 	// menu level | 菜单层级
 	MenuLevel uint32 `json:"menu_level,omitempty"`
-	// menu type | 菜单类型 （菜单或目录）0 目录 1 菜单
+	// menu type | 菜单类型 0 目录 1 菜单 2 按钮
 	MenuType uint32 `json:"menu_type,omitempty"`
 	// index path | 菜单路由路径
 	Path string `json:"path,omitempty"`

@@ -24,7 +24,7 @@ func (Menu) Fields() []ent.Field {
 	return []ent.Field{
 		field.Uint64("parent_id").Optional().Comment("parent menu ID | 父菜单ID"),
 		field.Uint32("menu_level").Comment("menu level | 菜单层级"),
-		field.Uint32("menu_type").Comment("menu type | 菜单类型 （菜单或目录）0 目录 1 菜单"),
+		field.Uint32("menu_type").Comment("menu type | 菜单类型 0 目录 1 菜单 2 按钮"),
 		field.String("path").Optional().Default("").Comment("index path | 菜单路由路径"),
 		field.String("name").Comment("index name | 菜单名称"),
 		field.String("redirect").Optional().Default("").Comment("redirect path | 跳转路径 （外链）"),

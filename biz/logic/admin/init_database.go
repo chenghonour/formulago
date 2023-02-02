@@ -265,7 +265,6 @@ func (I *InitDatabase) insertApiData(ctx context.Context) error {
 		SetMethod("POST")
 
 	// MENU
-
 	apis[18] = I.DB.API.Create().
 		SetPath("/api/admin/menu/create").
 		SetDescription("apiDesc.createMenu").
@@ -321,7 +320,6 @@ func (I *InitDatabase) insertApiData(ctx context.Context) error {
 		SetMethod("DELETE")
 
 	// CAPTCHA
-
 	apis[27] = I.DB.API.Create().
 		SetPath("/api/admin/captcha").
 		SetDescription("apiDesc.captcha").
@@ -329,7 +327,6 @@ func (I *InitDatabase) insertApiData(ctx context.Context) error {
 		SetMethod("GET")
 
 	// AUTHORIZATION
-
 	apis[28] = I.DB.API.Create().
 		SetPath("/api/admin/authority/api/create").
 		SetDescription("apiDesc.createApiAuthority").
@@ -367,7 +364,6 @@ func (I *InitDatabase) insertApiData(ctx context.Context) error {
 		SetMethod("POST")
 
 	// API
-
 	apis[34] = I.DB.API.Create().
 		SetPath("/api/admin/api/create").
 		SetDescription("apiDesc.createApi").
@@ -393,7 +389,6 @@ func (I *InitDatabase) insertApiData(ctx context.Context) error {
 		SetMethod("GET")
 
 	// DICTIONARY
-
 	apis[38] = I.DB.API.Create().
 		SetPath("/api/admin/dict/create").
 		SetDescription("apiDesc.createDictionary").
@@ -443,7 +438,6 @@ func (I *InitDatabase) insertApiData(ctx context.Context) error {
 		SetMethod("GET")
 
 	// OAUTH
-
 	apis[46] = I.DB.API.Create().
 		SetPath("/api/admin/oauth/provider/create").
 		SetDescription("apiDesc.createProvider").
@@ -475,7 +469,6 @@ func (I *InitDatabase) insertApiData(ctx context.Context) error {
 		SetMethod("POST")
 
 	// TOKEN
-
 	apis[51] = I.DB.API.Create().
 		SetPath("/api/admin/token/create").
 		SetDescription("apiDesc.createToken").
@@ -522,7 +515,7 @@ func (I *InitDatabase) insertApiData(ctx context.Context) error {
 // init menu data
 func (I *InitDatabase) insertMenuData(ctx context.Context) error {
 	var menus []*ent.MenuCreate
-	menus = make([]*ent.MenuCreate, 14)
+	menus = make([]*ent.MenuCreate, 19)
 	menus[0] = I.DB.Menu.Create().
 		SetMenuLevel(0).
 		SetMenuType(0).
@@ -632,21 +625,9 @@ func (I *InitDatabase) insertMenuData(ctx context.Context) error {
 		SetHideMenu(false)
 
 	menus[9] = I.DB.Menu.Create().
-		SetMenuLevel(1).
-		SetMenuType(0).
-		SetParentID(1).
-		SetPath("").
-		SetName("Other Pages").
-		SetComponent("LAYOUT").
-		SetOrderNo(4).
-		SetTitle("route.otherPages").
-		SetIcon("ant-design:question-circle-outlined").
-		SetHideMenu(true)
-
-	menus[10] = I.DB.Menu.Create().
 		SetMenuLevel(2).
 		SetMenuType(2).
-		SetParentID(10).
+		SetParentID(3).
 		SetPath("/api/admin/dictionary/detail").
 		SetName("Dictionary Detail").
 		SetComponent("/sys/dictionary/detail").
@@ -655,19 +636,7 @@ func (I *InitDatabase) insertMenuData(ctx context.Context) error {
 		SetIcon("ant-design:align-left-outlined").
 		SetHideMenu(true)
 
-	menus[11] = I.DB.Menu.Create().
-		SetMenuLevel(1).
-		SetMenuType(1).
-		SetParentID(10).
-		SetPath("/api/admin/profile").
-		SetName("Profile").
-		SetComponent("/sys/profile/index").
-		SetOrderNo(3).
-		SetTitle("route.userProfileTitle").
-		SetIcon("ant-design:profile-outlined").
-		SetHideMenu(true)
-
-	menus[12] = I.DB.Menu.Create().
+	menus[10] = I.DB.Menu.Create().
 		SetMenuLevel(2).
 		SetMenuType(1).
 		SetParentID(3).
@@ -679,7 +648,7 @@ func (I *InitDatabase) insertMenuData(ctx context.Context) error {
 		SetIcon("ant-design:unlock-filled").
 		SetHideMenu(false)
 
-	menus[13] = I.DB.Menu.Create().
+	menus[11] = I.DB.Menu.Create().
 		SetMenuLevel(2).
 		SetMenuType(1).
 		SetParentID(3).
@@ -689,6 +658,90 @@ func (I *InitDatabase) insertMenuData(ctx context.Context) error {
 		SetOrderNo(7).
 		SetTitle("route.tokenManagement").
 		SetIcon("ant-design:lock-outlined").
+		SetHideMenu(false)
+
+	menus[12] = I.DB.Menu.Create().
+		SetMenuLevel(2).
+		SetMenuType(1).
+		SetParentID(3).
+		SetPath("/sys/logs/index").
+		SetName("Logs Management").
+		SetComponent("/sys/logs/index").
+		SetOrderNo(8).
+		SetTitle("日志管理").
+		SetIcon("ant-design:profile-twotone").
+		SetHideMenu(false)
+
+	menus[13] = I.DB.Menu.Create().
+		SetMenuLevel(1).
+		SetMenuType(0).
+		SetParentID(1).
+		SetPath("").
+		SetName("Other Pages").
+		SetComponent("LAYOUT").
+		SetOrderNo(4).
+		SetTitle("route.otherPages").
+		SetIcon("ant-design:question-circle-outlined").
+		SetHideMenu(true)
+
+	menus[14] = I.DB.Menu.Create().
+		SetMenuLevel(2).
+		SetMenuType(1).
+		SetParentID(13).
+		SetPath("/sys/oauth/callback").
+		SetName("OauthCallbackPage").
+		SetComponent("/sys/oauth/callback").
+		SetOrderNo(2).
+		SetTitle("回调页面").
+		SetIcon("ant-design:android-filled").
+		SetHideMenu(false)
+
+	menus[15] = I.DB.Menu.Create().
+		SetMenuLevel(1).
+		SetMenuType(1).
+		SetParentID(13).
+		SetPath("/api/admin/profile").
+		SetName("Profile").
+		SetComponent("/sys/profile/index").
+		SetOrderNo(3).
+		SetTitle("route.userProfileTitle").
+		SetIcon("ant-design:profile-outlined").
+		SetHideMenu(true)
+
+	menus[16] = I.DB.Menu.Create().
+		SetMenuLevel(1).
+		SetMenuType(0).
+		SetParentID(1).
+		SetPath("").
+		SetName("Dev Tool").
+		SetComponent("LAYOUT").
+		SetOrderNo(5).
+		SetTitle("开发工具").
+		SetIcon("ant-design:api-filled").
+		SetHideMenu(true)
+
+	menus[17] = I.DB.Menu.Create().
+		SetMenuLevel(2).
+		SetMenuType(1).
+		SetParentID(16).
+		SetPath("/devtool/structToProto").
+		SetName("StructToProto").
+		SetComponent("/devtool/structToProto").
+		SetOrderNo(1).
+		SetTitle("StructToProto").
+		SetIcon("ant-design:disconnect-outlined").
+		SetHideMenu(false)
+
+	menus[18] = I.DB.Menu.Create().
+		SetMenuLevel(2).
+		SetMenuType(1).
+		SetParentID(16).
+		SetPath("/devtool/structTag").
+		SetName("DeleteStructTag").
+		SetComponent("/devtool/structTag").
+		SetOrderNo(2).
+		SetTitle("DeleteStructTag").
+		SetIcon("ant-design:disconnect-outlined").
 		SetHideMenu(false)
 
 	err := I.DB.Menu.CreateBulk(menus...).Exec(ctx)
