@@ -103,7 +103,7 @@ func (I *InitDatabase) InitDatabase(ctx context.Context) error {
 // insert init user data
 func (I *InitDatabase) insertUserData(ctx context.Context) error {
 	var users []*ent.UserCreate
-	password, _ := encrypt.BcryptEncrypt("admin123")
+	password, _ := encrypt.BcryptEncrypt("formulago")
 	users = append(users, I.DB.User.Create().
 		SetUsername("admin").
 		SetNickname("admin").
