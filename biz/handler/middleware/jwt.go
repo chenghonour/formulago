@@ -10,23 +10,20 @@ package middleware
 
 import (
 	"context"
-	"formulago/biz/domain"
-	"github.com/cockroachdb/errors"
 	"strconv"
 	"time"
 
-	"formulago/data/ent"
-
+	"formulago/biz/domain"
 	logic "formulago/biz/logic/admin"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
-
-	"github.com/casbin/casbin/v2"
-
 	"formulago/configs"
 	Data "formulago/data"
 
+	"github.com/casbin/casbin/v2"
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
+	"github.com/cockroachdb/errors"
 	"github.com/hertz-contrib/jwt"
+	"github.com/spf13/cast"
 )
 
 type jwtLogin struct {
@@ -81,8 +78,8 @@ func newJWT(config configs.Config, db *Data.Data, enforcer *casbin.Enforcer) (jw
 			return payloadMap
 		},
 		Authenticator: func(ctx context.Context, c *app.RequestContext) (interface{}, error) {
-			var oauthLogin = ctx.Value("OAuthKey") == config.Auth.OAuthKey
-			var res = new(domain.LoginResp)
+			oauthLogin := ctx.Value("OAuthKey") == config.Auth.OAuthKey
+			res := new(domain.LoginResp)
 			if !oauthLogin {
 				// normal jwtLogin
 				var loginVal jwtLogin
@@ -141,6 +138,7 @@ func newJWT(config configs.Config, db *Data.Data, enforcer *casbin.Enforcer) (jw
 				hlog.Error(err, "jwtLogin error, store token error")
 				return nil, err
 			}
+
 			// return the payload
 			// take str roleID, userID into PayloadMap
 			payloadMap := make(map[string]interface{})
@@ -174,14 +172,13 @@ func newJWT(config configs.Config, db *Data.Data, enforcer *casbin.Enforcer) (jw
 			}
 
 			// check the role status
-			roleInterface, exist := db.Cache.Get("roleData" + roleID)
-			// if the role cache is not exist or the role is not active, return false
-			if !exist {
-				hlog.Error("role cache is not exist")
+			roleInfo, err := logic.NewRole(db).RoleInfoByID(ctx, cast.ToUint64(roleID))
+			// if the role is not exist or the role is not active, return false
+			if err != nil {
+				hlog.Error(err, "role is not exist")
 				return false
 			}
-			role, ok := roleInterface.(*ent.Role)
-			if !ok || role.Status != 1 {
+			if roleInfo.Status != 1 {
 				hlog.Error("role cache is not a valid *ent.Role or the role is not active")
 				return false
 			}

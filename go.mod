@@ -8,7 +8,7 @@ require (
 	github.com/aliyun/aliyun-oss-go-sdk v2.2.6+incompatible
 	github.com/casbin/casbin/v2 v2.60.0
 	github.com/casbin/ent-adapter v0.2.2
-	github.com/cloudwego/hertz v0.5.1
+	github.com/cloudwego/hertz v0.6.0
 	github.com/cockroachdb/errors v1.9.0
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/hertz-contrib/jwt v1.0.1
@@ -18,6 +18,7 @@ require (
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/shenghui0779/gochat v1.3.0
+	github.com/spf13/cast v1.3.0
 	golang.org/x/crypto v0.4.0
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 	google.golang.org/protobuf v1.28.1
@@ -30,8 +31,8 @@ require (
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/bytedance/go-tagexpr/v2 v2.9.2 // indirect
 	github.com/bytedance/gopkg v0.0.0-20220413063733-65bf48ffb3a7 // indirect
-	github.com/bytedance/sonic v1.5.0 // indirect
-	github.com/chenzhuoyu/base64x v0.0.0-20211019084208-fb5309c8db06 // indirect
+	github.com/bytedance/sonic v1.8.1 // indirect
+	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/cloudwego/netpoll v0.3.1 // indirect
 	github.com/cockroachdb/logtags v0.0.0-20211118104740-dabe8e521a4f // indirect
 	github.com/cockroachdb/redact v1.1.3 // indirect
