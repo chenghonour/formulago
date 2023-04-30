@@ -12,7 +12,7 @@ A high performance admin project framework with `Hertz` and `Ent`
 ## Demo website
 - address: [https://formulago.com](https://base.hcteam.vip)
 - account: admin/formulago
-- Frontend project address: [https://formulago-ui.com](https://github.com/czx-ly/formulago-ui) 
+- Frontend project address: [https://formulago-ui.com](https://github.com/chenghonour/formulago-ui) 
 
 ## Architecture
 `Does it look like an F1 car ?`
