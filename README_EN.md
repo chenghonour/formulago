@@ -22,7 +22,7 @@ A high performance admin project framework with `Hertz` and `Ent`
 - Use `Hertz` as HTTP framework
 - Use `Protobuf` IDL to define `HTTP` interface
 - Use `hz` to generate code
-- Use `Ent` and `MySQL`
+- Use `Ent` and `MySQL`(you also can use PostgresSQL)
 
 ## Built-in features
 1. User management: The user is the system operator, and this function mainly completes the system user configuration.
@@ -44,7 +44,10 @@ This project use `Protobuf` IDL to define `HTTP` interface. The specific admin i
 
 This project use `hz` to generate code. The use of `hz` refers
 to [hz](https://www.cloudwego.io/docs/hertz/tutorials/toolkit/toolkit/).
-
+- hz install.
+```bash
+go install github.com/cloudwego/hertz/cmd/hz@latest
+```
 - hz new: Create a new Hertz project.
 ```bash
 hz new -I api -idl api/admin/admin.proto -model_dir api/model -module formulago --unset_omitempty
@@ -61,7 +64,7 @@ to [Binding and Validate](https://www.cloudwego.io/docs/hertz/tutorials/basic-fe
 ## Ent
 ent - An Entity Framework For Go.
 
-This project use `Ent` to operate `MySQL` and refers to [Ent](https://github.com/ent/ent).
+This project use `Ent` to operate `MySQL`(you also can use PostgresSQL) and refers to [Ent](https://github.com/ent/ent).
 
 #### Quick Start
 - Update the Database DSN to your own in [Database config file](configs/config.yaml).

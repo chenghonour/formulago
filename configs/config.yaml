@@ -21,7 +21,7 @@ Redis:
   Type: node
 
 Database:
-  Type: mysql
+  Type: mysql # mysql, postgres
   Host: 127.0.0.1
   Port: 3306
   DBName: formula_go

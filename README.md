@@ -22,7 +22,7 @@
 - 使用 `Hertz` 作为 HTTP 框架
 - 使用 `Protobuf` IDL 定义 `HTTP` 接口
 - 使用 `hz` 工具进行代码生成
-- 使用 `Ent` 与 `MySQL`
+- 使用 `Ent` 与 `MySQL`(你也可以使用PostgresSQL)
 
 ## 内置功能
 1. 用户管理：用户是系统操作者，该功能主要完成系统用户配置。
@@ -42,7 +42,10 @@
 ## 代码生成
 
 本项目使用 `hz` 生成代码. `hz` 详细使用说明参考 [hz](https://www.cloudwego.io/docs/hertz/tutorials/toolkit/toolkit/).
-
+- hz install.
+```bash
+go install github.com/cloudwego/hertz/cmd/hz@latest
+```
 - hz new: 新建一个 Hertz 项目
 ```bash
 hz new -I api -idl api/admin/admin.proto -model_dir api/model -module formulago --unset_omitempty
@@ -60,7 +63,7 @@ hz update -I api -idl api/admin/admin.proto -model_dir api/model --unset_omitemp
 
 ent - 一个简单但功能强大的 Go 实体框架。
 
-本项目使用 `Ent` 连接与操作 `MySQL` ，详细使用说明参考 [Ent](https://github.com/ent/ent).
+本项目使用 `Ent` 连接与操作 `MySQL`(你也可以使用PostgresSQL) ，详细使用说明参考 [Ent](https://github.com/ent/ent).
 
 #### 快速开始
 

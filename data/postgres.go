@@ -1,63 +1,45 @@
 /*
- * Copyright 2023 FormulaGo Authors
+ * Copyright 2023 HaiCheng Authors
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Created by hua
  */
 
 package data
 
 import (
-	"context"
-	"fmt"
-	"os"
-	"time"
-
-	"formulago/configs"
-
 	"ariga.io/atlas/sql/migrate"
-
-	"entgo.io/ent/dialect/sql"
-
+	"context"
 	"entgo.io/ent/dialect"
-
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/schema"
+	"fmt"
+	"formulago/configs"
 	"formulago/data/ent"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	_ "github.com/go-sql-driver/mysql"
+	"os"
+	"time"
 )
 
 const (
-	mySqlDsn = "%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=Local"
+	postgresDsn = "host=<host> port=<port> user=<user> dbname=<database> password=<pass>"
 )
 
-// NewClient returns a new ent client.
-// Only support mysql and postgres
-func NewClient(config configs.Config) (client *ent.Client, err error) {
-	switch config.Database.DBName {
-	case "mysql":
-		return NewMySQLClient(config)
-	case "postgres":
-		return NewPostgresClient(config)
-	}
-	return nil, fmt.Errorf("unsupported database: %s. only support mysql and postgres", config.Database.DBName)
-}
-
-// NewMySQLClient returns a new ent client.
-func NewMySQLClient(config configs.Config) (client *ent.Client, err error) {
-	drv, err := sql.Open("mysql", fmt.Sprintf(mySqlDsn,
-		config.Database.Username, config.Database.Password, config.Database.Host, config.Database.Port, config.Database.DBName))
+// NewPostgresClient returns a new ent client.
+func NewPostgresClient(config configs.Config) (client *ent.Client, err error) {
+	drv, err := sql.Open("postgres", fmt.Sprintf(postgresDsn,
+		config.Database.Host, config.Database.Port, config.Database.Username, config.Database.DBName, config.Database.Password))
 	if err != nil {
-		hlog.Fatalf("failed opening connection to mysql: %v", err)
+		hlog.Fatalf("failed opening connection to postgres: %v", err)
 		return
 	}
 
 	var drive dialect.Driver
 	if config.IsProd {
-		hlog.Info("prod mode, use default mysql driver")
+		hlog.Info("prod mode, use default postgres driver")
 		drive = drv
 	} else {
 		// Debug driver.
-		hlog.Info("dev mode, use debug mysql driver")
+		hlog.Info("dev mode, use debug postgres driver")
 		drive = &DebugTimeDriver{
 			Driver: drv,
 			log: func(ctx context.Context, info ...any) {
@@ -103,14 +85,14 @@ func NewMySQLClient(config configs.Config) (client *ent.Client, err error) {
 	return
 }
 
-// DebugTimeDriver is a driver that logs all driver operations.
-type DebugTimeDriver struct {
+// DebugPostgresTimeDriver is a driver that logs all driver operations.
+type DebugPostgresTimeDriver struct {
 	dialect.Driver                               // underlying driver.
 	log            func(context.Context, ...any) // log function. defaults to log.Println.
 }
 
 // Exec logs its params and calls the underlying driver Exec method.
-func (d *DebugTimeDriver) Exec(ctx context.Context, query string, args, v any) error {
+func (d *DebugPostgresTimeDriver) Exec(ctx context.Context, query string, args, v any) error {
 	start := time.Now()
 	err := d.Driver.Exec(ctx, query, args, v)
 	d.log(ctx, fmt.Sprintf("driver.Exec: query=%v args=%v time=%v", query, args, time.Since(start)))
@@ -118,7 +100,7 @@ func (d *DebugTimeDriver) Exec(ctx context.Context, query string, args, v any) e
 }
 
 // ExecContext logs its params and calls the underlying driver ExecContext method if it is supported.
-func (d *DebugTimeDriver) ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error) {
+func (d *DebugPostgresTimeDriver) ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error) {
 	drv, ok := d.Driver.(interface {
 		ExecContext(context.Context, string, ...any) (sql.Result, error)
 	})
@@ -132,7 +114,7 @@ func (d *DebugTimeDriver) ExecContext(ctx context.Context, query string, args ..
 }
 
 // Query logs its params and calls the underlying driver Query method.
-func (d *DebugTimeDriver) Query(ctx context.Context, query string, args, v any) error {
+func (d *DebugPostgresTimeDriver) Query(ctx context.Context, query string, args, v any) error {
 	start := time.Now()
 	err := d.Driver.Query(ctx, query, args, v)
 	d.log(ctx, fmt.Sprintf("driver.Query: query=%v args=%v time=%v", query, args, time.Since(start)))
@@ -140,7 +122,7 @@ func (d *DebugTimeDriver) Query(ctx context.Context, query string, args, v any) 
 }
 
 // QueryContext logs its params and calls the underlying driver QueryContext method if it is supported.
-func (d *DebugTimeDriver) QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error) {
+func (d *DebugPostgresTimeDriver) QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error) {
 	drv, ok := d.Driver.(interface {
 		QueryContext(context.Context, string, ...any) (*sql.Rows, error)
 	})
