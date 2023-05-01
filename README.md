@@ -12,7 +12,7 @@
 ## 演示网站
 - 地址: [https://formulago.com](https://base.hcteam.vip)
 - 账号: admin/formulago
-- 前端项目地址: [https://formulago-ui.com](https://github.com/czx-ly/formulago-ui)
+- 前端项目地址: [https://formulago-ui.com](https://github.com/chenghonour/formulago-ui)
 
 ## 架构图
 `看起来像F1赛车吗?`
