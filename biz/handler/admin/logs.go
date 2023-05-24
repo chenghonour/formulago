@@ -9,6 +9,7 @@ import (
 	"formulago/data"
 
 	admin "formulago/api/model/admin"
+	base "formulago/api/model/base"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
@@ -21,7 +22,7 @@ func GetLogsList(ctx context.Context, c *app.RequestContext) {
 	resp := new(admin.LogsListResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusBadRequest, resp)
 		return
@@ -46,7 +47,7 @@ func GetLogsList(ctx context.Context, c *app.RequestContext) {
 	}
 	logsList, total, err := logic.NewLogs(data.Default()).List(ctx, &logsListReq)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
@@ -72,7 +73,7 @@ func GetLogsList(ctx context.Context, c *app.RequestContext) {
 
 	resp.Data = list
 	resp.Total = uint64(total)
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	c.JSON(consts.StatusOK, resp)
 }
@@ -88,8 +89,8 @@ func DeleteLogs(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(admin.BaseResp)
-	resp.ErrCode = admin.ErrCode_Success
+	resp := new(base.BaseResp)
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	c.JSON(consts.StatusOK, resp)
 }

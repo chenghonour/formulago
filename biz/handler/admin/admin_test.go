@@ -37,7 +37,7 @@ func TestCaptcha(t *testing.T) {
 		return
 	}
 	assert.DeepEqual(t, 200, resp.StatusCode())
-	assert.DeepEqual(t, admin.ErrCode_Success, captchaInfoResp.ErrCode)
+	assert.DeepEqual(t, base.ErrCode_Success, captchaInfoResp.ErrCode)
 	assert.DeepEqual(t, "success", captchaInfoResp.ErrMsg)
 }
 

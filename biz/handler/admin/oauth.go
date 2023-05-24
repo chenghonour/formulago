@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	admin "formulago/api/model/admin"
+	base "formulago/api/model/base"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
@@ -22,10 +23,10 @@ import (
 func CreateProvider(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req admin.ProviderInfo
-	resp := new(admin.BaseResp)
+	resp := new(base.BaseResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusBadRequest, resp)
 		return
@@ -34,20 +35,20 @@ func CreateProvider(ctx context.Context, c *app.RequestContext) {
 	var providerInfo domain.ProviderInfo
 	err = copier.Copy(&providerInfo, &req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
 	}
 	err = logic.NewOauth(data.Default(), configs.Data()).Create(ctx, &providerInfo)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
 	}
 
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	c.JSON(consts.StatusOK, resp)
 }
@@ -57,10 +58,10 @@ func CreateProvider(ctx context.Context, c *app.RequestContext) {
 func UpdateProvider(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req admin.ProviderInfo
-	resp := new(admin.BaseResp)
+	resp := new(base.BaseResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusBadRequest, resp)
 		return
@@ -69,19 +70,19 @@ func UpdateProvider(ctx context.Context, c *app.RequestContext) {
 	var providerInfo domain.ProviderInfo
 	err = copier.Copy(&providerInfo, &req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 	}
 	err = logic.NewOauth(data.Default(), configs.Data()).Update(ctx, &providerInfo)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
 	}
 
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	c.JSON(consts.StatusOK, resp)
 }
@@ -91,22 +92,22 @@ func UpdateProvider(ctx context.Context, c *app.RequestContext) {
 func DeleteProvider(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req admin.IDReq
-	resp := new(admin.BaseResp)
+	resp := new(base.BaseResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		return
 	}
 
 	err = logic.NewOauth(data.Default(), configs.Data()).Delete(ctx, req.ID)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		return
 	}
 
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	c.JSON(consts.StatusOK, resp)
 }
@@ -119,7 +120,7 @@ func GetProviderList(ctx context.Context, c *app.RequestContext) {
 	resp := new(admin.ProviderListResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusBadRequest, resp)
 		return
@@ -131,7 +132,7 @@ func GetProviderList(ctx context.Context, c *app.RequestContext) {
 	ListReq.Name = req.Name
 	l, total, err := logic.NewOauth(data.Default(), configs.Data()).List(ctx, &ListReq)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
@@ -140,14 +141,14 @@ func GetProviderList(ctx context.Context, c *app.RequestContext) {
 	var list []*admin.ProviderInfo
 	err = copier.Copy(&list, &l)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 	}
 
 	resp.Data = list
 	resp.Total = uint64(total)
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	c.JSON(consts.StatusOK, resp)
 }
@@ -160,7 +161,7 @@ func OauthLogin(ctx context.Context, c *app.RequestContext) {
 	resp := new(admin.OauthRedirectResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		return
 	}
@@ -170,13 +171,13 @@ func OauthLogin(ctx context.Context, c *app.RequestContext) {
 	loginReq.State = req.State
 	url, err := logic.NewOauth(data.Default(), configs.Data()).Login(ctx, &loginReq)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		return
 	}
 
 	resp.Url = url
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	c.JSON(consts.StatusOK, resp)
 }

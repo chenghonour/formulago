@@ -11,6 +11,7 @@ import (
 	"github.com/jinzhu/copier"
 
 	"formulago/api/model/admin"
+	base "formulago/api/model/base"
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
@@ -19,10 +20,10 @@ import (
 func CreateDictionary(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req admin.DictionaryInfo
-	resp := new(admin.BaseResp)
+	resp := new(base.BaseResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusBadRequest, resp)
 		return
@@ -31,20 +32,20 @@ func CreateDictionary(ctx context.Context, c *app.RequestContext) {
 	var DictInfo domain.DictionaryInfo
 	err = copier.Copy(&DictInfo, &req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
 	}
 	err = logic.NewDictionary(data.Default()).Create(ctx, &DictInfo)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
 	}
 
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	c.JSON(consts.StatusOK, resp)
 }
@@ -54,10 +55,10 @@ func CreateDictionary(ctx context.Context, c *app.RequestContext) {
 func UpdateDictionary(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req admin.DictionaryInfo
-	resp := new(admin.BaseResp)
+	resp := new(base.BaseResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusBadRequest, resp)
 		return
@@ -66,20 +67,20 @@ func UpdateDictionary(ctx context.Context, c *app.RequestContext) {
 	var DictInfo domain.DictionaryInfo
 	err = copier.Copy(&DictInfo, &req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
 	}
 	err = logic.NewDictionary(data.Default()).Update(ctx, &DictInfo)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
 	}
 
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	c.JSON(consts.StatusOK, resp)
 }
@@ -89,10 +90,10 @@ func UpdateDictionary(ctx context.Context, c *app.RequestContext) {
 func DeleteDictionary(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req admin.IDReq
-	resp := new(admin.BaseResp)
+	resp := new(base.BaseResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusBadRequest, resp)
 		return
@@ -100,13 +101,13 @@ func DeleteDictionary(ctx context.Context, c *app.RequestContext) {
 
 	err = logic.NewDictionary(data.Default()).Delete(ctx, req.ID)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
 	}
 
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	c.JSON(consts.StatusOK, resp)
 }
@@ -119,7 +120,7 @@ func DictionaryList(ctx context.Context, c *app.RequestContext) {
 	resp := new(admin.DictionaryListResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusBadRequest, resp)
 		return
@@ -128,7 +129,7 @@ func DictionaryList(ctx context.Context, c *app.RequestContext) {
 	var dictListReq domain.DictListReq
 	err = copier.Copy(&dictListReq, &req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
@@ -136,7 +137,7 @@ func DictionaryList(ctx context.Context, c *app.RequestContext) {
 	// get dict list
 	dictList, total, err := logic.NewDictionary(data.Default()).List(ctx, &dictListReq)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
@@ -156,7 +157,7 @@ func DictionaryList(ctx context.Context, c *app.RequestContext) {
 
 	resp.Data = dataList
 	resp.Total = uint64(total)
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	c.JSON(consts.StatusOK, resp)
 }
@@ -166,10 +167,10 @@ func DictionaryList(ctx context.Context, c *app.RequestContext) {
 func CreateDictionaryDetail(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req admin.DictionaryDetail
-	resp := new(admin.BaseResp)
+	resp := new(base.BaseResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusBadRequest, resp)
 		return
@@ -178,7 +179,7 @@ func CreateDictionaryDetail(ctx context.Context, c *app.RequestContext) {
 	var DictDetail domain.DictionaryDetail
 	err = copier.Copy(&DictDetail, &req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
@@ -186,13 +187,13 @@ func CreateDictionaryDetail(ctx context.Context, c *app.RequestContext) {
 
 	err = logic.NewDictionary(data.Default()).CreateDetail(ctx, &DictDetail)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
 	}
 
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	c.JSON(consts.StatusOK, resp)
 }
@@ -202,10 +203,10 @@ func CreateDictionaryDetail(ctx context.Context, c *app.RequestContext) {
 func UpdateDictionaryDetail(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req admin.DictionaryDetail
-	resp := new(admin.BaseResp)
+	resp := new(base.BaseResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusBadRequest, resp)
 		return
@@ -214,7 +215,7 @@ func UpdateDictionaryDetail(ctx context.Context, c *app.RequestContext) {
 	var DictDetail domain.DictionaryDetail
 	err = copier.Copy(&DictDetail, &req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
@@ -222,13 +223,13 @@ func UpdateDictionaryDetail(ctx context.Context, c *app.RequestContext) {
 
 	err = logic.NewDictionary(data.Default()).UpdateDetail(ctx, &DictDetail)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
 	}
 
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	c.JSON(consts.StatusOK, resp)
 }
@@ -238,10 +239,10 @@ func UpdateDictionaryDetail(ctx context.Context, c *app.RequestContext) {
 func DeleteDictionaryDetail(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req admin.IDReq
-	resp := new(admin.BaseResp)
+	resp := new(base.BaseResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusBadRequest, resp)
 		return
@@ -249,13 +250,13 @@ func DeleteDictionaryDetail(ctx context.Context, c *app.RequestContext) {
 
 	err = logic.NewDictionary(data.Default()).DeleteDetail(ctx, req.ID)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
 	}
 
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	c.JSON(consts.StatusOK, resp)
 }
@@ -268,7 +269,7 @@ func DetailByDictionaryName(ctx context.Context, c *app.RequestContext) {
 	resp := new(admin.DictionaryDetailListResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusBadRequest, resp)
 		return
@@ -276,7 +277,7 @@ func DetailByDictionaryName(ctx context.Context, c *app.RequestContext) {
 
 	dictDetailList, total, err := logic.NewDictionary(data.Default()).DetailListByDictName(ctx, req.Name)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
@@ -297,7 +298,7 @@ func DetailByDictionaryName(ctx context.Context, c *app.RequestContext) {
 
 	resp.Data = dataList
 	resp.Total = total
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	c.JSON(consts.StatusOK, resp)
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/jinzhu/copier"
 
 	"formulago/api/model/admin"
+	base "formulago/api/model/base"
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
@@ -19,10 +20,10 @@ import (
 func UpdateToken(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req admin.TokenInfo
-	resp := new(admin.BaseResp)
+	resp := new(base.BaseResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusBadRequest, resp)
 		return
@@ -31,7 +32,7 @@ func UpdateToken(ctx context.Context, c *app.RequestContext) {
 	var tokenInfo domain.TokenInfo
 	err = copier.Copy(&tokenInfo, &req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
@@ -39,13 +40,13 @@ func UpdateToken(ctx context.Context, c *app.RequestContext) {
 
 	err = logic.NewToken(data.Default()).Update(ctx, &tokenInfo)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
 	}
 
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	c.JSON(consts.StatusOK, resp)
 }
@@ -55,10 +56,10 @@ func UpdateToken(ctx context.Context, c *app.RequestContext) {
 func DeleteToken(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req admin.DeleteReq
-	resp := new(admin.BaseResp)
+	resp := new(base.BaseResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusBadRequest, resp)
 		return
@@ -66,13 +67,13 @@ func DeleteToken(ctx context.Context, c *app.RequestContext) {
 
 	err = logic.NewToken(data.Default()).Delete(ctx, req.UserID)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
 	}
 
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	c.JSON(consts.StatusOK, resp)
 }
@@ -85,7 +86,7 @@ func TokenList(ctx context.Context, c *app.RequestContext) {
 	resp := new(admin.TokenListResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusBadRequest, resp)
 		return
@@ -94,14 +95,14 @@ func TokenList(ctx context.Context, c *app.RequestContext) {
 	var tokenListReq domain.TokenListReq
 	err = copier.Copy(&tokenListReq, &req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
 	}
 	tokens, total, err := logic.NewToken(data.Default()).List(ctx, &tokenListReq)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
@@ -117,7 +118,7 @@ func TokenList(ctx context.Context, c *app.RequestContext) {
 		resp.Data = append(resp.Data, &tokenInfo)
 	}
 	resp.Total = uint64(total)
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	c.JSON(consts.StatusOK, resp)
 }

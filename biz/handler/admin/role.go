@@ -11,6 +11,7 @@ import (
 	"github.com/jinzhu/copier"
 
 	"formulago/api/model/admin"
+	base "formulago/api/model/base"
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
@@ -19,10 +20,10 @@ import (
 func CreateRole(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req admin.RoleInfo
-	resp := new(admin.BaseResp)
+	resp := new(base.BaseResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusBadRequest, resp)
 		return
@@ -37,13 +38,13 @@ func CreateRole(ctx context.Context, c *app.RequestContext) {
 		OrderNo:       req.OrderNo,
 	})
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
 	}
 
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	c.JSON(consts.StatusOK, resp)
 }
@@ -53,10 +54,10 @@ func CreateRole(ctx context.Context, c *app.RequestContext) {
 func UpdateRole(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req admin.RoleInfo
-	resp := new(admin.BaseResp)
+	resp := new(base.BaseResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusBadRequest, resp)
 		return
@@ -72,13 +73,13 @@ func UpdateRole(ctx context.Context, c *app.RequestContext) {
 		OrderNo:       req.OrderNo,
 	})
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
 	}
 
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	c.JSON(consts.StatusOK, resp)
 }
@@ -88,10 +89,10 @@ func UpdateRole(ctx context.Context, c *app.RequestContext) {
 func DeleteRole(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req admin.IDReq
-	resp := new(admin.BaseResp)
+	resp := new(base.BaseResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusBadRequest, resp)
 		return
@@ -99,13 +100,13 @@ func DeleteRole(ctx context.Context, c *app.RequestContext) {
 
 	err = logic.NewRole(data.Default()).Delete(ctx, req.ID)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
 	}
 
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	c.JSON(consts.StatusOK, resp)
 }
@@ -118,7 +119,7 @@ func RoleByID(ctx context.Context, c *app.RequestContext) {
 	resp := new(admin.RoleInfoResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusBadRequest, resp)
 		return
@@ -126,20 +127,20 @@ func RoleByID(ctx context.Context, c *app.RequestContext) {
 
 	roleInfo, err := logic.NewRole(data.Default()).RoleInfoByID(ctx, req.ID)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
 	}
 	err = copier.Copy(&resp, &roleInfo)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
 	}
 
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	c.JSON(consts.StatusOK, resp)
 }
@@ -152,7 +153,7 @@ func RoleList(ctx context.Context, c *app.RequestContext) {
 	resp := new(admin.RoleListResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusBadRequest, resp)
 		return
@@ -163,7 +164,7 @@ func RoleList(ctx context.Context, c *app.RequestContext) {
 	listReq.PageSize = req.PageSize
 	list, total, err := logic.NewRole(data.Default()).List(ctx, &listReq)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
@@ -171,7 +172,7 @@ func RoleList(ctx context.Context, c *app.RequestContext) {
 	var infos []*admin.RoleInfo
 	err = copier.Copy(&infos, &list)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
@@ -179,7 +180,7 @@ func RoleList(ctx context.Context, c *app.RequestContext) {
 
 	resp.Data = infos
 	resp.Total = uint64(total)
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	c.JSON(consts.StatusOK, resp)
 }
@@ -189,10 +190,10 @@ func RoleList(ctx context.Context, c *app.RequestContext) {
 func UpdateRoleStatus(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req admin.StatusCodeReq
-	resp := new(admin.BaseResp)
+	resp := new(base.BaseResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusBadRequest, resp)
 		return
@@ -200,13 +201,13 @@ func UpdateRoleStatus(ctx context.Context, c *app.RequestContext) {
 
 	err = logic.NewRole(data.Default()).UpdateStatus(ctx, req.ID, uint8(req.Status))
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
 	}
 
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	c.JSON(consts.StatusOK, resp)
 }

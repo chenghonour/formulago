@@ -16,15 +16,15 @@ import "base.proto";
 // admin service
 service admin {
   // init database
-  rpc InitDatabase (Empty) returns (BaseResp) {
+  rpc InitDatabase (base.Empty) returns (base.BaseResp) {
     option (api.get) = "/api/initDatabase";
   }
   // Check the system status | 检查系统状态
-  rpc HealthCheck (Empty) returns (BaseResp) {
+  rpc HealthCheck (base.Empty) returns (base.BaseResp) {
     option (api.get) = "/api/health";
   }
   // Get captcha | 获取验证码
-  rpc Captcha (Empty) returns (CaptchaInfoResp) {
+  rpc Captcha (base.Empty) returns (CaptchaInfoResp) {
     option (api.get) = "/api/captcha";
   }
   // DeleteStructTag | 去掉struct tag
@@ -44,21 +44,21 @@ message StructReq {
 
 // The information of struct | struct类型数据
 message StructResp {
-  ErrCode errCode = 1;
+  base.ErrCode errCode = 1;
   string errMsg = 2;
   string structStr = 3;
 }
 
 // The information of proto | proto类型数据
 message ProtoResp {
-  ErrCode errCode = 1;
+  base.ErrCode errCode = 1;
   string errMsg = 2;
   string protoStr = 3;
 }
 
 // The information of captcha | 验证码数据
 message CaptchaInfoResp {
-  ErrCode errCode = 1;
+  base.ErrCode errCode = 1;
   string errMsg = 2;
   string captchaID = 3;
   string imgPath = 4;
@@ -88,27 +88,27 @@ service user {
 //    option (api.post) = "/api/login";
 //  }
   // Register | 注册
-  rpc Register(RegisterReq) returns (BaseResp) {
+  rpc Register(RegisterReq) returns (base.BaseResp) {
     option (api.post) = "/api/register";
   }
   // Get user's permission code | 获取用户权限码
-  rpc UserPermCode(Empty) returns (PermCodeResp) {
+  rpc UserPermCode(base.Empty) returns (PermCodeResp) {
     option (api.get) = "/api/admin/user/perm";
   }
   // Change Password | 修改密码
-  rpc ChangePassword (ChangePasswordReq) returns (BaseResp) {
+  rpc ChangePassword (ChangePasswordReq) returns (base.BaseResp) {
     option (api.post) = "/api/admin/user/change-password";
   }
   // Create user's information | 新增用户
-  rpc CreateUser (CreateOrUpdateUserReq) returns (BaseResp) {
+  rpc CreateUser (CreateOrUpdateUserReq) returns (base.BaseResp) {
     option (api.post) = "/api/admin/user/create";
   }
   // Update user's information | 更新用户
-  rpc UpdateUser (CreateOrUpdateUserReq) returns (BaseResp) {
+  rpc UpdateUser (CreateOrUpdateUserReq) returns (base.BaseResp) {
     option (api.post) = "/api/admin/user/update";
   }
   // Get user basic information | 获取用户基本信息
-  rpc UserInfo (Empty) returns (UserInfoResp) {
+  rpc UserInfo (base.Empty) returns (UserInfoResp) {
     option (api.get) = "/api/admin/user/info";
   }
   // Get user list | 获取用户列表
@@ -116,19 +116,19 @@ service user {
     option (api.get) = "/api/admin/user/list";
   }
   // Delete user information | 删除用户信息
-  rpc DeleteUser (IDReq) returns (BaseResp) {
+  rpc DeleteUser (base.IDReq) returns (base.BaseResp) {
     option (api.delete) = "/api/admin/user";
   }
   // Update user's profile | 更新用户个人信息
-  rpc UpdateProfile (ProfileReq) returns (BaseResp) {
+  rpc UpdateProfile (ProfileReq) returns (base.BaseResp) {
     option (api.post) = "/api/admin/user/profile";
   }
   // Get user's profile | 获取用户个人信息
-  rpc UserProfile (Empty) returns (ProfileResp) {
+  rpc UserProfile (base.Empty) returns (ProfileResp) {
     option (api.get) = "/api/admin/user/profile";
   }
   // Set user's status | 更新用户状态
-  rpc UpdateUserStatus (StatusCodeReq) returns (BaseResp) {
+  rpc UpdateUserStatus (base.StatusCodeReq) returns (base.BaseResp) {
     option (api.post) = "/api/admin/user/status";
   }
 }
@@ -158,7 +158,7 @@ message LoginResp {
 
 // The profile in response data | 返回个人数据
 message ProfileResp {
-  ErrCode errCode = 1;
+  base.ErrCode errCode = 1;
   string errMsg = 2;
   string nickname = 3;
   string avatar = 4;
@@ -205,7 +205,7 @@ message CreateOrUpdateUserReq {
 
 // The response data of user's information | 用户信息返回数据
 message UserInfoResp {
-  ErrCode errCode = 1;
+  base.ErrCode errCode = 1;
   string errMsg = 2;
   uint64 ID = 3;
   string avatar = 4;
@@ -224,7 +224,7 @@ message UserInfoResp {
 
 // The response data of user list | 用户列表数据
 message UserListResp {
-  ErrCode errCode = 1;
+  base.ErrCode errCode = 1;
   string errMsg = 2;
   uint64 total = 3;
   repeated UserInfoResp data = 4;
@@ -243,7 +243,7 @@ message UserListReq {
 
 // The permission code for front end permission control | 权限码： 用于前端权限控制
 message PermCodeResp {
-  ErrCode errCode = 1;
+  base.ErrCode errCode = 1;
   string errMsg = 2;
   repeated string data = 3;
 }
@@ -251,15 +251,15 @@ message PermCodeResp {
 // api service
 service apis {
   // Create API information | 创建或API
-  rpc CreateApi (ApiInfo) returns (BaseResp) {
+  rpc CreateApi (ApiInfo) returns (base.BaseResp) {
     option (api.post) = "/api/admin/api/create";
   }
   // Update API information | 更新API
-  rpc UpdateApi (ApiInfo) returns (BaseResp) {
+  rpc UpdateApi (ApiInfo) returns (base.BaseResp) {
     option (api.post) = "/api/admin/api/update";
   }
   // Delete API information | 删除API信息
-  rpc DeleteApi (IDReq) returns (BaseResp) {
+  rpc DeleteApi (base.IDReq) returns (base.BaseResp) {
     option (api.delete) = "/api/admin/api";
   }
   // Get API list | 获取API列表
@@ -282,7 +282,7 @@ message ApiInfo {
 
 // The response data of API list | API列表数据
 message ApiListResp {
-  ErrCode errCode = 1;
+  base.ErrCode errCode = 1;
   string errMsg = 2;
   uint64 total = 3;
   repeated ApiInfo data = 4;
@@ -301,27 +301,27 @@ message ApiPageReq {
 // authorization service
 service authority {
   // Create API authorization information | 创建API权限
-  rpc CreateAuthority (CreateOrUpdateApiAuthorityReq) returns (BaseResp) {
+  rpc CreateAuthority (CreateOrUpdateApiAuthorityReq) returns (base.BaseResp) {
     option (api.post) = "/api/admin/authority/api/create";
   }
   // Update API authorization information | 更新API权限
-  rpc UpdateApiAuthority (CreateOrUpdateApiAuthorityReq) returns (BaseResp) {
+  rpc UpdateApiAuthority (CreateOrUpdateApiAuthorityReq) returns (base.BaseResp) {
     option (api.post) = "/api/admin/authority/api/update";
   }
   // Get role's API authorization list | 获取角色api权限列表
-  rpc ApiAuthority (IDReq) returns (ApiAuthorityListInfoResp) {
+  rpc ApiAuthority (base.IDReq) returns (ApiAuthorityListInfoResp) {
     option (api.post) = "/api/admin/authority/api/role";
   }
   // Create menu authorization information | 创建菜单权限
-  rpc CreateMenuAuthority (MenuAuthorityInfoReq) returns (BaseResp) {
+  rpc CreateMenuAuthority (MenuAuthorityInfoReq) returns (base.BaseResp) {
     option (api.post) = "/api/admin/authority/menu/create";
   }
   // Update menu authorization information | 更新菜单权限
-  rpc UpdateMenuAuthority (MenuAuthorityInfoReq) returns (BaseResp) {
+  rpc UpdateMenuAuthority (MenuAuthorityInfoReq) returns (base.BaseResp) {
     option (api.post) = "/api/admin/authority/menu/update";
   }
   // Get role's menu authorization list | 获取角色菜单权限列表
-  rpc MenuAuthority (IDReq) returns (MenuAuthorityInfoResp) {
+  rpc MenuAuthority (base.IDReq) returns (MenuAuthorityInfoResp) {
     option (api.post) = "/api/admin/authority/menu/role";
   }
 }
@@ -341,7 +341,7 @@ message CreateOrUpdateApiAuthorityReq {
 
 // The  data of api authorization list | API授权列表数据
 message ApiAuthorityListInfoResp {
-  ErrCode errCode = 1;
+  base.ErrCode errCode = 1;
   string errMsg = 2;
   uint64 total = 3;
   repeated ApiAuthorityInfo data = 4;
@@ -355,7 +355,7 @@ message MenuAuthorityInfoReq {
 
 // The response data of menu authorization | 菜单授权数据
 message MenuAuthorityInfoResp {
-  ErrCode errCode = 1;
+  base.ErrCode errCode = 1;
   string errMsg = 2;
   uint64 roleID = 3;
   repeated uint64 MenuIDs = 4;
@@ -364,39 +364,39 @@ message MenuAuthorityInfoResp {
 // menu service
 service menu {
   // Create menu information | 创建菜单
-  rpc CreateMenu (CreateOrUpdateMenuReq) returns (BaseResp) {
+  rpc CreateMenu (CreateOrUpdateMenuReq) returns (base.BaseResp) {
     option (api.post) = "/api/admin/menu/create";
   }
   // Update menu information | 更新菜单
-  rpc UpdateMenu (CreateOrUpdateMenuReq) returns (BaseResp) {
+  rpc UpdateMenu (CreateOrUpdateMenuReq) returns (base.BaseResp) {
     option (api.post) = "/api/admin/menu/update";
   }
   // Delete menu information | 删除菜单信息
-  rpc DeleteMenu (IDReq) returns (BaseResp) {
+  rpc DeleteMenu (base.IDReq) returns (base.BaseResp) {
     option (api.delete) = "/api/admin/menu";
   }
   // Get role's menu list API | 获取角色菜单列表
-  rpc MenuByRole (Empty) returns (MenuInfoListResp) {
+  rpc MenuByRole (base.Empty) returns (MenuInfoListResp) {
     option (api.get) = "/api/admin/menu/role";
   }
   // Get menu list | 获取菜单列表
-  rpc MenuList (PageInfoReq) returns (MenuInfoListResp) {
+  rpc MenuList (base.PageInfoReq) returns (MenuInfoListResp) {
     option (api.get) = "/api/admin/menu/list";
   }
   // Create menu parameters | 创建菜单额外参数
-  rpc CreateMenuParam (CreateOrUpdateMenuParamReq) returns (BaseResp) {
+  rpc CreateMenuParam (CreateOrUpdateMenuParamReq) returns (base.BaseResp) {
     option (api.post) = "/api/admin/menu/param/create";
   }
   // Update menu parameters | 更新菜单额外参数
-  rpc UpdateMenuParam (CreateOrUpdateMenuParamReq) returns (BaseResp) {
+  rpc UpdateMenuParam (CreateOrUpdateMenuParamReq) returns (base.BaseResp) {
     option (api.post) = "/api/admin/menu/param/update";
   }
   // Delete menu extra parameters | 删除菜单额外参数
-  rpc DeleteMenuParam (IDReq) returns (BaseResp) {
+  rpc DeleteMenuParam (base.IDReq) returns (base.BaseResp) {
     option (api.delete) = "/api/admin/menu/param";
   }
   // Get menu extra parameters by menu ID | 获取某个菜单的额外参数列表
-  rpc MenuParamListByMenuID (IDReq) returns (MenuParamListResp) {
+  rpc MenuParamListByMenuID (base.IDReq) returns (MenuParamListResp) {
     option (api.get) = "/api/admin/menu/param/list";
   }
 }
@@ -455,7 +455,7 @@ message Meta {
 
 // The data of menu list | 菜单列表数据
 message MenuInfoListResp {
-  ErrCode errCode = 1;
+  base.ErrCode errCode = 1;
   string errMsg = 2;
   uint64 total = 3;
   repeated MenuInfo data = 4;
@@ -486,7 +486,7 @@ message CreateOrUpdateMenuParamReq {
 
 // The response data of menu parameters  | 菜单参数返回数据
 message MenuParamResp {
-  ErrCode errCode = 1;
+  base.ErrCode errCode = 1;
   string errMsg = 2;
   uint64 ID = 3;
   string type = 4;
@@ -498,7 +498,7 @@ message MenuParamResp {
 
 // The  data of menu parameters list | 菜单参数列表数据
 message MenuParamListResp {
-  ErrCode errCode = 1;
+  base.ErrCode errCode = 1;
   string errMsg = 2;
   uint64 total = 3;
   repeated MenuParamResp data = 4;
@@ -507,27 +507,27 @@ message MenuParamListResp {
 // role service
 service role {
   // Create role information | 创建角色
-  rpc CreateRole (RoleInfo) returns (BaseResp) {
+  rpc CreateRole (RoleInfo) returns (base.BaseResp) {
     option (api.post) = "/api/admin/role/create";
   }
   // Update role information | 更新角色
-  rpc UpdateRole (RoleInfo) returns (BaseResp) {
+  rpc UpdateRole (RoleInfo) returns (base.BaseResp) {
     option (api.post) = "/api/admin/role/update";
   }
   // Delete role information | 删除角色信息
-  rpc DeleteRole (IDReq) returns (BaseResp) {
+  rpc DeleteRole (base.IDReq) returns (base.BaseResp) {
     option (api.delete) = "/api/admin/role";
   }
   // Get role information | 获取角色信息
-  rpc RoleByID (IDReq) returns (RoleInfoResp) {
+  rpc RoleByID (base.IDReq) returns (RoleInfoResp) {
     option (api.get) = "/api/admin/role";
   }
   // Get role list | 获取角色列表
-  rpc RoleList (PageInfoReq) returns (RoleListResp) {
+  rpc RoleList (base.PageInfoReq) returns (RoleListResp) {
     option (api.get) = "/api/admin/role/list";
   }
   // Set role status | 设置角色状态, 启用1/禁用0
-  rpc UpdateRoleStatus (StatusCodeReq) returns (BaseResp) {
+  rpc UpdateRoleStatus (base.StatusCodeReq) returns (base.BaseResp) {
     option (api.post) = "/api/admin/role/status";
   }
 }
@@ -549,7 +549,7 @@ message RoleInfo {
 
 // The response data of role info | 角色信息返回数据
 message RoleInfoResp {
-  ErrCode errCode = 1;
+  base.ErrCode errCode = 1;
   string errMsg = 2;
   uint64 ID = 3;
   string name = 4;
@@ -564,7 +564,7 @@ message RoleInfoResp {
 
 // Get role list response | 获取角色列表响应
 message RoleListResp {
-  ErrCode errCode = 1;
+  base.ErrCode errCode = 1;
   string errMsg = 2;
   uint64 total = 3;
   repeated RoleInfo data = 4;
@@ -573,11 +573,11 @@ message RoleListResp {
 // Token service
 service token {
   // Update Token information | 更新Token
-  rpc UpdateToken (TokenInfo) returns (BaseResp) {
+  rpc UpdateToken (TokenInfo) returns (base.BaseResp) {
     option (api.post) = "/api/admin/token/update";
   }
   // Delete token information | 删除token信息
-  rpc DeleteToken (DeleteReq) returns (BaseResp) {
+  rpc DeleteToken (DeleteReq) returns (base.BaseResp) {
     option (api.delete) = "/api/admin/token";
   }
   // Get Token list | 获取token列表
@@ -600,7 +600,7 @@ message TokenInfo {
 
 // The response data of Token list | Token列表返回数据
 message TokenListResp {
-  ErrCode errCode = 1;
+  base.ErrCode errCode = 1;
   string errMsg = 2;
   uint64 total = 3;
   repeated TokenInfo data = 4;
@@ -622,15 +622,15 @@ message DeleteReq {
 // dictionary service
 service dictionary {
   // Create dictionary information | 创建字典信息
-  rpc CreateDictionary (DictionaryInfo) returns (BaseResp) {
+  rpc CreateDictionary (DictionaryInfo) returns (base.BaseResp) {
     option (api.post) = "/api/admin/dict/create";
   }
   // Update dictionary information | 更新字典信息
-  rpc UpdateDictionary (DictionaryInfo) returns (BaseResp) {
+  rpc UpdateDictionary (DictionaryInfo) returns (base.BaseResp) {
     option (api.post) = "/api/admin/dict/update";
   }
   // Delete dictionary information | 删除字典信息
-  rpc DeleteDictionary (IDReq) returns (BaseResp) {
+  rpc DeleteDictionary (base.IDReq) returns (base.BaseResp) {
     option (api.delete) = "/api/admin/dict";
   }
   // Get dictionary list | 获取字典列表
@@ -638,15 +638,15 @@ service dictionary {
     option (api.get) = "/api/admin/dict/list";
   }
   // Create dictionary KV information | 创建字典键值信息
-  rpc CreateDictionaryDetail (DictionaryDetail) returns (BaseResp) {
+  rpc CreateDictionaryDetail (DictionaryDetail) returns (base.BaseResp) {
     option (api.post) = "/api/admin/dict/detail/create";
   }
   // Update dictionary KV information | 更新字典键值信息
-  rpc UpdateDictionaryDetail (DictionaryDetail) returns (BaseResp) {
+  rpc UpdateDictionaryDetail (DictionaryDetail) returns (base.BaseResp) {
     option (api.post) = "/api/admin/dict/detail/update";
   }
   // Delete dictionary KV information | 删除字典键值信息
-  rpc DeleteDictionaryDetail (IDReq) returns (BaseResp) {
+  rpc DeleteDictionaryDetail (base.IDReq) returns (base.BaseResp) {
     option (api.delete) = "/api/admin/dict/detail";
   }
   // Get dictionary detail list by dictionary name | 根据字典名获取字典键值列表
@@ -670,7 +670,7 @@ message DictionaryInfo {
 
 // The data of dictionary list | 字典列表数据
 message DictionaryListResp {
-  ErrCode errCode = 1;
+  base.ErrCode errCode = 1;
   string errMsg = 2;
   uint64 total = 3;
   repeated DictionaryInfo data = 4;
@@ -690,7 +690,7 @@ message DictionaryDetail {
 
 // The response data of dictionary KV information list | 字典键值列表数据
 message DictionaryDetailListResp {
-  ErrCode errCode = 1;
+  base.ErrCode errCode = 1;
   string errMsg = 2;
   uint64 total = 3;
   repeated DictionaryDetail data = 4;
@@ -712,19 +712,19 @@ message DictionaryPageReq {
 // oauth service
 service oauth {
   // Create Provider information | 创建提供商
-  rpc CreateProvider (ProviderInfo) returns (BaseResp) {
+  rpc CreateProvider (ProviderInfo) returns (base.BaseResp) {
     option (api.post) = "/api/admin/oauth/provider/create";
   }
   // Update Provider information | 更新提供商
-  rpc UpdateProvider (ProviderInfo) returns (BaseResp) {
+  rpc UpdateProvider (ProviderInfo) returns (base.BaseResp) {
     option (api.post) = "/api/admin/oauth/provider/update";
   }
   // Delete provider information | 删除提供商信息
-  rpc DeleteProvider (IDReq) returns (BaseResp) {
+  rpc DeleteProvider (base.IDReq) returns (base.BaseResp) {
     option (api.delete) = "/api/admin/oauth/provider";
   }
   // Get provider list | 获取提供商列表
-  rpc GetProviderList (PageInfoReq) returns (ProviderListResp) {
+  rpc GetProviderList (base.PageInfoReq) returns (ProviderListResp) {
     option (api.get) = "/api/admin/oauth/provider/list";
   }
   // Oauth log in | Oauth 登录
@@ -748,7 +748,7 @@ message OauthLoginReq {
 
 // Redirect information | 跳转网址
 message OauthRedirectResp {
-  ErrCode errCode = 1;
+  base.ErrCode errCode = 1;
   string errMsg = 2;
   string url = 3;
 }
@@ -777,7 +777,7 @@ message ProviderListReq {
 
 // The response data of provider list | 提供商列表返回数据
 message ProviderListResp {
-  ErrCode errCode = 1;
+  base.ErrCode errCode = 1;
   string errMsg = 2;
   uint64 total = 3;
   repeated ProviderInfo data = 4;
@@ -796,7 +796,7 @@ service logs {
     option (api.get) = "/api/admin/logs/list";
   }
   // Delete logs | 删除日志信息
-  rpc DeleteLogs (Empty) returns (BaseResp) {
+  rpc DeleteLogs (base.Empty) returns (base.BaseResp) {
     option (api.delete) = "/api/admin/logs/deleteAll";
   }
 }
@@ -832,7 +832,7 @@ message LogsListReq {
 
 // The response data of logs list | 日志列表返回数据
 message LogsListResp {
-  ErrCode errCode = 1;
+  base.ErrCode errCode = 1;
   string errMsg = 2;
   uint64 total = 3;
   repeated LogsInfo data = 4;

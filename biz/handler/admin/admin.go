@@ -6,10 +6,13 @@ package admin
 import (
 	"context"
 	"fmt"
-	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"regexp"
 	"strings"
+
+	"formulago/api/model/base"
+
+	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
 	"formulago/api/model/admin"
 	logic "formulago/biz/logic/admin"
@@ -20,11 +23,11 @@ import (
 // @router /api/initDatabase [GET]
 func InitDatabase(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req admin.Empty
-	resp := new(admin.BaseResp)
+	var req base.Empty
+	resp := new(base.BaseResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusBadRequest, resp)
 		return
@@ -36,7 +39,7 @@ func InitDatabase(ctx context.Context, c *app.RequestContext) {
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
 	}
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	c.JSON(consts.StatusOK, resp)
 }
@@ -45,17 +48,17 @@ func InitDatabase(ctx context.Context, c *app.RequestContext) {
 // @router /api/health [GET]
 func HealthCheck(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req admin.Empty
-	resp := new(admin.BaseResp)
+	var req base.Empty
+	resp := new(base.BaseResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusBadRequest, resp)
 		return
 	}
 
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	c.JSON(consts.StatusOK, resp)
 }
@@ -64,11 +67,11 @@ func HealthCheck(ctx context.Context, c *app.RequestContext) {
 // @router /api/captcha [GET]
 func Captcha(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req admin.Empty
+	var req base.Empty
 	resp := new(admin.CaptchaInfoResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusBadRequest, resp)
 		return
@@ -76,7 +79,7 @@ func Captcha(ctx context.Context, c *app.RequestContext) {
 
 	// GetCaptcha
 	id, b64s, err := logic.NewCaptcha().GetCaptcha()
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	resp.CaptchaID = id
 	resp.ImgPath = b64s
@@ -92,7 +95,7 @@ func DeleteStructTag(ctx context.Context, c *app.RequestContext) {
 	resp := new(admin.StructResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusBadRequest, resp)
 		return
@@ -127,7 +130,7 @@ func DeleteStructTag(ctx context.Context, c *app.RequestContext) {
 	// end struct message line
 	sBuilder.WriteString("}\n")
 
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	resp.StructStr = sBuilder.String()
 
@@ -142,16 +145,16 @@ func StructToProto(ctx context.Context, c *app.RequestContext) {
 	resp := new(admin.ProtoResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusBadRequest, resp)
 		return
 	}
 	// StructToProto
-	var list = strings.Split(req.StructStr, "\n")
+	list := strings.Split(req.StructStr, "\n")
 	var sBuilder strings.Builder
-	var sort = 1
-	var isInner = false
+	sort := 1
+	isInner := false
 	for _, l := range list {
 		l = strings.TrimSpace(l)
 		// first proto message line
@@ -171,15 +174,22 @@ func StructToProto(ctx context.Context, c *app.RequestContext) {
 		}
 		// transform to proto
 		lList := strings.Split(l, " ")
-		if len(lList) >= 2 {
-			sBuilder.WriteString(fmt.Sprintf("  %s %s = %d;\n", getProtoType(lList[1]), smallCamelString(lList[0]), sort))
+		// delete empty string "" in list
+		var nList []string
+		for _, ll := range lList {
+			if ll != "" {
+				nList = append(nList, ll)
+			}
+		}
+		if len(nList) >= 2 {
+			sBuilder.WriteString(fmt.Sprintf("  %s %s = %d;\n", getProtoType(nList[1]), smallCamelString(nList[0]), sort))
 			sort++
 		}
 	}
 	// end proto message line
 	sBuilder.WriteString("}\n")
 
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	resp.ProtoStr = sBuilder.String()
 
@@ -211,6 +221,14 @@ func getProtoType(s string) string {
 		return "double"
 	case "[]byte":
 		return "bytes"
+	case "[]string":
+		return "repeated string"
+	case "[]int":
+		return "repeated int32"
+	case "[]int64":
+		return "repeated int64"
+	case "[]float32", "[]float64":
+		return "repeated float"
 	default:
 		return s
 	}

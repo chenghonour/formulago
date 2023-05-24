@@ -11,6 +11,7 @@ import (
 	"github.com/jinzhu/copier"
 
 	"formulago/api/model/admin"
+	base "formulago/api/model/base"
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
@@ -19,10 +20,10 @@ import (
 func CreateApi(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req admin.ApiInfo
-	resp := new(admin.BaseResp)
+	resp := new(base.BaseResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusBadRequest, resp)
 		return
@@ -31,7 +32,7 @@ func CreateApi(ctx context.Context, c *app.RequestContext) {
 	var ApiInfoReq domain.ApiInfo
 	err = copier.Copy(&ApiInfoReq, &req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
@@ -39,13 +40,13 @@ func CreateApi(ctx context.Context, c *app.RequestContext) {
 
 	err = logic.NewApi(data.Default()).Create(ctx, ApiInfoReq)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
 	}
 
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	c.JSON(consts.StatusOK, resp)
 }
@@ -55,10 +56,10 @@ func CreateApi(ctx context.Context, c *app.RequestContext) {
 func UpdateApi(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req admin.ApiInfo
-	resp := new(admin.BaseResp)
+	resp := new(base.BaseResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusBadRequest, resp)
 		return
@@ -67,7 +68,7 @@ func UpdateApi(ctx context.Context, c *app.RequestContext) {
 	var ApiInfoReq domain.ApiInfo
 	err = copier.Copy(&ApiInfoReq, &req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
@@ -75,13 +76,13 @@ func UpdateApi(ctx context.Context, c *app.RequestContext) {
 
 	err = logic.NewApi(data.Default()).Update(ctx, ApiInfoReq)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
 	}
 
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	c.JSON(consts.StatusOK, resp)
 }
@@ -91,10 +92,10 @@ func UpdateApi(ctx context.Context, c *app.RequestContext) {
 func DeleteApi(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req admin.IDReq
-	resp := new(admin.BaseResp)
+	resp := new(base.BaseResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusBadRequest, resp)
 		return
@@ -102,13 +103,13 @@ func DeleteApi(ctx context.Context, c *app.RequestContext) {
 
 	err = logic.NewApi(data.Default()).Delete(ctx, req.ID)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
 	}
 
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	c.JSON(consts.StatusOK, resp)
 }
@@ -121,7 +122,7 @@ func ApiList(ctx context.Context, c *app.RequestContext) {
 	resp := new(admin.ApiListResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusBadRequest, resp)
 		return
@@ -130,14 +131,14 @@ func ApiList(ctx context.Context, c *app.RequestContext) {
 	var ApiPageReq domain.ListApiReq
 	err = copier.Copy(&ApiPageReq, &req)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
 	}
 	list, total, err := logic.NewApi(data.Default()).List(ctx, ApiPageReq)
 	if err != nil {
-		resp.ErrCode = admin.ErrCode_Fail
+		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusInternalServerError, resp)
 		return
@@ -146,7 +147,7 @@ func ApiList(ctx context.Context, c *app.RequestContext) {
 		var ApiInfo admin.ApiInfo
 		err = copier.Copy(&ApiInfo, &v)
 		if err != nil {
-			resp.ErrCode = admin.ErrCode_Fail
+			resp.ErrCode = base.ErrCode_Fail
 			resp.ErrMsg = err.Error()
 			c.JSON(consts.StatusInternalServerError, resp)
 			return
@@ -154,7 +155,7 @@ func ApiList(ctx context.Context, c *app.RequestContext) {
 		resp.Data = append(resp.Data, &ApiInfo)
 	}
 	resp.Total = uint64(total)
-	resp.ErrCode = admin.ErrCode_Success
+	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"
 	c.JSON(consts.StatusOK, resp)
 }

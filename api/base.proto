@@ -6,9 +6,9 @@
 
 syntax = "proto3";
 
-package admin;
+package base;
 
-option go_package = "/admin";
+option go_package = "/base";
 
 // base message
 message Empty {}
