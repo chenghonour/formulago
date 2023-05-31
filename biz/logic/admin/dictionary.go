@@ -68,8 +68,30 @@ func (d *Dictionary) Update(ctx context.Context, req *domain.DictionaryInfo) err
 }
 
 func (d *Dictionary) Delete(ctx context.Context, id uint64) error {
+	// whether dictionary is exists
+	dict, err := d.Data.DBClient.Dictionary.Query().Where(dictionary.ID(id)).Only(ctx)
+	if err != nil {
+		return errors.Wrap(err, "query Dictionary failed")
+	}
+	if dict == nil {
+		return errors.New(fmt.Sprintf("The dictionary(id=%d) try to delete is not exists", id))
+	}
+	// whether dictionary has detail
+	// query dictionary detail
+	details, err := d.Data.DBClient.DictionaryDetail.Query().
+		Where(dictionarydetail.HasDictionaryWith(dictionary.NameEQ(dict.Name))).
+		// union query to get the fields of the associated table
+		WithDictionary(func(q *ent.DictionaryQuery) {
+			// get all fields default, or use q.Select() to get some fields
+		}).All(ctx)
+	if err != nil {
+		return errors.Wrap(err, "query DictionaryDetail failed")
+	}
+	if len(details) > 0 {
+		return errors.New("dictionary has detail, please delete detail first")
+	}
 	// delete dictionary
-	err := d.Data.DBClient.Dictionary.DeleteOneID(id).Exec(ctx)
+	err = d.Data.DBClient.Dictionary.DeleteOneID(id).Exec(ctx)
 	if err != nil {
 		return errors.Wrap(err, "delete Dictionary failed")
 	}
@@ -164,7 +186,8 @@ func (d *Dictionary) UpdateDetail(ctx context.Context, req *domain.DictionaryDet
 		return errors.Wrap(err, "update DictionaryDetail failed")
 	}
 	// delete dictionary detail from cache
-	d.Data.Cache.Delete(fmt.Sprintf("Dictionary%s-%s", detail.Edges.Dictionary.Name, detail.Key))
+	d.Data.Cache.Delete(fmt.Sprintf("Dictionary%s-key%s", detail.Edges.Dictionary.Name, detail.Key))
+	d.Data.Cache.Delete(fmt.Sprintf("Dictionary%s-value%s", detail.Edges.Dictionary.Name, detail.Value))
 	return nil
 }
 
@@ -185,7 +208,8 @@ func (d *Dictionary) DeleteDetail(ctx context.Context, id uint64) error {
 		return errors.Wrap(err, "delete DictionaryDetail failed")
 	}
 	// delete dictionary detail from cache
-	d.Data.Cache.Delete(fmt.Sprintf("Dictionary%s-%s", detail.Edges.Dictionary.Name, detail.Key))
+	d.Data.Cache.Delete(fmt.Sprintf("Dictionary%s-key%s", detail.Edges.Dictionary.Name, detail.Key))
+	d.Data.Cache.Delete(fmt.Sprintf("Dictionary%s-value%s", detail.Edges.Dictionary.Name, detail.Value))
 	return nil
 }
 
@@ -218,9 +242,49 @@ func (d *Dictionary) DetailListByDictName(ctx context.Context, dictName string) 
 	return
 }
 
+func (d *Dictionary) K2VMapByDictName(ctx context.Context, dictName string) (K2VMap map[string]string, err error) {
+	K2VMap = make(map[string]string)
+	// query dictionary detail
+	details, err := d.Data.DBClient.DictionaryDetail.Query().
+		Where(dictionarydetail.HasDictionaryWith(dictionary.NameEQ(dictName))).
+		// union query to get the fields of the associated table
+		WithDictionary(func(q *ent.DictionaryQuery) {
+			// get all fields default, or use q.Select() to get some fields
+		}).All(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "query DictionaryDetail list failed")
+	}
+
+	// format result
+	for _, detail := range details {
+		K2VMap[detail.Key] = detail.Value
+	}
+	return K2VMap, nil
+}
+
+func (d *Dictionary) V2KMapByDictName(ctx context.Context, dictName string) (V2KMap map[string]string, err error) {
+	V2KMap = make(map[string]string)
+	// query dictionary detail
+	details, err := d.Data.DBClient.DictionaryDetail.Query().
+		Where(dictionarydetail.HasDictionaryWith(dictionary.NameEQ(dictName))).
+		// union query to get the fields of the associated table
+		WithDictionary(func(q *ent.DictionaryQuery) {
+			// get all fields default, or use q.Select() to get some fields
+		}).All(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "query DictionaryDetail list failed")
+	}
+
+	// format result
+	for _, detail := range details {
+		V2KMap[detail.Value] = detail.Key
+	}
+	return V2KMap, nil
+}
+
 func (d *Dictionary) DetailByDictNameAndKey(ctx context.Context, dictName, key string) (detail *domain.DictionaryDetail, err error) {
 	// query dictionary detail from cache
-	v, found := d.Data.Cache.Get(fmt.Sprintf("Dictionary%s-%s", dictName, key))
+	v, found := d.Data.Cache.Get(fmt.Sprintf("Dictionary%s-key%s", dictName, key))
 	if found {
 		return v.(*domain.DictionaryDetail), nil
 	}
@@ -243,7 +307,35 @@ func (d *Dictionary) DetailByDictNameAndKey(ctx context.Context, dictName, key s
 	detail.UpdatedAt = dictDetail.UpdatedAt.Format("2006-01-02 15:04:05")
 
 	// set cache
-	d.Data.Cache.Set(fmt.Sprintf("Dictionary%s-%s", dictName, key), detail, 24*time.Hour)
+	d.Data.Cache.Set(fmt.Sprintf("Dictionary%s-key%s", dictName, key), detail, 72*time.Hour)
+	return detail, nil
+}
 
+func (d *Dictionary) DetailByDictNameAndValue(ctx context.Context, dictName, value string) (detail *domain.DictionaryDetail, err error) {
+	// query dictionary detail from cache
+	v, found := d.Data.Cache.Get(fmt.Sprintf("Dictionary%s-value%s", dictName, value))
+	if found {
+		return v.(*domain.DictionaryDetail), nil
+	}
+	// query dictionary detail from database
+	dictDetail, err := d.Data.DBClient.DictionaryDetail.Query().
+		Where(dictionarydetail.HasDictionaryWith(dictionary.NameEQ(dictName))).
+		Where(dictionarydetail.Value(value)).First(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "query DictionaryDetail list failed")
+	}
+
+	// format result
+	detail = new(domain.DictionaryDetail)
+	detail.ID = dictDetail.ID
+	detail.Title = dictDetail.Title
+	detail.Key = dictDetail.Key
+	detail.Value = dictDetail.Value
+	detail.Status = uint64(dictDetail.Status)
+	detail.CreatedAt = dictDetail.CreatedAt.Format("2006-01-02 15:04:05")
+	detail.UpdatedAt = dictDetail.UpdatedAt.Format("2006-01-02 15:04:05")
+
+	// set cache
+	d.Data.Cache.Set(fmt.Sprintf("Dictionary%s-value%s", dictName, value), detail, 72*time.Hour)
 	return detail, nil
 }
