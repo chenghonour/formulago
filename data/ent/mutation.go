@@ -1776,9 +1776,53 @@ func (m *DictionaryDetailMutation) ResetValue() {
 	m.value = nil
 }
 
-// SetDictionaryID sets the "dictionary" edge to the Dictionary entity by id.
-func (m *DictionaryDetailMutation) SetDictionaryID(id uint64) {
-	m.dictionary = &id
+// SetDictionaryID sets the "dictionary_id" field.
+func (m *DictionaryDetailMutation) SetDictionaryID(u uint64) {
+	m.dictionary = &u
+}
+
+// DictionaryID returns the value of the "dictionary_id" field in the mutation.
+func (m *DictionaryDetailMutation) DictionaryID() (r uint64, exists bool) {
+	v := m.dictionary
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDictionaryID returns the old "dictionary_id" field's value of the DictionaryDetail entity.
+// If the DictionaryDetail object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DictionaryDetailMutation) OldDictionaryID(ctx context.Context) (v uint64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDictionaryID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDictionaryID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDictionaryID: %w", err)
+	}
+	return oldValue.DictionaryID, nil
+}
+
+// ClearDictionaryID clears the value of the "dictionary_id" field.
+func (m *DictionaryDetailMutation) ClearDictionaryID() {
+	m.dictionary = nil
+	m.clearedFields[dictionarydetail.FieldDictionaryID] = struct{}{}
+}
+
+// DictionaryIDCleared returns if the "dictionary_id" field was cleared in this mutation.
+func (m *DictionaryDetailMutation) DictionaryIDCleared() bool {
+	_, ok := m.clearedFields[dictionarydetail.FieldDictionaryID]
+	return ok
+}
+
+// ResetDictionaryID resets all changes to the "dictionary_id" field.
+func (m *DictionaryDetailMutation) ResetDictionaryID() {
+	m.dictionary = nil
+	delete(m.clearedFields, dictionarydetail.FieldDictionaryID)
 }
 
 // ClearDictionary clears the "dictionary" edge to the Dictionary entity.
@@ -1788,15 +1832,7 @@ func (m *DictionaryDetailMutation) ClearDictionary() {
 
 // DictionaryCleared reports if the "dictionary" edge to the Dictionary entity was cleared.
 func (m *DictionaryDetailMutation) DictionaryCleared() bool {
-	return m.cleareddictionary
-}
-
-// DictionaryID returns the "dictionary" edge ID in the mutation.
-func (m *DictionaryDetailMutation) DictionaryID() (id uint64, exists bool) {
-	if m.dictionary != nil {
-		return *m.dictionary, true
-	}
-	return
+	return m.DictionaryIDCleared() || m.cleareddictionary
 }
 
 // DictionaryIDs returns the "dictionary" edge IDs in the mutation.
@@ -1849,7 +1885,7 @@ func (m *DictionaryDetailMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *DictionaryDetailMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 7)
 	if m.created_at != nil {
 		fields = append(fields, dictionarydetail.FieldCreatedAt)
 	}
@@ -1867,6 +1903,9 @@ func (m *DictionaryDetailMutation) Fields() []string {
 	}
 	if m.value != nil {
 		fields = append(fields, dictionarydetail.FieldValue)
+	}
+	if m.dictionary != nil {
+		fields = append(fields, dictionarydetail.FieldDictionaryID)
 	}
 	return fields
 }
@@ -1888,6 +1927,8 @@ func (m *DictionaryDetailMutation) Field(name string) (ent.Value, bool) {
 		return m.Key()
 	case dictionarydetail.FieldValue:
 		return m.Value()
+	case dictionarydetail.FieldDictionaryID:
+		return m.DictionaryID()
 	}
 	return nil, false
 }
@@ -1909,6 +1950,8 @@ func (m *DictionaryDetailMutation) OldField(ctx context.Context, name string) (e
 		return m.OldKey(ctx)
 	case dictionarydetail.FieldValue:
 		return m.OldValue(ctx)
+	case dictionarydetail.FieldDictionaryID:
+		return m.OldDictionaryID(ctx)
 	}
 	return nil, fmt.Errorf("unknown DictionaryDetail field %s", name)
 }
@@ -1960,6 +2003,13 @@ func (m *DictionaryDetailMutation) SetField(name string, value ent.Value) error 
 		}
 		m.SetValue(v)
 		return nil
+	case dictionarydetail.FieldDictionaryID:
+		v, ok := value.(uint64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDictionaryID(v)
+		return nil
 	}
 	return fmt.Errorf("unknown DictionaryDetail field %s", name)
 }
@@ -2008,6 +2058,9 @@ func (m *DictionaryDetailMutation) ClearedFields() []string {
 	if m.FieldCleared(dictionarydetail.FieldStatus) {
 		fields = append(fields, dictionarydetail.FieldStatus)
 	}
+	if m.FieldCleared(dictionarydetail.FieldDictionaryID) {
+		fields = append(fields, dictionarydetail.FieldDictionaryID)
+	}
 	return fields
 }
 
@@ -2024,6 +2077,9 @@ func (m *DictionaryDetailMutation) ClearField(name string) error {
 	switch name {
 	case dictionarydetail.FieldStatus:
 		m.ClearStatus()
+		return nil
+	case dictionarydetail.FieldDictionaryID:
+		m.ClearDictionaryID()
 		return nil
 	}
 	return fmt.Errorf("unknown DictionaryDetail nullable field %s", name)
@@ -2050,6 +2106,9 @@ func (m *DictionaryDetailMutation) ResetField(name string) error {
 		return nil
 	case dictionarydetail.FieldValue:
 		m.ResetValue()
+		return nil
+	case dictionarydetail.FieldDictionaryID:
+		m.ResetDictionaryID()
 		return nil
 	}
 	return fmt.Errorf("unknown DictionaryDetail field %s", name)

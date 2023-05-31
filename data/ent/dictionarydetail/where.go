@@ -85,6 +85,11 @@ func Value(v string) predicate.DictionaryDetail {
 	return predicate.DictionaryDetail(sql.FieldEQ(FieldValue, v))
 }
 
+// DictionaryID applies equality check predicate on the "dictionary_id" field. It's identical to DictionaryIDEQ.
+func DictionaryID(v uint64) predicate.DictionaryDetail {
+	return predicate.DictionaryDetail(sql.FieldEQ(FieldDictionaryID, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.DictionaryDetail {
 	return predicate.DictionaryDetail(sql.FieldEQ(FieldCreatedAt, v))
@@ -408,6 +413,36 @@ func ValueEqualFold(v string) predicate.DictionaryDetail {
 // ValueContainsFold applies the ContainsFold predicate on the "value" field.
 func ValueContainsFold(v string) predicate.DictionaryDetail {
 	return predicate.DictionaryDetail(sql.FieldContainsFold(FieldValue, v))
+}
+
+// DictionaryIDEQ applies the EQ predicate on the "dictionary_id" field.
+func DictionaryIDEQ(v uint64) predicate.DictionaryDetail {
+	return predicate.DictionaryDetail(sql.FieldEQ(FieldDictionaryID, v))
+}
+
+// DictionaryIDNEQ applies the NEQ predicate on the "dictionary_id" field.
+func DictionaryIDNEQ(v uint64) predicate.DictionaryDetail {
+	return predicate.DictionaryDetail(sql.FieldNEQ(FieldDictionaryID, v))
+}
+
+// DictionaryIDIn applies the In predicate on the "dictionary_id" field.
+func DictionaryIDIn(vs ...uint64) predicate.DictionaryDetail {
+	return predicate.DictionaryDetail(sql.FieldIn(FieldDictionaryID, vs...))
+}
+
+// DictionaryIDNotIn applies the NotIn predicate on the "dictionary_id" field.
+func DictionaryIDNotIn(vs ...uint64) predicate.DictionaryDetail {
+	return predicate.DictionaryDetail(sql.FieldNotIn(FieldDictionaryID, vs...))
+}
+
+// DictionaryIDIsNil applies the IsNil predicate on the "dictionary_id" field.
+func DictionaryIDIsNil() predicate.DictionaryDetail {
+	return predicate.DictionaryDetail(sql.FieldIsNull(FieldDictionaryID))
+}
+
+// DictionaryIDNotNil applies the NotNil predicate on the "dictionary_id" field.
+func DictionaryIDNotNil() predicate.DictionaryDetail {
+	return predicate.DictionaryDetail(sql.FieldNotNull(FieldDictionaryID))
 }
 
 // HasDictionary applies the HasEdge predicate on the "dictionary" edge.

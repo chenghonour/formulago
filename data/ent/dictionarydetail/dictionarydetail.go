@@ -23,6 +23,8 @@ const (
 	FieldKey = "key"
 	// FieldValue holds the string denoting the value field in the database.
 	FieldValue = "value"
+	// FieldDictionaryID holds the string denoting the dictionary_id field in the database.
+	FieldDictionaryID = "dictionary_id"
 	// EdgeDictionary holds the string denoting the dictionary edge name in mutations.
 	EdgeDictionary = "dictionary"
 	// Table holds the table name of the dictionarydetail in the database.
@@ -33,7 +35,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "dictionary" package.
 	DictionaryInverseTable = "sys_dictionaries"
 	// DictionaryColumn is the table column denoting the dictionary relation/edge.
-	DictionaryColumn = "dictionary_dictionary_details"
+	DictionaryColumn = "dictionary_id"
 )
 
 // Columns holds all SQL columns for dictionarydetail fields.
@@ -45,23 +47,13 @@ var Columns = []string{
 	FieldTitle,
 	FieldKey,
 	FieldValue,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "sys_dictionary_details"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"dictionary_dictionary_details",
+	FieldDictionaryID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}

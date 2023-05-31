@@ -57,7 +57,7 @@ var (
 		{Name: "title", Type: field.TypeString, Comment: "the title shown in the ui | 展示名称 （建议配合i18n）"},
 		{Name: "key", Type: field.TypeString, Comment: "key | 键"},
 		{Name: "value", Type: field.TypeString, Comment: "value | 值"},
-		{Name: "dictionary_dictionary_details", Type: field.TypeUint64, Nullable: true},
+		{Name: "dictionary_id", Type: field.TypeUint64, Nullable: true},
 	}
 	// SysDictionaryDetailsTable holds the schema information for the "sys_dictionary_details" table.
 	SysDictionaryDetailsTable = &schema.Table{
@@ -70,6 +70,13 @@ var (
 				Columns:    []*schema.Column{SysDictionaryDetailsColumns[7]},
 				RefColumns: []*schema.Column{SysDictionariesColumns[0]},
 				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "dictionarydetail_key_dictionary_id",
+				Unique:  true,
+				Columns: []*schema.Column{SysDictionaryDetailsColumns[5], SysDictionaryDetailsColumns[7]},
 			},
 		},
 	}

@@ -80,17 +80,23 @@ func (ddu *DictionaryDetailUpdate) SetValue(s string) *DictionaryDetailUpdate {
 	return ddu
 }
 
-// SetDictionaryID sets the "dictionary" edge to the Dictionary entity by ID.
-func (ddu *DictionaryDetailUpdate) SetDictionaryID(id uint64) *DictionaryDetailUpdate {
-	ddu.mutation.SetDictionaryID(id)
+// SetDictionaryID sets the "dictionary_id" field.
+func (ddu *DictionaryDetailUpdate) SetDictionaryID(u uint64) *DictionaryDetailUpdate {
+	ddu.mutation.SetDictionaryID(u)
 	return ddu
 }
 
-// SetNillableDictionaryID sets the "dictionary" edge to the Dictionary entity by ID if the given value is not nil.
-func (ddu *DictionaryDetailUpdate) SetNillableDictionaryID(id *uint64) *DictionaryDetailUpdate {
-	if id != nil {
-		ddu = ddu.SetDictionaryID(*id)
+// SetNillableDictionaryID sets the "dictionary_id" field if the given value is not nil.
+func (ddu *DictionaryDetailUpdate) SetNillableDictionaryID(u *uint64) *DictionaryDetailUpdate {
+	if u != nil {
+		ddu.SetDictionaryID(*u)
 	}
+	return ddu
+}
+
+// ClearDictionaryID clears the value of the "dictionary_id" field.
+func (ddu *DictionaryDetailUpdate) ClearDictionaryID() *DictionaryDetailUpdate {
+	ddu.mutation.ClearDictionaryID()
 	return ddu
 }
 
@@ -291,17 +297,23 @@ func (dduo *DictionaryDetailUpdateOne) SetValue(s string) *DictionaryDetailUpdat
 	return dduo
 }
 
-// SetDictionaryID sets the "dictionary" edge to the Dictionary entity by ID.
-func (dduo *DictionaryDetailUpdateOne) SetDictionaryID(id uint64) *DictionaryDetailUpdateOne {
-	dduo.mutation.SetDictionaryID(id)
+// SetDictionaryID sets the "dictionary_id" field.
+func (dduo *DictionaryDetailUpdateOne) SetDictionaryID(u uint64) *DictionaryDetailUpdateOne {
+	dduo.mutation.SetDictionaryID(u)
 	return dduo
 }
 
-// SetNillableDictionaryID sets the "dictionary" edge to the Dictionary entity by ID if the given value is not nil.
-func (dduo *DictionaryDetailUpdateOne) SetNillableDictionaryID(id *uint64) *DictionaryDetailUpdateOne {
-	if id != nil {
-		dduo = dduo.SetDictionaryID(*id)
+// SetNillableDictionaryID sets the "dictionary_id" field if the given value is not nil.
+func (dduo *DictionaryDetailUpdateOne) SetNillableDictionaryID(u *uint64) *DictionaryDetailUpdateOne {
+	if u != nil {
+		dduo.SetDictionaryID(*u)
 	}
+	return dduo
+}
+
+// ClearDictionaryID clears the value of the "dictionary_id" field.
+func (dduo *DictionaryDetailUpdateOne) ClearDictionaryID() *DictionaryDetailUpdateOne {
+	dduo.mutation.ClearDictionaryID()
 	return dduo
 }
 

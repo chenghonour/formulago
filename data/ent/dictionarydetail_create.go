@@ -81,23 +81,23 @@ func (ddc *DictionaryDetailCreate) SetValue(s string) *DictionaryDetailCreate {
 	return ddc
 }
 
+// SetDictionaryID sets the "dictionary_id" field.
+func (ddc *DictionaryDetailCreate) SetDictionaryID(u uint64) *DictionaryDetailCreate {
+	ddc.mutation.SetDictionaryID(u)
+	return ddc
+}
+
+// SetNillableDictionaryID sets the "dictionary_id" field if the given value is not nil.
+func (ddc *DictionaryDetailCreate) SetNillableDictionaryID(u *uint64) *DictionaryDetailCreate {
+	if u != nil {
+		ddc.SetDictionaryID(*u)
+	}
+	return ddc
+}
+
 // SetID sets the "id" field.
 func (ddc *DictionaryDetailCreate) SetID(u uint64) *DictionaryDetailCreate {
 	ddc.mutation.SetID(u)
-	return ddc
-}
-
-// SetDictionaryID sets the "dictionary" edge to the Dictionary entity by ID.
-func (ddc *DictionaryDetailCreate) SetDictionaryID(id uint64) *DictionaryDetailCreate {
-	ddc.mutation.SetDictionaryID(id)
-	return ddc
-}
-
-// SetNillableDictionaryID sets the "dictionary" edge to the Dictionary entity by ID if the given value is not nil.
-func (ddc *DictionaryDetailCreate) SetNillableDictionaryID(id *uint64) *DictionaryDetailCreate {
-	if id != nil {
-		ddc = ddc.SetDictionaryID(*id)
-	}
 	return ddc
 }
 
@@ -251,7 +251,7 @@ func (ddc *DictionaryDetailCreate) createSpec() (*DictionaryDetail, *sqlgraph.Cr
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.dictionary_dictionary_details = &nodes[0]
+		_node.DictionaryID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
