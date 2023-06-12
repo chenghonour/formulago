@@ -88,7 +88,7 @@ func UpdateRole(ctx context.Context, c *app.RequestContext) {
 // @router /api/admin/role [DELETE]
 func DeleteRole(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req admin.IDReq
+	var req base.IDReq
 	resp := new(base.BaseResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
@@ -115,7 +115,7 @@ func DeleteRole(ctx context.Context, c *app.RequestContext) {
 // @router /api/admin/role [GET]
 func RoleByID(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req admin.IDReq
+	var req base.IDReq
 	resp := new(admin.RoleInfoResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
@@ -149,7 +149,7 @@ func RoleByID(ctx context.Context, c *app.RequestContext) {
 // @router /api/admin/role/list [GET]
 func RoleList(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req admin.PageInfoReq
+	var req base.PageInfoReq
 	resp := new(admin.RoleListResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
@@ -189,7 +189,7 @@ func RoleList(ctx context.Context, c *app.RequestContext) {
 // @router /api/admin/role/status [POST]
 func UpdateRoleStatus(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req admin.StatusCodeReq
+	var req base.StatusCodeReq
 	resp := new(base.BaseResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {

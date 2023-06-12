@@ -91,7 +91,7 @@ func UpdateApi(ctx context.Context, c *app.RequestContext) {
 // @router /api/admin/api [DELETE]
 func DeleteApi(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req admin.IDReq
+	var req base.IDReq
 	resp := new(base.BaseResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {

@@ -82,7 +82,7 @@ func GetLogsList(ctx context.Context, c *app.RequestContext) {
 // @router /api/admin/logs/deleteAll [DELETE]
 func DeleteLogs(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req admin.Empty
+	var req base.Empty
 	err = c.BindAndValidate(&req)
 	if err != nil {
 		c.String(consts.StatusBadRequest, err.Error())

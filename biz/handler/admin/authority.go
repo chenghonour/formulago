@@ -91,7 +91,7 @@ func UpdateApiAuthority(ctx context.Context, c *app.RequestContext) {
 // ApiAuthority Get Api authority policy by role id
 func ApiAuthority(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req admin.IDReq
+	var req base.IDReq
 	resp := new(admin.ApiAuthorityListInfoResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
@@ -181,7 +181,7 @@ func UpdateMenuAuthority(ctx context.Context, c *app.RequestContext) {
 // @router /api/admin/authority/menu/role [POST]
 func MenuAuthority(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req admin.IDReq
+	var req base.IDReq
 	resp := new(admin.MenuAuthorityInfoResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {

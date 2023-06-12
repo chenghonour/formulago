@@ -92,7 +92,7 @@ func UpdateMenu(ctx context.Context, c *app.RequestContext) {
 // @router /api/admin/menu [DELETE]
 func DeleteMenu(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req admin.IDReq
+	var req base.IDReq
 	resp := new(base.BaseResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
@@ -119,7 +119,7 @@ func DeleteMenu(ctx context.Context, c *app.RequestContext) {
 // @router /api/admin/menu/role [GET]
 func MenuByRole(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req admin.Empty
+	var req base.Empty
 	resp := new(admin.MenuInfoListResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
@@ -166,7 +166,7 @@ func MenuByRole(ctx context.Context, c *app.RequestContext) {
 // @router /api/admin/menu/list [GET]
 func MenuList(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req admin.PageInfoReq
+	var req base.PageInfoReq
 	resp := new(admin.MenuInfoListResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
@@ -276,7 +276,7 @@ func UpdateMenuParam(ctx context.Context, c *app.RequestContext) {
 // @router /api/admin/menu/param [DELETE]
 func DeleteMenuParam(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req admin.IDReq
+	var req base.IDReq
 	resp := new(base.BaseResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
@@ -303,7 +303,7 @@ func DeleteMenuParam(ctx context.Context, c *app.RequestContext) {
 // @router /api/admin/menu/param/list [GET]
 func MenuParamListByMenuID(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req admin.IDReq
+	var req base.IDReq
 	resp := new(admin.MenuParamListResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {

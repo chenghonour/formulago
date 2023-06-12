@@ -51,6 +51,7 @@ go install github.com/cloudwego/hertz/cmd/hz@latest
 hz new -I api -idl api/admin/admin.proto -model_dir api/model -module formulago --unset_omitempty
 ```
 - hz update: 当你的IDL文件更新，使用该指令进行项目代码更新
+- api.proto 与 base.proto是不需要更新与生成的，因为它们是由导入它们的proto文件生成的
 ```bash
 hz update -I api -idl api/admin/admin.proto -model_dir api/model --unset_omitempty
 ```

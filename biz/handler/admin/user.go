@@ -39,7 +39,7 @@ func Register(ctx context.Context, c *app.RequestContext) {
 // @router /api/admin/user/perm [GET]
 func UserPermCode(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req admin.Empty
+	var req base.Empty
 	resp := new(admin.PermCodeResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
@@ -165,7 +165,7 @@ func UpdateUser(ctx context.Context, c *app.RequestContext) {
 // @router /api/admin/user/info [GET]
 func UserInfo(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req admin.Empty
+	var req base.Empty
 	resp := new(admin.UserInfoResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
@@ -266,7 +266,7 @@ func UserList(ctx context.Context, c *app.RequestContext) {
 // @router /api/admin/user [DELETE]
 func DeleteUser(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req admin.IDReq
+	var req base.IDReq
 	resp := new(base.BaseResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
@@ -329,7 +329,7 @@ func UpdateProfile(ctx context.Context, c *app.RequestContext) {
 // @router /api/admin/user/profile [GET]
 func UserProfile(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req admin.Empty
+	var req base.Empty
 	resp := new(admin.ProfileResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
@@ -372,7 +372,7 @@ func UserProfile(ctx context.Context, c *app.RequestContext) {
 // @router /api/admin/user/status [POST]
 func UpdateUserStatus(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req admin.StatusCodeReq
+	var req base.StatusCodeReq
 	resp := new(base.BaseResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {

@@ -91,7 +91,7 @@ func UpdateProvider(ctx context.Context, c *app.RequestContext) {
 // @router /api/admin/oauth/provider [DELETE]
 func DeleteProvider(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req admin.IDReq
+	var req base.IDReq
 	resp := new(base.BaseResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
