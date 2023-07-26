@@ -33,7 +33,7 @@ func NewLogin(data *data.Data) domain.Login {
 
 func (l *Login) Login(ctx context.Context, username, password string) (res *domain.LoginResp, err error) {
 	// check username
-	result, err := l.Data.DBClient.User.Query().Where(user.UsernameEQ(username)).First(ctx)
+	result, err := l.Data.DBClient.User.Query().Where(user.UsernameEQ(username), user.Status(1)).Only(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +64,7 @@ func (l *Login) LoginByOAuth(ctx context.Context, provider, credential string) (
 	case "wecom":
 		// check wecom
 		var err error
-		userInfo, err = l.Data.DBClient.User.Query().Where(user.Wecom(credential)).Only(ctx)
+		userInfo, err = l.Data.DBClient.User.Query().Where(user.Wecom(credential), user.Status(1)).Only(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -75,7 +75,7 @@ func (l *Login) LoginByOAuth(ctx context.Context, provider, credential string) (
 	default:
 		// check username
 		var err error
-		userInfo, err = l.Data.DBClient.User.Query().Where(user.Username(credential)).Only(ctx)
+		userInfo, err = l.Data.DBClient.User.Query().Where(user.Username(credential), user.Status(1)).Only(ctx)
 		if err != nil {
 			return nil, err
 		}
