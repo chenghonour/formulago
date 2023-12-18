@@ -11,6 +11,7 @@ import (
 	"formulago/biz/domain"
 	"formulago/biz/logic/admin"
 	"formulago/data"
+	"formulago/pkg/types"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"strconv"
@@ -32,15 +33,11 @@ func LogsMiddleware(d *data.Data) app.HandlerFunc {
 		logs.Ip = c.ClientIP()
 		// ReqContent
 		reqBodyStr := string(c.Request.Body())
-		if len(reqBodyStr) > 200 {
-			reqBodyStr = reqBodyStr[:200]
-		}
+		reqBodyStr = types.SubStrByLen(reqBodyStr, 200)
 		logs.ReqContent = reqBodyStr
 		// RespContent
 		respBodyStr := string(c.Response.Body())
-		if len(respBodyStr) > 200 {
-			respBodyStr = respBodyStr[:200]
-		}
+		respBodyStr = types.SubStrByLen(respBodyStr, 200)
 		logs.RespContent = respBodyStr
 		// Success
 		if c.Response.Header.StatusCode() == 200 {

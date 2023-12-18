@@ -9,14 +9,13 @@ import (
 	"regexp"
 	"strings"
 
+	"formulago/api/model/admin"
 	"formulago/api/model/base"
+	logic "formulago/biz/logic/admin"
+	"formulago/data"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
-
-	"formulago/api/model/admin"
-	logic "formulago/biz/logic/admin"
-	"formulago/data"
 )
 
 // InitDatabase .
@@ -121,6 +120,9 @@ func DeleteStructTag(ctx context.Context, c *app.RequestContext) {
 			sBuilder.WriteString(fmt.Sprintf("%s\n", l))
 			continue
 		}
+		// replace multiple spaces to one
+		re := regexp.MustCompile(`\s+`)
+		l = re.ReplaceAllString(l, " ")
 		// delete struct tag
 		lList := strings.Split(l, " ")
 		if len(lList) >= 2 {
@@ -230,6 +232,7 @@ func getProtoType(s string) string {
 	case "[]float32", "[]float64":
 		return "repeated float"
 	default:
+		s = strings.ReplaceAll(s, "[]", "repeated ")
 		return s
 	}
 }

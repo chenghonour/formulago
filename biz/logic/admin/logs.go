@@ -13,6 +13,7 @@ import (
 	"formulago/data/ent"
 	"formulago/data/ent/logs"
 	"formulago/data/ent/predicate"
+	"formulago/pkg/types"
 	"github.com/cockroachdb/errors"
 )
 
@@ -27,6 +28,10 @@ func NewLogs(data *data.Data) domain.Logs {
 }
 
 func (l *Logs) Create(ctx context.Context, logsReq *domain.LogsInfo) error {
+	logsReq.Api = types.SubStrByLen(logsReq.Api, 255)
+	logsReq.ReqContent = types.SubStrByLen(logsReq.ReqContent, 512)
+	logsReq.RespContent = types.SubStrByLen(logsReq.RespContent, 512)
+	logsReq.UserAgent = types.SubStrByLen(logsReq.UserAgent, 255)
 	err := l.Data.DBClient.Logs.Create().
 		SetType(logsReq.Type).
 		SetMethod(logsReq.Method).
