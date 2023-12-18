@@ -33,7 +33,7 @@ const (
 // NewClient returns a new ent client.
 // Only support mysql and postgres
 func NewClient(config configs.Config) (client *ent.Client, err error) {
-	switch config.Database.DBName {
+	switch config.Database.Type {
 	case "mysql":
 		return NewMySQLClient(config)
 	case "postgres":
