@@ -101,9 +101,12 @@ type Auth struct {
 
 // Redis is the configuration of the redis.
 type Redis struct {
-	Host string `yaml:"Host"`
-	Port int    `yaml:"Port"`
-	Type string `yaml:"Type"`
+	Enable   bool   `yaml:"Enable"`
+	Host     string `yaml:"Host"`
+	Port     int    `yaml:"Port"`
+	Type     string `yaml:"Type"`
+	Password string `yaml:"Password"`
+	DB       int    `yaml:"DB"`
 }
 
 // Database is the configuration of the database.

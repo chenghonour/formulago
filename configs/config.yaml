@@ -16,9 +16,12 @@ Auth:
   AccessExpire: 259200 # seconds, 3 days
 
 Redis:
+  Enable: false
   Host: 127.0.0.1
   Port: 6379
   Type: node
+  Password: password
+  DB: 0
 
 Database:
   Type: mysql # mysql, postgres

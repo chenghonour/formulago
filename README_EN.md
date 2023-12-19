@@ -23,6 +23,7 @@ A high performance admin project framework with `Hertz` and `Ent`
 - Use `Protobuf` IDL to define `HTTP` interface
 - Use `hz` to generate code
 - Use `Ent` and `MySQL`(you also can use PostgresSQL)
+- Use `Memory Cache` and `Redis` (Config file configuration enabled)
 
 ## Built-in features
 1. User management: The user is the system operator, and this function mainly completes the system user configuration.
