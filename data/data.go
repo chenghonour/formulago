@@ -95,9 +95,10 @@ func (d *Data) CacheGet(ctx context.Context, k string) (v string, exist bool, er
 		if err == redis.Nil {
 			return "", false, nil
 		}
+		return v, true, nil
 	}
 
-	return v, true, nil
+	return "", false, nil
 }
 
 // CacheDelete . Delete cache data from memory cache and redis(if enable)
