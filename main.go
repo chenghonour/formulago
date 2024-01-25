@@ -10,10 +10,17 @@ import (
 	"fmt"
 
 	"formulago/configs"
+	"formulago/data"
+
 	"github.com/cloudwego/hertz/pkg/app/server"
 )
 
 func main() {
+	// init
+	configs.InitConfig()
+	data.InitDataConfig()
+
+	// start server
 	c := configs.Data()
 	h := server.Default(
 		server.WithHostPorts(fmt.Sprintf("%s:%d", c.Host, c.Port)))

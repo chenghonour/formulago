@@ -14,7 +14,7 @@ import (
 // fileStore offers file store interface
 var fileStore *FileAdapter
 
-func init() {
+func initFileStore() {
 	fileStore = NewFileAdapter(configs.Data())
 }
 

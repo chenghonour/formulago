@@ -22,7 +22,7 @@ var configFiles embed.FS
 // GlobalConfig .
 var globalConfig Config
 
-func init() {
+func InitConfig() {
 	// log print embed config file
 	DirEntry, err := configFiles.ReadDir(".")
 	if err != nil {
