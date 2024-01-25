@@ -13,11 +13,7 @@ import (
 )
 
 // CacheMap .
-var cacheMap map[string]*cache.Cache
-
-func init() {
-	cacheMap = make(map[string]*cache.Cache)
-}
+var cacheMap = make(map[string]*cache.Cache)
 
 // newCacheDB . Create a new cache db instance
 func newCacheDB(DBName string, defaultExpiration, cleanupInterval time.Duration) *cache.Cache {
