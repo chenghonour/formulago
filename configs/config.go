@@ -21,6 +21,7 @@ var configFiles embed.FS
 
 // GlobalConfig .
 var globalConfig Config
+var isInit = false
 
 func InitConfig() {
 	// log print embed config file
@@ -36,6 +37,10 @@ func InitConfig() {
 }
 
 func Data() Config {
+	if !isInit {
+		InitConfig()
+		isInit = true
+	}
 	return globalConfig
 }
 
