@@ -11,10 +11,10 @@ package wecom
 import (
 	"context"
 	"formulago/configs"
+	"github.com/chenghonour/wechat-sdk"
+	"github.com/chenghonour/wechat-sdk/corp"
+	"github.com/chenghonour/wechat-sdk/corp/addrbook"
 	"github.com/cockroachdb/errors"
-	"github.com/shenghui0779/gochat"
-	"github.com/shenghui0779/gochat/corp"
-	"github.com/shenghui0779/gochat/corp/addrbook"
 )
 
 // GetUserIDByPhone get user id from wecom by phone
