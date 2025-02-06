@@ -10,6 +10,7 @@ package data
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"formulago/configs"
@@ -30,7 +31,7 @@ func initData() {
 	}
 }
 
-// Default Get a default database and cache instance
+// Default default database and cache instance
 func Default() *Data {
 	return data
 }
@@ -89,11 +90,15 @@ func (d *Data) CacheGet(ctx context.Context, k string) (v string, exist bool, er
 	if d.Redis != nil {
 		v, err = d.Redis.Get(ctx, k).Result()
 		// redis.Nil is returned when the key does not exist
-		if err != nil && err != redis.Nil {
+		if err != nil && !errors.Is(err, redis.Nil) {
 			return "", false, err
 		}
-		if err == redis.Nil {
+		if err != nil && errors.Is(err, redis.Nil) {
 			return "", false, nil
+		}
+		// set key to memory cache
+		if exp, ttlErr := d.Redis.TTL(ctx, k).Result(); ttlErr == nil && exp > 0 {
+			d.Cache.Set(k, v, exp)
 		}
 		return v, true, nil
 	}

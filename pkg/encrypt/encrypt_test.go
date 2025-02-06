@@ -51,11 +51,12 @@ func TestBcryptEncrypt(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := BcryptEncrypt(tt.args.password)
+			encryptStr, err := BcryptEncrypt(tt.args.password)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("BcryptEncrypt() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+			t.Log(encryptStr)
 		})
 	}
 }
