@@ -9,17 +9,18 @@ package admin
 import (
 	"context"
 	"fmt"
-	"formulago/biz/domain"
+	"formulago/biz/domain/admin"
 	"formulago/configs"
 	"formulago/data"
 	"formulago/data/ent/oauthprovider"
 	"formulago/data/ent/predicate"
 	"formulago/pkg/wecom"
 	"github.com/cloudwego/hertz/pkg/common/json"
-	"github.com/cockroachdb/errors"
+	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -29,14 +30,14 @@ type Oauth struct {
 	Config configs.Config
 }
 
-func NewOauth(data *data.Data, config configs.Config) domain.Oauth {
+func NewOauth(data *data.Data, config configs.Config) admin.Oauth {
 	return &Oauth{
 		Data:   data,
 		Config: config,
 	}
 }
 
-func (o *Oauth) Create(ctx context.Context, providerReq *domain.ProviderInfo) error {
+func (o *Oauth) Create(ctx context.Context, providerReq *admin.ProviderInfo) error {
 	_, err := o.Data.DBClient.OauthProvider.Create().
 		SetName(providerReq.Name).
 		SetClientID(providerReq.ClientID).
@@ -54,8 +55,8 @@ func (o *Oauth) Create(ctx context.Context, providerReq *domain.ProviderInfo) er
 	return nil
 }
 
-func (o *Oauth) Update(ctx context.Context, providerReq *domain.ProviderInfo) error {
-	_, err := o.Data.DBClient.OauthProvider.UpdateOneID(providerReq.Id).
+func (o *Oauth) Update(ctx context.Context, providerReq *admin.ProviderInfo) error {
+	_, err := o.Data.DBClient.OauthProvider.UpdateOneID(providerReq.ID).
 		SetName(providerReq.Name).
 		SetClientID(providerReq.ClientID).
 		SetClientSecret(providerReq.ClientSecret).
@@ -80,7 +81,7 @@ func (o *Oauth) Delete(ctx context.Context, providerID uint64) error {
 	return nil
 }
 
-func (o *Oauth) List(ctx context.Context, req *domain.OauthListReq) (list []*domain.ProviderInfo, total int, err error) {
+func (o *Oauth) List(ctx context.Context, req *admin.OauthListReq) (list []*admin.ProviderInfo, total int, err error) {
 	var predicates []predicate.OauthProvider
 	if req.Name != "" {
 		predicates = append(predicates, oauthprovider.NameContains(req.Name))
@@ -95,8 +96,8 @@ func (o *Oauth) List(ctx context.Context, req *domain.OauthListReq) (list []*dom
 	}
 
 	for _, provider := range providers {
-		list = append(list, &domain.ProviderInfo{
-			Id:           provider.ID,
+		list = append(list, &admin.ProviderInfo{
+			ID:           provider.ID,
 			Name:         provider.Name,
 			ClientID:     provider.ClientID,
 			ClientSecret: provider.ClientSecret,
@@ -114,7 +115,7 @@ func (o *Oauth) List(ctx context.Context, req *domain.OauthListReq) (list []*dom
 	return list, total, nil
 }
 
-func (o *Oauth) Login(ctx context.Context, req *domain.OauthLoginReq) (string, error) {
+func (o *Oauth) Login(ctx context.Context, req *admin.OauthLoginReq) (string, error) {
 	provider, err := o.Data.DBClient.OauthProvider.Query().Where(oauthprovider.Name(req.Provider)).First(ctx)
 	if err != nil {
 		return "", errors.Wrap(err, "get oauth provider failed")
@@ -146,19 +147,25 @@ func (o *Oauth) Login(ctx context.Context, req *domain.OauthLoginReq) (string, e
 		o.Data.Cache.Set("oauthProviderUserInfoURL"+provider.Name, provider.InfoURL, 24*time.Hour)
 	}
 
-	var url string
+	var oauthURL string
 	switch provider.Name {
 	case "wecom":
-		url = config.AuthCodeURL(req.State, oauth2.SetAuthURLParam("appid", provider.AppID),
-			oauth2.SetAuthURLParam("agentid", provider.ClientID))
+		if req.LoginType == "Inside" {
+			oauthURL = fmt.Sprintf("https://open.weixin.qq.com/connect/oauth2/authorize?appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_base&state=%s&agentid=%s#wechat_redirect",
+				provider.AppID, url.QueryEscape(provider.RedirectURL), req.State, provider.ClientID)
+		} else {
+			oauthURL = config.AuthCodeURL(req.State, oauth2.SetAuthURLParam("login_type", "CorpApp"),
+				oauth2.SetAuthURLParam("appid", provider.AppID),
+				oauth2.SetAuthURLParam("agentid", provider.ClientID))
+		}
 	default:
-		url = config.AuthCodeURL(req.State)
+		oauthURL = config.AuthCodeURL(req.State)
 	}
 
-	return url, nil
+	return oauthURL, nil
 }
 
-func (o *Oauth) Callback(ctx context.Context, req *domain.OauthCallbackReq) (*domain.OauthUserInfo, error) {
+func (o *Oauth) Callback(ctx context.Context, req *admin.OauthCallbackReq) (*admin.OauthUserInfo, error) {
 	if _, found := o.Data.Cache.Get("oauthProviderConfig" + req.ProviderName); !found {
 		provider, err := o.Data.DBClient.OauthProvider.Query().Where(oauthprovider.Name(req.ProviderName)).First(ctx)
 		if err != nil {
@@ -183,14 +190,15 @@ func (o *Oauth) Callback(ctx context.Context, req *domain.OauthCallbackReq) (*do
 	}
 
 	// get user information
-	var userInfo = new(domain.OauthUserInfo)
+	userInfo := new(admin.OauthUserInfo)
 	switch req.ProviderName {
 	case "wecom":
-		u, err := wecom.GetOAuthUser(ctx, o.Config, req.Code)
+		wecom := wecom.New(o.Config, o.Data)
+		u, err := wecom.GetOAuthUser(ctx, req.Code)
 		if err != nil {
 			return nil, errors.Wrap(err, "get wecom user info failed")
 		}
-		wecomUser, err := wecom.GetUserByID(ctx, o.Config, u.UserID)
+		wecomUser, err := wecom.GetUserByID(ctx, u.UserID)
 		if err != nil {
 			return nil, errors.Wrap(err, "get wecom user info failed")
 		}
@@ -219,7 +227,7 @@ func (o *Oauth) Callback(ctx context.Context, req *domain.OauthCallbackReq) (*do
 	return userInfo, nil
 }
 
-func getUserInfo(c oauth2.Config, infoURL string, code string) (*domain.OauthUserInfo, error) {
+func getUserInfo(c oauth2.Config, infoURL string, code string) (*admin.OauthUserInfo, error) {
 	token, err := c.Exchange(context.Background(), code)
 	if err != nil {
 		return nil, errors.Wrap(err, "code exchange failed")
@@ -253,7 +261,7 @@ func getUserInfo(c oauth2.Config, infoURL string, code string) (*domain.OauthUse
 		return nil, errors.Wrap(err, "failed reading response body")
 	}
 
-	var u *domain.OauthUserInfo
+	var u *admin.OauthUserInfo
 	err = json.Unmarshal(contents, &u)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed unmarshaling response body")

@@ -10,10 +10,10 @@ package middleware
 
 import (
 	"context"
+	"formulago/biz/domain/admin"
 	"strconv"
 	"time"
 
-	"formulago/biz/domain"
 	logic "formulago/biz/logic/admin"
 	"formulago/configs"
 	Data "formulago/data"
@@ -21,8 +21,8 @@ import (
 	"github.com/casbin/casbin/v2"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"github.com/cockroachdb/errors"
 	"github.com/hertz-contrib/jwt"
+	"github.com/pkg/errors"
 	"github.com/spf13/cast"
 )
 
@@ -79,7 +79,7 @@ func newJWT(config configs.Config, db *Data.Data, enforcer *casbin.Enforcer) (jw
 		},
 		Authenticator: func(ctx context.Context, c *app.RequestContext) (interface{}, error) {
 			oauthLogin := ctx.Value("OAuthKey") == config.Auth.OAuthKey
-			res := new(domain.LoginResp)
+			res := new(admin.LoginResp)
 			if !oauthLogin {
 				// normal jwtLogin
 				var loginVal jwtLogin
@@ -129,7 +129,7 @@ func newJWT(config configs.Config, db *Data.Data, enforcer *casbin.Enforcer) (jw
 
 			// jwtLogin success
 			// store token
-			var tokenInfo domain.TokenInfo
+			var tokenInfo admin.TokenInfo
 			tokenInfo.UserID = res.UserID
 			tokenInfo.UserName = res.Username
 			tokenInfo.ExpiredAt = time.Now().Add(time.Duration(config.Auth.AccessExpire) * time.Second).Format("2006-01-02 15:04:05")

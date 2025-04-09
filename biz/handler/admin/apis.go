@@ -4,7 +4,7 @@ package admin
 
 import (
 	"context"
-	"formulago/biz/domain"
+	admin2 "formulago/biz/domain/admin"
 	logic "formulago/biz/logic/admin"
 	"formulago/data"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -29,7 +29,7 @@ func CreateApi(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	var ApiInfoReq domain.ApiInfo
+	var ApiInfoReq admin2.ApiInfo
 	err = copier.Copy(&ApiInfoReq, &req)
 	if err != nil {
 		resp.ErrCode = base.ErrCode_Fail
@@ -65,7 +65,7 @@ func UpdateApi(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	var ApiInfoReq domain.ApiInfo
+	var ApiInfoReq admin2.ApiInfo
 	err = copier.Copy(&ApiInfoReq, &req)
 	if err != nil {
 		resp.ErrCode = base.ErrCode_Fail
@@ -128,7 +128,7 @@ func ApiList(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	var ApiPageReq domain.ListApiReq
+	var ApiPageReq admin2.ListApiReq
 	err = copier.Copy(&ApiPageReq, &req)
 	if err != nil {
 		resp.ErrCode = base.ErrCode_Fail

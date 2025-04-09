@@ -8,12 +8,12 @@ package admin
 
 import (
 	"context"
-	"formulago/biz/domain"
+	"formulago/biz/domain/admin"
 	"formulago/data"
 	"formulago/data/ent"
 	"formulago/data/ent/role"
 	"formulago/data/ent/user"
-	"github.com/cockroachdb/errors"
+	"github.com/pkg/errors"
 	"strconv"
 	"time"
 )
@@ -22,13 +22,13 @@ type Role struct {
 	Data *data.Data
 }
 
-func NewRole(data *data.Data) domain.Role {
+func NewRole(data *data.Data) admin.Role {
 	return &Role{
 		Data: data,
 	}
 }
 
-func (r *Role) Create(ctx context.Context, req domain.RoleInfo) error {
+func (r *Role) Create(ctx context.Context, req admin.RoleInfo) error {
 	roleEnt, err := r.Data.DBClient.Role.Create().
 		SetName(req.Name).
 		SetValue(req.Value).
@@ -47,7 +47,7 @@ func (r *Role) Create(ctx context.Context, req domain.RoleInfo) error {
 	return nil
 }
 
-func (r *Role) Update(ctx context.Context, req domain.RoleInfo) error {
+func (r *Role) Update(ctx context.Context, req admin.RoleInfo) error {
 	roleEnt, err := r.Data.DBClient.Role.UpdateOneID(req.ID).
 		SetName(req.Name).
 		SetValue(req.Value).
@@ -88,12 +88,12 @@ func (r *Role) Delete(ctx context.Context, id uint64) error {
 	return nil
 }
 
-func (r *Role) RoleInfoByID(ctx context.Context, ID uint64) (roleInfo *domain.RoleInfo, err error) {
+func (r *Role) RoleInfoByID(ctx context.Context, ID uint64) (roleInfo *admin.RoleInfo, err error) {
 	// get role from cache
 	roleInterface, ok := r.Data.Cache.Get("roleData" + strconv.Itoa(int(ID)))
 	if ok {
 		if r, ok := roleInterface.(*ent.Role); ok {
-			return &domain.RoleInfo{
+			return &admin.RoleInfo{
 				ID:            r.ID,
 				Name:          r.Name,
 				Value:         r.Value,
@@ -115,7 +115,7 @@ func (r *Role) RoleInfoByID(ctx context.Context, ID uint64) (roleInfo *domain.Ro
 	// set role to cache
 	r.Data.Cache.Set("roleData"+strconv.Itoa(int(ID)), roleEnt, 24*time.Hour)
 	// convert to RoleInfo
-	roleInfo = &domain.RoleInfo{
+	roleInfo = &admin.RoleInfo{
 		ID:            roleEnt.ID,
 		Name:          roleEnt.Name,
 		Value:         roleEnt.Value,
@@ -129,7 +129,7 @@ func (r *Role) RoleInfoByID(ctx context.Context, ID uint64) (roleInfo *domain.Ro
 	return
 }
 
-func (r *Role) List(ctx context.Context, req *domain.RoleListReq) (roleInfoList []*domain.RoleInfo, total int, err error) {
+func (r *Role) List(ctx context.Context, req *admin.RoleListReq) (roleInfoList []*admin.RoleInfo, total int, err error) {
 	roleEntList, err := r.Data.DBClient.Role.Query().Order(ent.Asc(role.FieldOrderNo)).
 		Offset(int(req.Page-1) * int(req.PageSize)).
 		Limit(int(req.PageSize)).All(ctx)
@@ -139,7 +139,7 @@ func (r *Role) List(ctx context.Context, req *domain.RoleListReq) (roleInfoList 
 	}
 	// convert to List
 	for _, roleEnt := range roleEntList {
-		roleInfoList = append(roleInfoList, &domain.RoleInfo{
+		roleInfoList = append(roleInfoList, &admin.RoleInfo{
 			ID:            roleEnt.ID,
 			Name:          roleEnt.Name,
 			Value:         roleEnt.Value,

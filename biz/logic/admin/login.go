@@ -8,14 +8,14 @@ package admin
 
 import (
 	"context"
-	"formulago/biz/domain"
+	"formulago/biz/domain/admin"
 	"formulago/data"
 	"formulago/pkg/encrypt"
 	"strconv"
 	"time"
 
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"github.com/cockroachdb/errors"
+	"github.com/pkg/errors"
 
 	"formulago/data/ent"
 	"formulago/data/ent/user"
@@ -25,13 +25,13 @@ type Login struct {
 	Data *data.Data
 }
 
-func NewLogin(data *data.Data) domain.Login {
+func NewLogin(data *data.Data) admin.Login {
 	return &Login{
 		Data: data,
 	}
 }
 
-func (l *Login) Login(ctx context.Context, username, password string) (res *domain.LoginResp, err error) {
+func (l *Login) Login(ctx context.Context, username, password string) (res *admin.LoginResp, err error) {
 	// check username
 	result, err := l.Data.DBClient.User.Query().Where(user.UsernameEQ(username), user.Status(1)).Only(ctx)
 	if err != nil {
@@ -46,7 +46,7 @@ func (l *Login) Login(ctx context.Context, username, password string) (res *doma
 		err = errors.New("wrong password")
 		return nil, err
 	}
-	res = new(domain.LoginResp)
+	res = new(admin.LoginResp)
 	res.Username = username
 	res.UserID = result.ID
 	// get role info
@@ -57,7 +57,7 @@ func (l *Login) Login(ctx context.Context, username, password string) (res *doma
 }
 
 // LoginByOAuth only use for oauth2.0 login, should have been Authenticated by oauth
-func (l *Login) LoginByOAuth(ctx context.Context, provider, credential string) (res *domain.LoginResp, err error) {
+func (l *Login) LoginByOAuth(ctx context.Context, provider, credential string) (res *admin.LoginResp, err error) {
 	// check credential
 	var userInfo *ent.User
 	switch provider {
@@ -85,7 +85,7 @@ func (l *Login) LoginByOAuth(ctx context.Context, provider, credential string) (
 		}
 	}
 
-	res = new(domain.LoginResp)
+	res = new(admin.LoginResp)
 	res.Username = userInfo.Username
 	res.UserID = userInfo.ID
 	// get role info

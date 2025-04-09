@@ -4,7 +4,7 @@ package admin
 
 import (
 	"context"
-	"formulago/biz/domain"
+	admin2 "formulago/biz/domain/admin"
 	logic "formulago/biz/logic/admin"
 	"formulago/data"
 
@@ -28,7 +28,7 @@ func GetLogsList(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	var logsListReq domain.LogsListReq
+	var logsListReq admin2.LogsListReq
 	logsListReq.Page = req.Page
 	logsListReq.PageSize = req.PageSize
 	logsListReq.Type = req.Type

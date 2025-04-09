@@ -9,13 +9,13 @@ package admin
 import (
 	"context"
 	"fmt"
-	"formulago/biz/domain"
+	"formulago/biz/domain/admin"
 	"formulago/data"
 	"formulago/data/ent"
 	"formulago/data/ent/dictionary"
 	"formulago/data/ent/dictionarydetail"
 	"formulago/data/ent/predicate"
-	"github.com/cockroachdb/errors"
+	"github.com/pkg/errors"
 	"time"
 )
 
@@ -23,13 +23,13 @@ type Dictionary struct {
 	Data *data.Data
 }
 
-func NewDictionary(data *data.Data) domain.Dictionary {
+func NewDictionary(data *data.Data) admin.Dictionary {
 	return &Dictionary{
 		Data: data,
 	}
 }
 
-func (d *Dictionary) Create(ctx context.Context, req *domain.DictionaryInfo) error {
+func (d *Dictionary) Create(ctx context.Context, req *admin.DictionaryInfo) error {
 	// whether dictionary name exists
 	dictionaryExist, _ := d.Data.DBClient.Dictionary.Query().Where(dictionary.Name(req.Name)).Exist(ctx)
 	if dictionaryExist {
@@ -48,7 +48,7 @@ func (d *Dictionary) Create(ctx context.Context, req *domain.DictionaryInfo) err
 	return nil
 }
 
-func (d *Dictionary) Update(ctx context.Context, req *domain.DictionaryInfo) error {
+func (d *Dictionary) Update(ctx context.Context, req *admin.DictionaryInfo) error {
 	// whether dictionary is exists
 	dictionaryExist, _ := d.Data.DBClient.Dictionary.Query().Where(dictionary.ID(req.ID)).Exist(ctx)
 	if !dictionaryExist {
@@ -98,7 +98,7 @@ func (d *Dictionary) Delete(ctx context.Context, id uint64) error {
 	return nil
 }
 
-func (d *Dictionary) List(ctx context.Context, req *domain.DictListReq) (list []*domain.DictionaryInfo, total int, err error) {
+func (d *Dictionary) List(ctx context.Context, req *admin.DictListReq) (list []*admin.DictionaryInfo, total int, err error) {
 	// query dictionary
 	var predicates []predicate.Dictionary
 	if req.Title != "" {
@@ -116,7 +116,7 @@ func (d *Dictionary) List(ctx context.Context, req *domain.DictListReq) (list []
 
 	// format result
 	for _, dict := range dictionaries {
-		list = append(list, &domain.DictionaryInfo{
+		list = append(list, &admin.DictionaryInfo{
 			ID:          dict.ID,
 			Title:       dict.Title,
 			Name:        dict.Name,
@@ -130,7 +130,7 @@ func (d *Dictionary) List(ctx context.Context, req *domain.DictListReq) (list []
 	return
 }
 
-func (d *Dictionary) CreateDetail(ctx context.Context, req *domain.DictionaryDetail) error {
+func (d *Dictionary) CreateDetail(ctx context.Context, req *admin.DictionaryDetail) error {
 	// whether dictionary detail is exists
 	exist, err := d.Data.DBClient.DictionaryDetail.Query().Where(dictionarydetail.Key(req.Key)).
 		Where(dictionarydetail.Value(req.Value)).Where(dictionarydetail.HasDictionaryWith(dictionary.ID(req.ParentID))).Exist(ctx)
@@ -164,7 +164,7 @@ func (d *Dictionary) CreateDetail(ctx context.Context, req *domain.DictionaryDet
 	return nil
 }
 
-func (d *Dictionary) UpdateDetail(ctx context.Context, req *domain.DictionaryDetail) error {
+func (d *Dictionary) UpdateDetail(ctx context.Context, req *admin.DictionaryDetail) error {
 	// query dictionary detail
 	detail, err := d.Data.DBClient.DictionaryDetail.Query().
 		Where(dictionarydetail.ID(req.ID)).
@@ -213,7 +213,7 @@ func (d *Dictionary) DeleteDetail(ctx context.Context, id uint64) error {
 	return nil
 }
 
-func (d *Dictionary) DetailListByDictName(ctx context.Context, dictName string) (list []*domain.DictionaryDetail, total uint64, err error) {
+func (d *Dictionary) DetailListByDictName(ctx context.Context, dictName string) (list []*admin.DictionaryDetail, total uint64, err error) {
 	// query dictionary detail
 	details, err := d.Data.DBClient.DictionaryDetail.Query().
 		Where(dictionarydetail.HasDictionaryWith(dictionary.NameEQ(dictName))).
@@ -227,7 +227,7 @@ func (d *Dictionary) DetailListByDictName(ctx context.Context, dictName string) 
 
 	// format result
 	for _, detail := range details {
-		list = append(list, &domain.DictionaryDetail{
+		list = append(list, &admin.DictionaryDetail{
 			ID:        detail.ID,
 			Title:     detail.Title,
 			Key:       detail.Key,
@@ -282,11 +282,11 @@ func (d *Dictionary) V2KMapByDictName(ctx context.Context, dictName string) (V2K
 	return V2KMap, nil
 }
 
-func (d *Dictionary) DetailByDictNameAndKey(ctx context.Context, dictName, key string) (detail *domain.DictionaryDetail, err error) {
+func (d *Dictionary) DetailByDictNameAndKey(ctx context.Context, dictName, key string) (detail *admin.DictionaryDetail, err error) {
 	// query dictionary detail from cache
 	v, found := d.Data.Cache.Get(fmt.Sprintf("Dictionary%s-key%s", dictName, key))
 	if found {
-		return v.(*domain.DictionaryDetail), nil
+		return v.(*admin.DictionaryDetail), nil
 	}
 	// query dictionary detail from database
 	dictDetail, err := d.Data.DBClient.DictionaryDetail.Query().
@@ -297,7 +297,7 @@ func (d *Dictionary) DetailByDictNameAndKey(ctx context.Context, dictName, key s
 	}
 
 	// format result
-	detail = new(domain.DictionaryDetail)
+	detail = new(admin.DictionaryDetail)
 	detail.ID = dictDetail.ID
 	detail.Title = dictDetail.Title
 	detail.Key = dictDetail.Key
@@ -311,11 +311,11 @@ func (d *Dictionary) DetailByDictNameAndKey(ctx context.Context, dictName, key s
 	return detail, nil
 }
 
-func (d *Dictionary) DetailByDictNameAndValue(ctx context.Context, dictName, value string) (detail *domain.DictionaryDetail, err error) {
+func (d *Dictionary) DetailByDictNameAndValue(ctx context.Context, dictName, value string) (detail *admin.DictionaryDetail, err error) {
 	// query dictionary detail from cache
 	v, found := d.Data.Cache.Get(fmt.Sprintf("Dictionary%s-value%s", dictName, value))
 	if found {
-		return v.(*domain.DictionaryDetail), nil
+		return v.(*admin.DictionaryDetail), nil
 	}
 	// query dictionary detail from database
 	dictDetail, err := d.Data.DBClient.DictionaryDetail.Query().
@@ -326,7 +326,7 @@ func (d *Dictionary) DetailByDictNameAndValue(ctx context.Context, dictName, val
 	}
 
 	// format result
-	detail = new(domain.DictionaryDetail)
+	detail = new(admin.DictionaryDetail)
 	detail.ID = dictDetail.ID
 	detail.Title = dictDetail.Title
 	detail.Key = dictDetail.Key

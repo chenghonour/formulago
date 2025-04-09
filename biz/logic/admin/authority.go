@@ -8,12 +8,14 @@ package admin
 
 import (
 	"context"
-	"formulago/biz/domain"
+
+	"formulago/biz/domain/admin"
 	"formulago/data"
 	"formulago/data/ent/role"
+
 	"github.com/casbin/casbin/v2"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"github.com/cockroachdb/errors"
+	"github.com/pkg/errors"
 )
 
 type Authority struct {
@@ -21,17 +23,19 @@ type Authority struct {
 	Data *data.Data
 }
 
-func NewAuthority(data *data.Data, cbs *casbin.Enforcer) domain.Authority {
+func NewAuthority(data *data.Data, cbs *casbin.Enforcer) admin.Authority {
 	return &Authority{
 		Cbs:  cbs,
 		Data: data,
 	}
 }
 
-func (a *Authority) UpdateApiAuthority(ctx context.Context, roleIDStr string, infos []*domain.ApiAuthorityInfo) error {
+func (a *Authority) UpdateApiAuthority(ctx context.Context, roleIDStr string, infos []*admin.ApiAuthorityInfo) error {
 	// clear old policies
-	var oldPolicies [][]string
-	oldPolicies = a.Cbs.GetFilteredPolicy(0, roleIDStr)
+	oldPolicies, err := a.Cbs.GetFilteredPolicy(0, roleIDStr)
+	if err != nil {
+		return err
+	}
 	if len(oldPolicies) != 0 {
 		removeResult, err := a.Cbs.RemoveFilteredPolicy(0, roleIDStr)
 		if err != nil {
@@ -56,11 +60,14 @@ func (a *Authority) UpdateApiAuthority(ctx context.Context, roleIDStr string, in
 	return nil
 }
 
-// ApiAuthority Get Api authority policy by role id
-func (a *Authority) ApiAuthority(ctx context.Context, roleIDStr string) (infos []*domain.ApiAuthorityInfo, err error) {
-	policies := a.Cbs.GetFilteredPolicy(0, roleIDStr)
+// ApiAuthority CompanyInfo Api authority policy by role id
+func (a *Authority) ApiAuthority(ctx context.Context, roleIDStr string) (infos []*admin.ApiAuthorityInfo, err error) {
+	policies, err := a.Cbs.GetFilteredPolicy(0, roleIDStr)
+	if err != nil {
+		return
+	}
 	for _, v := range policies {
-		infos = append(infos, &domain.ApiAuthorityInfo{
+		infos = append(infos, &admin.ApiAuthorityInfo{
 			Path:   v[1],
 			Method: v[2],
 		})

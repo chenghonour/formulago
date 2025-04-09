@@ -10,20 +10,20 @@ package wecom
 
 import (
 	"context"
-	"formulago/configs"
-	"github.com/chenghonour/wechat-sdk"
+
+	wechatSDK "github.com/chenghonour/wechat-sdk"
 	"github.com/chenghonour/wechat-sdk/corp"
 	"github.com/chenghonour/wechat-sdk/corp/addrbook"
-	"github.com/cockroachdb/errors"
+	"github.com/pkg/errors"
 )
 
 // GetUserIDByPhone get user id from wecom by phone
-func GetUserIDByPhone(ctx context.Context, config configs.Config, phone string) (userID string, err error) {
-	cp := gochat.NewCorp(config.Wecom.CorpID)
+func (w *Wecom) GetUserIDByPhone(ctx context.Context, phone string) (userID string, err error) {
+	cp := wechatSDK.NewCorp(w.Config.Wecom.CorpID)
 	// set debug mode (support custom log)
-	//cp.SetClient(wx.WithDebug(), wx.WithLogger(wx.DefaultLogger()))
+	// cp.SetClient(wx.WithDebug(), wx.WithLogger(wx.DefaultLogger()))
 	// get token
-	token, err := cp.AccessToken(ctx, config.Wecom.SecretID)
+	token, err := cp.AccessToken(ctx, w.Config.Wecom.SecretID)
 	if err != nil {
 		err = errors.Wrap(err, "get wecom token failed")
 		return "", err
@@ -40,12 +40,12 @@ func GetUserIDByPhone(ctx context.Context, config configs.Config, phone string) 
 }
 
 // GetUserByID get user info from wecom by userID
-func GetUserByID(ctx context.Context, config configs.Config, userID string) (userInfo *addrbook.User, err error) {
-	cp := gochat.NewCorp(config.Wecom.CorpID)
+func (w *Wecom) GetUserByID(ctx context.Context, userID string) (userInfo *addrbook.User, err error) {
+	cp := wechatSDK.NewCorp(w.Config.Wecom.CorpID)
 	// set debug mode (support custom log)
-	//cp.SetClient(wx.WithDebug(), wx.WithLogger(wx.DefaultLogger()))
+	// cp.SetClient(wx.WithDebug(), wx.WithLogger(wx.DefaultLogger()))
 	// get token
-	token, err := cp.AccessToken(ctx, config.Wecom.SecretID)
+	token, err := cp.AccessToken(ctx, w.Config.Wecom.SecretID)
 	if err != nil {
 		err = errors.Wrap(err, "get wecom token failed")
 		return nil, err
@@ -61,12 +61,12 @@ func GetUserByID(ctx context.Context, config configs.Config, userID string) (use
 }
 
 // GetOAuthUser get user info from wecom by auth code
-func GetOAuthUser(ctx context.Context, config configs.Config, code string) (userInfo *corp.ResultOAuthUser, err error) {
-	cp := gochat.NewCorp(config.Wecom.CorpID)
+func (w *Wecom) GetOAuthUser(ctx context.Context, code string) (userInfo *corp.ResultOAuthUser, err error) {
+	cp := wechatSDK.NewCorp(w.Config.Wecom.CorpID)
 	// set debug mode (support custom log)
-	//cp.SetClient(wx.WithDebug(), wx.WithLogger(wx.DefaultLogger()))
+	// cp.SetClient(wx.WithDebug(), wx.WithLogger(wx.DefaultLogger()))
 	// get token
-	token, err := cp.AccessToken(ctx, config.Wecom.SecretID)
+	token, err := cp.AccessToken(ctx, w.Config.Wecom.SecretID)
 	if err != nil {
 		err = errors.Wrap(err, "get wecom token failed")
 		return nil, err

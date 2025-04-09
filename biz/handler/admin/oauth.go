@@ -4,7 +4,7 @@ package admin
 
 import (
 	"context"
-	"formulago/biz/domain"
+	admin2 "formulago/biz/domain/admin"
 	"formulago/biz/handler/middleware"
 	logic "formulago/biz/logic/admin"
 	"formulago/configs"
@@ -32,7 +32,7 @@ func CreateProvider(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	var providerInfo domain.ProviderInfo
+	var providerInfo admin2.ProviderInfo
 	err = copier.Copy(&providerInfo, &req)
 	if err != nil {
 		resp.ErrCode = base.ErrCode_Fail
@@ -67,7 +67,7 @@ func UpdateProvider(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	var providerInfo domain.ProviderInfo
+	var providerInfo admin2.ProviderInfo
 	err = copier.Copy(&providerInfo, &req)
 	if err != nil {
 		resp.ErrCode = base.ErrCode_Fail
@@ -126,7 +126,7 @@ func GetProviderList(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	var ListReq domain.OauthListReq
+	var ListReq admin2.OauthListReq
 	ListReq.Page = req.Page
 	ListReq.PageSize = req.PageSize
 	ListReq.Name = req.Name
@@ -166,9 +166,10 @@ func OauthLogin(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	var loginReq domain.OauthLoginReq
+	var loginReq admin2.OauthLoginReq
 	loginReq.Provider = req.Provider
 	loginReq.State = req.State
+	loginReq.LoginType = req.LoginType
 	url, err := logic.NewOauth(data.Default(), configs.Data()).Login(ctx, &loginReq)
 	if err != nil {
 		resp.ErrCode = base.ErrCode_Fail
@@ -199,7 +200,7 @@ func OauthCallback(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	providerName := stateList[1]
-	var callbackReq domain.OauthCallbackReq
+	var callbackReq admin2.OauthCallbackReq
 	callbackReq.ProviderName = providerName
 	callbackReq.Code = req.Code
 	callbackReq.State = req.State

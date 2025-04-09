@@ -4,7 +4,7 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  */
 
-package domain
+package admin
 
 import "context"
 
@@ -18,7 +18,7 @@ type Oauth interface {
 }
 
 type ProviderInfo struct {
-	Id           uint64
+	ID           uint64
 	Name         string
 	ClientID     string
 	ClientSecret string
@@ -41,6 +41,8 @@ type OauthListReq struct {
 type OauthLoginReq struct {
 	State    string
 	Provider string
+	// Login type for wecom: QRCode, Inside, Quick | 企业微信登录类型：二维码，应用内部，快速 （其他应用的OAuth不需要传）
+	LoginType string
 }
 
 type OauthCallbackReq struct {

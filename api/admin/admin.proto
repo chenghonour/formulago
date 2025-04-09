@@ -744,6 +744,8 @@ message OauthLoginReq {
   // format: random string-provider name | 格式：随机字符串-供应商名称
   string state = 1;
   string provider = 2;
+  // Login type for wecom: QRCode, Inside, Quick | 企业微信登录类型：二维码，应用内部，快速 （其他应用的OAuth不需要传）
+  string LoginType = 3;
 }
 
 // Redirect information | 跳转网址

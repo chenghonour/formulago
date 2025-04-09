@@ -8,7 +8,7 @@ package middleware
 
 import (
 	"context"
-	"formulago/biz/domain"
+	admin2 "formulago/biz/domain/admin"
 	"formulago/biz/logic/admin"
 	"formulago/data"
 	"formulago/pkg/types"
@@ -25,7 +25,7 @@ func LogsMiddleware(d *data.Data) app.HandlerFunc {
 		// ...
 		c.Next(ctx)
 		// post-handle
-		var logs domain.LogsInfo
+		var logs admin2.LogsInfo
 		logs.Type = "Interface"
 		logs.Method = string(c.Request.Method())
 		logs.Api = string(c.Request.Path())

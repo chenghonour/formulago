@@ -10,24 +10,24 @@ package admin
 
 import (
 	"context"
-	"formulago/biz/domain"
+	"formulago/biz/domain/admin"
 	"formulago/data"
 	"formulago/data/ent/api"
 	"formulago/data/ent/predicate"
-	"github.com/cockroachdb/errors"
+	"github.com/pkg/errors"
 )
 
 type Api struct {
 	Data *data.Data
 }
 
-func NewApi(data *data.Data) domain.Api {
+func NewApi(data *data.Data) admin.Api {
 	return &Api{
 		Data: data,
 	}
 }
 
-func (a *Api) Create(ctx context.Context, req domain.ApiInfo) error {
+func (a *Api) Create(ctx context.Context, req admin.ApiInfo) error {
 	_, err := a.Data.DBClient.API.Create().
 		SetPath(req.Path).
 		SetDescription(req.Description).
@@ -41,7 +41,7 @@ func (a *Api) Create(ctx context.Context, req domain.ApiInfo) error {
 	return nil
 }
 
-func (a *Api) Update(ctx context.Context, req domain.ApiInfo) error {
+func (a *Api) Update(ctx context.Context, req admin.ApiInfo) error {
 	_, err := a.Data.DBClient.API.UpdateOneID(req.ID).
 		SetPath(req.Path).
 		SetDescription(req.Description).
@@ -60,7 +60,7 @@ func (a *Api) Delete(ctx context.Context, id uint64) error {
 	return err
 }
 
-func (a *Api) List(ctx context.Context, req domain.ListApiReq) (resp []*domain.ApiInfo, total int, err error) {
+func (a *Api) List(ctx context.Context, req admin.ListApiReq) (resp []*admin.ApiInfo, total int, err error) {
 	var predicates []predicate.API
 	if req.Path != "" {
 		predicates = append(predicates, api.PathContains(req.Path))
@@ -83,7 +83,7 @@ func (a *Api) List(ctx context.Context, req domain.ListApiReq) (resp []*domain.A
 		return resp, total, err
 	}
 	for _, a := range apis {
-		resp = append(resp, &domain.ApiInfo{
+		resp = append(resp, &admin.ApiInfo{
 			ID:          a.ID,
 			CreatedAt:   a.CreatedAt.Format("2006-01-02 15:04:05"),
 			UpdatedAt:   a.UpdatedAt.Format("2006-01-02 15:04:05"),

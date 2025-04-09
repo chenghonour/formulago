@@ -7,7 +7,7 @@
 package admin
 
 import (
-	"formulago/biz/domain"
+	"formulago/biz/domain/admin"
 	"formulago/configs"
 	"formulago/data"
 	"formulago/pkg/captcha"
@@ -31,7 +31,7 @@ type Captcha struct {
 	CaptchaStore  *captcha.CacheStore
 }
 
-func NewCaptcha() domain.Captcha {
+func NewCaptcha() admin.Captcha {
 	if captchaDriver == nil || CaptchaStore == nil {
 		initCaptcha()
 	}

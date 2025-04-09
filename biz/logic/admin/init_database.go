@@ -14,7 +14,7 @@ import (
 
 	"formulago/data/ent"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"github.com/cockroachdb/errors"
+	"github.com/pkg/errors"
 )
 
 type InitDatabase struct {

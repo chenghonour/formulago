@@ -4,7 +4,7 @@ package admin
 
 import (
 	"context"
-	"formulago/biz/domain"
+	admin2 "formulago/biz/domain/admin"
 	logic "formulago/biz/logic/admin"
 	"formulago/data"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -30,7 +30,7 @@ func CreateMenu(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	var menuReq domain.MenuInfo
+	var menuReq admin2.MenuInfo
 	err = copier.Copy(&menuReq, &req)
 	if err != nil {
 		resp.ErrCode = base.ErrCode_Fail
@@ -66,7 +66,7 @@ func UpdateMenu(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	var menuReq domain.MenuInfo
+	var menuReq admin2.MenuInfo
 	err = copier.Copy(&menuReq, &req)
 	if err != nil {
 		resp.ErrCode = base.ErrCode_Fail
@@ -176,7 +176,7 @@ func MenuList(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	var listReq domain.MenuListReq
+	var listReq admin2.MenuListReq
 	listReq.Page = req.Page
 	listReq.PageSize = req.PageSize
 	menuTree, total, err := logic.NewMenu(data.Default()).List(ctx, &listReq)
@@ -216,7 +216,7 @@ func CreateMenuParam(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	var menuParamReq domain.MenuParam
+	var menuParamReq admin2.MenuParam
 	err = copier.Copy(&menuParamReq, &req)
 	if err != nil {
 		resp.ErrCode = base.ErrCode_Fail
@@ -251,7 +251,7 @@ func UpdateMenuParam(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	var menuParamReq domain.MenuParam
+	var menuParamReq admin2.MenuParam
 	err = copier.Copy(&menuParamReq, &req)
 	if err != nil {
 		resp.ErrCode = base.ErrCode_Fail

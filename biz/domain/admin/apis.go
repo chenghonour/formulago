@@ -6,7 +6,7 @@
 
 // Package domain provide domain/model/entity and related interfaces
 
-package domain
+package admin
 
 import "context"
 

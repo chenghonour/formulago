@@ -4,7 +4,7 @@ package admin
 
 import (
 	"context"
-	admin2 "formulago/biz/domain/admin"
+	"formulago/biz/domain"
 	logic "formulago/biz/logic/admin"
 	"formulago/data"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -29,7 +29,7 @@ func UpdateToken(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	var tokenInfo admin2.TokenInfo
+	var tokenInfo domain.TokenInfo
 	err = copier.Copy(&tokenInfo, &req)
 	if err != nil {
 		resp.ErrCode = base.ErrCode_Fail
@@ -92,7 +92,7 @@ func TokenList(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	var tokenListReq admin2.TokenListReq
+	var tokenListReq domain.TokenListReq
 	err = copier.Copy(&tokenListReq, &req)
 	if err != nil {
 		resp.ErrCode = base.ErrCode_Fail

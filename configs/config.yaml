@@ -51,6 +51,7 @@ Casbin:
 S3:
   Type: "AliyunOSS"
   AliyunOSS:
+    Region: "cn-shenzhen"
     Endpoint:   "oss-cn-shenzhen.aliyuncs.com"
     BucketName: "xxxxx"
     BasePath: "xxxxx"
@@ -62,3 +63,5 @@ S3:
 Wecom:
   CorpId: "wwxeddc2dddd8cxxx"
   SecretId: "x7T_hcxv8qxxxabRobddddcNActLf3b5xxxT_I"
+  Token: "B5pX6OIPjyZ3IPQGwexxxxxx661"
+  EncodingAESKey: "KGbWptQao6u7yPExxx4QR2wzDricfqobLMmqxxx5661"

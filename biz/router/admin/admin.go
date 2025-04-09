@@ -27,10 +27,45 @@ func Register(r *server.Hertz) {
 		_api.POST("/structToProto", append(_structtoprotoMw(), admin.StructToProto)...)
 		{
 			_admin := _api.Group("/admin", _adminMw()...)
-			_admin.GET("/role", append(_rolebyidMw(), admin.RoleByID)...)
 			_admin.DELETE("/api", append(_deleteapiMw(), admin.DeleteApi)...)
 			_api0 := _admin.Group("/api", _api0Mw()...)
 			_api0.GET("/list", append(_apilistMw(), admin.ApiList)...)
+			_admin.DELETE("/dict", append(_deletedictionaryMw(), admin.DeleteDictionary)...)
+			_dict := _admin.Group("/dict", _dictMw()...)
+			_dict.DELETE("/detail", append(_deletedictionarydetailMw(), admin.DeleteDictionaryDetail)...)
+			_detail := _dict.Group("/detail", _detailMw()...)
+			_detail.GET("/list", append(_detailbydictionarynameMw(), admin.DetailByDictionaryName)...)
+			_dict.GET("/list", append(_dictionarylistMw(), admin.DictionaryList)...)
+			{
+				_detail0 := _dict.Group("/detail", _detail0Mw()...)
+				_detail0.POST("/create", append(_createdictionarydetailMw(), admin.CreateDictionaryDetail)...)
+				_detail0.POST("/update", append(_updatedictionarydetailMw(), admin.UpdateDictionaryDetail)...)
+			}
+			_admin.DELETE("/menu", append(_deletemenuMw(), admin.DeleteMenu)...)
+			_menu := _admin.Group("/menu", _menuMw()...)
+			_menu.GET("/list", append(_menulistMw(), admin.MenuList)...)
+			_menu.DELETE("/param", append(_deletemenuparamMw(), admin.DeleteMenuParam)...)
+			_param := _menu.Group("/param", _paramMw()...)
+			_param.GET("/list", append(_menuparamlistbymenuidMw(), admin.MenuParamListByMenuID)...)
+			_menu.GET("/role", append(_menubyroleMw(), admin.MenuByRole)...)
+			{
+				_param0 := _menu.Group("/param", _param0Mw()...)
+				_param0.POST("/create", append(_createmenuparamMw(), admin.CreateMenuParam)...)
+				_param0.POST("/update", append(_updatemenuparamMw(), admin.UpdateMenuParam)...)
+			}
+			_admin.DELETE("/role", append(_deleteroleMw(), admin.DeleteRole)...)
+			_role := _admin.Group("/role", _roleMw()...)
+			_role.GET("/list", append(_rolelistMw(), admin.RoleList)...)
+			_role.POST("/status", append(_updaterolestatusMw(), admin.UpdateRoleStatus)...)
+			_admin.GET("/role", append(_rolebyidMw(), admin.RoleByID)...)
+			_admin.DELETE("/token", append(_deletetokenMw(), admin.DeleteToken)...)
+			_token := _admin.Group("/token", _tokenMw()...)
+			_token.GET("/list", append(_tokenlistMw(), admin.TokenList)...)
+			_admin.DELETE("/user", append(_deleteuserMw(), admin.DeleteUser)...)
+			_user := _admin.Group("/user", _userMw()...)
+			_user.GET("/profile", append(_userprofileMw(), admin.UserProfile)...)
+			_user.POST("/profile", append(_updateprofileMw(), admin.UpdateProfile)...)
+			_user.POST("/status", append(_updateuserstatusMw(), admin.UpdateUserStatus)...)
 			{
 				_api1 := _admin.Group("/api", _api1Mw()...)
 				_api1.POST("/create", append(_createapiMw(), admin.CreateApi)...)
@@ -45,22 +80,11 @@ func Register(r *server.Hertz) {
 					_api2.POST("/update", append(_updateapiauthorityMw(), admin.UpdateApiAuthority)...)
 				}
 				{
-					_menu := _authority.Group("/menu", _menuMw()...)
-					_menu.POST("/create", append(_createmenuauthorityMw(), admin.CreateMenuAuthority)...)
-					_menu.POST("/role", append(_menuauthorityMw(), admin.MenuAuthority)...)
-					_menu.POST("/update", append(_updatemenuauthorityMw(), admin.UpdateMenuAuthority)...)
+					_menu0 := _authority.Group("/menu", _menu0Mw()...)
+					_menu0.POST("/create", append(_createmenuauthorityMw(), admin.CreateMenuAuthority)...)
+					_menu0.POST("/role", append(_menuauthorityMw(), admin.MenuAuthority)...)
+					_menu0.POST("/update", append(_updatemenuauthorityMw(), admin.UpdateMenuAuthority)...)
 				}
-			}
-			_admin.DELETE("/dict", append(_deletedictionaryMw(), admin.DeleteDictionary)...)
-			_dict := _admin.Group("/dict", _dictMw()...)
-			_dict.DELETE("/detail", append(_deletedictionarydetailMw(), admin.DeleteDictionaryDetail)...)
-			_detail := _dict.Group("/detail", _detailMw()...)
-			_detail.GET("/list", append(_detailbydictionarynameMw(), admin.DetailByDictionaryName)...)
-			_dict.GET("/list", append(_dictionarylistMw(), admin.DictionaryList)...)
-			{
-				_detail0 := _dict.Group("/detail", _detail0Mw()...)
-				_detail0.POST("/create", append(_createdictionarydetailMw(), admin.CreateDictionaryDetail)...)
-				_detail0.POST("/update", append(_updatedictionarydetailMw(), admin.UpdateDictionaryDetail)...)
 			}
 			{
 				_dict0 := _admin.Group("/dict", _dict0Mw()...)
@@ -71,18 +95,6 @@ func Register(r *server.Hertz) {
 				_logs := _admin.Group("/logs", _logsMw()...)
 				_logs.DELETE("/deleteAll", append(_deletelogsMw(), admin.DeleteLogs)...)
 				_logs.GET("/list", append(_getlogslistMw(), admin.GetLogsList)...)
-			}
-			_admin.DELETE("/menu", append(_deletemenuMw(), admin.DeleteMenu)...)
-			_menu0 := _admin.Group("/menu", _menu0Mw()...)
-			_menu0.GET("/list", append(_menulistMw(), admin.MenuList)...)
-			_menu0.DELETE("/param", append(_deletemenuparamMw(), admin.DeleteMenuParam)...)
-			_param := _menu0.Group("/param", _paramMw()...)
-			_param.GET("/list", append(_menuparamlistbymenuidMw(), admin.MenuParamListByMenuID)...)
-			_menu0.GET("/role", append(_menubyroleMw(), admin.MenuByRole)...)
-			{
-				_param0 := _menu0.Group("/param", _param0Mw()...)
-				_param0.POST("/create", append(_createmenuparamMw(), admin.CreateMenuParam)...)
-				_param0.POST("/update", append(_updatemenuparamMw(), admin.UpdateMenuParam)...)
 			}
 			{
 				_menu1 := _admin.Group("/menu", _menu1Mw()...)
@@ -101,26 +113,14 @@ func Register(r *server.Hertz) {
 				}
 			}
 			{
-				_role := _admin.Group("/role", _roleMw()...)
-				_role.POST("/create", append(_createroleMw(), admin.CreateRole)...)
-				_role.POST("/update", append(_updateroleMw(), admin.UpdateRole)...)
+				_role0 := _admin.Group("/role", _role0Mw()...)
+				_role0.POST("/create", append(_createroleMw(), admin.CreateRole)...)
+				_role0.POST("/update", append(_updateroleMw(), admin.UpdateRole)...)
 			}
-			_admin.DELETE("/role", append(_deleteroleMw(), admin.DeleteRole)...)
-			_role0 := _admin.Group("/role", _role0Mw()...)
-			_role0.GET("/list", append(_rolelistMw(), admin.RoleList)...)
-			_role0.POST("/status", append(_updaterolestatusMw(), admin.UpdateRoleStatus)...)
 			{
-				_token := _admin.Group("/token", _tokenMw()...)
-				_token.POST("/update", append(_updatetokenMw(), admin.UpdateToken)...)
+				_token0 := _admin.Group("/token", _token0Mw()...)
+				_token0.POST("/update", append(_updatetokenMw(), admin.UpdateToken)...)
 			}
-			_admin.DELETE("/token", append(_deletetokenMw(), admin.DeleteToken)...)
-			_token0 := _admin.Group("/token", _token0Mw()...)
-			_token0.GET("/list", append(_tokenlistMw(), admin.TokenList)...)
-			_admin.DELETE("/user", append(_deleteuserMw(), admin.DeleteUser)...)
-			_user := _admin.Group("/user", _userMw()...)
-			_user.POST("/profile", append(_updateprofileMw(), admin.UpdateProfile)...)
-			_user.GET("/profile", append(_userprofileMw(), admin.UserProfile)...)
-			_user.POST("/status", append(_updateuserstatusMw(), admin.UpdateUserStatus)...)
 			{
 				_user0 := _admin.Group("/user", _user0Mw()...)
 				_user0.POST("/change-password", append(_changepasswordMw(), admin.ChangePassword)...)

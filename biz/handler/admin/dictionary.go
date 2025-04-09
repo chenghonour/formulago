@@ -4,7 +4,7 @@ package admin
 
 import (
 	"context"
-	"formulago/biz/domain"
+	admin2 "formulago/biz/domain/admin"
 	logic "formulago/biz/logic/admin"
 	"formulago/data"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -29,7 +29,7 @@ func CreateDictionary(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	var DictInfo domain.DictionaryInfo
+	var DictInfo admin2.DictionaryInfo
 	err = copier.Copy(&DictInfo, &req)
 	if err != nil {
 		resp.ErrCode = base.ErrCode_Fail
@@ -64,7 +64,7 @@ func UpdateDictionary(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	var DictInfo domain.DictionaryInfo
+	var DictInfo admin2.DictionaryInfo
 	err = copier.Copy(&DictInfo, &req)
 	if err != nil {
 		resp.ErrCode = base.ErrCode_Fail
@@ -126,7 +126,7 @@ func DictionaryList(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	var dictListReq domain.DictListReq
+	var dictListReq admin2.DictListReq
 	err = copier.Copy(&dictListReq, &req)
 	if err != nil {
 		resp.ErrCode = base.ErrCode_Fail
@@ -176,7 +176,7 @@ func CreateDictionaryDetail(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	var DictDetail domain.DictionaryDetail
+	var DictDetail admin2.DictionaryDetail
 	err = copier.Copy(&DictDetail, &req)
 	if err != nil {
 		resp.ErrCode = base.ErrCode_Fail
@@ -212,7 +212,7 @@ func UpdateDictionaryDetail(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	var DictDetail domain.DictionaryDetail
+	var DictDetail admin2.DictionaryDetail
 	err = copier.Copy(&DictDetail, &req)
 	if err != nil {
 		resp.ErrCode = base.ErrCode_Fail

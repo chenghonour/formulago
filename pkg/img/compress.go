@@ -16,8 +16,8 @@ import (
 	"image/png"
 	"io"
 
-	"github.com/cockroachdb/errors"
 	"github.com/nfnt/resize"
+	"github.com/pkg/errors"
 )
 
 // Compress image compress

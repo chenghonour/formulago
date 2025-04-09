@@ -9,25 +9,25 @@ package admin
 import (
 	"context"
 	"fmt"
-	"formulago/biz/domain"
+	"formulago/biz/domain/admin"
 	"formulago/data"
 	"formulago/data/ent"
 	"formulago/data/ent/menu"
 	"formulago/data/ent/role"
-	"github.com/cockroachdb/errors"
+	"github.com/pkg/errors"
 )
 
 type Menu struct {
 	Data *data.Data
 }
 
-func NewMenu(data *data.Data) domain.Menu {
+func NewMenu(data *data.Data) admin.Menu {
 	return &Menu{
 		Data: data,
 	}
 }
 
-func (m *Menu) Create(ctx context.Context, menuReq *domain.MenuInfo) error {
+func (m *Menu) Create(ctx context.Context, menuReq *admin.MenuInfo) error {
 	// get menu level
 	if menuReq.ParentID == 0 {
 		// it is a first level menu
@@ -77,7 +77,7 @@ func (m *Menu) Create(ctx context.Context, menuReq *domain.MenuInfo) error {
 	return nil
 }
 
-func (m *Menu) Update(ctx context.Context, menuReq *domain.MenuInfo) error {
+func (m *Menu) Update(ctx context.Context, menuReq *admin.MenuInfo) error {
 	// get menu level
 	if menuReq.ParentID == 0 {
 		// it is a first level menu
@@ -146,7 +146,7 @@ func (m *Menu) Delete(ctx context.Context, id uint64) error {
 	return nil
 }
 
-func (m *Menu) ListByRole(ctx context.Context, roleID uint64) (list []*domain.MenuInfoTree, total uint64, err error) {
+func (m *Menu) ListByRole(ctx context.Context, roleID uint64) (list []*admin.MenuInfoTree, total uint64, err error) {
 	menus, err := m.Data.DBClient.Role.Query().Where(role.IDEQ(roleID)).
 		QueryMenus().Order(ent.Asc(menu.FieldOrderNo)).All(ctx)
 	if err != nil {
@@ -158,7 +158,7 @@ func (m *Menu) ListByRole(ctx context.Context, roleID uint64) (list []*domain.Me
 	return
 }
 
-func (m *Menu) List(ctx context.Context, req *domain.MenuListReq) (list []*domain.MenuInfoTree, total int, err error) {
+func (m *Menu) List(ctx context.Context, req *admin.MenuListReq) (list []*admin.MenuInfoTree, total int, err error) {
 	// query menu list
 	menus, err := m.Data.DBClient.Menu.Query().Order(ent.Asc(menu.FieldOrderNo)).
 		Offset(int(req.Page-1) * int(req.PageSize)).
@@ -171,15 +171,15 @@ func (m *Menu) List(ctx context.Context, req *domain.MenuListReq) (list []*domai
 	return
 }
 
-func findMenuChildren(data []*ent.Menu, parentID uint64) []*domain.MenuInfoTree {
+func findMenuChildren(data []*ent.Menu, parentID uint64) []*admin.MenuInfoTree {
 	if data == nil {
 		return nil
 	}
-	var result []*domain.MenuInfoTree
+	var result []*admin.MenuInfoTree
 	for _, v := range data {
 		// discard the parent menu, only find the children menu
 		if v.ParentID == parentID && v.ID != parentID {
-			var m = new(domain.MenuInfoTree)
+			var m = new(admin.MenuInfoTree)
 			m.ID = v.ID
 			m.CreatedAt = v.CreatedAt.Format("2006-01-02 15:04:05")
 			m.UpdatedAt = v.UpdatedAt.Format("2006-01-02 15:04:05")
@@ -191,7 +191,7 @@ func findMenuChildren(data []*ent.Menu, parentID uint64) []*domain.MenuInfoTree 
 			m.Redirect = v.Redirect
 			m.Component = v.Component
 			m.OrderNo = v.OrderNo
-			m.Meta = &domain.MenuMeta{
+			m.Meta = &admin.MenuMeta{
 				Title:              v.Title,
 				Icon:               v.Icon,
 				HideMenu:           v.HideMenu,
@@ -214,7 +214,7 @@ func findMenuChildren(data []*ent.Menu, parentID uint64) []*domain.MenuInfoTree 
 	return result
 }
 
-func (m *Menu) CreateMenuParam(ctx context.Context, req *domain.MenuParam) error {
+func (m *Menu) CreateMenuParam(ctx context.Context, req *admin.MenuParam) error {
 	// check menu whether exist
 	exist, err := m.Data.DBClient.Menu.Query().Where(menu.IDEQ(req.MenuID)).Exist(ctx)
 	if err != nil {
@@ -237,7 +237,7 @@ func (m *Menu) CreateMenuParam(ctx context.Context, req *domain.MenuParam) error
 	return nil
 }
 
-func (m *Menu) UpdateMenuParam(ctx context.Context, req *domain.MenuParam) error {
+func (m *Menu) UpdateMenuParam(ctx context.Context, req *admin.MenuParam) error {
 	// check menu whether exist
 	exist, err := m.Data.DBClient.Menu.Query().Where(menu.IDEQ(req.MenuID)).Exist(ctx)
 	if err != nil {
@@ -269,7 +269,7 @@ func (m *Menu) DeleteMenuParam(ctx context.Context, menuParamID uint64) error {
 	return nil
 }
 
-func (m *Menu) MenuParamListByMenuID(ctx context.Context, menuID uint64) (list []domain.MenuParam, total uint64, err error) {
+func (m *Menu) MenuParamListByMenuID(ctx context.Context, menuID uint64) (list []admin.MenuParam, total uint64, err error) {
 	// query menu param list
 	params, err := m.Data.DBClient.Menu.Query().Where(menu.IDEQ(menuID)).QueryParams().All(ctx)
 	if err != nil {
@@ -278,7 +278,7 @@ func (m *Menu) MenuParamListByMenuID(ctx context.Context, menuID uint64) (list [
 
 	// convert to MenuParam
 	for _, v := range params {
-		var p domain.MenuParam
+		var p admin.MenuParam
 		p.ID = v.ID
 		p.Type = v.Type
 		p.Key = v.Key

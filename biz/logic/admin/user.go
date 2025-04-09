@@ -8,14 +8,14 @@ package admin
 
 import (
 	"context"
-	"formulago/biz/domain"
+	"formulago/biz/domain/admin"
 	"formulago/data"
 	"formulago/data/ent"
 	"formulago/data/ent/predicate"
 	"formulago/data/ent/user"
 	"formulago/pkg/encrypt"
-	"github.com/cockroachdb/errors"
 	"github.com/jinzhu/copier"
+	"github.com/pkg/errors"
 	"strconv"
 	"time"
 )
@@ -24,13 +24,13 @@ type User struct {
 	Data *data.Data
 }
 
-func NewUser(data *data.Data) domain.User {
+func NewUser(data *data.Data) admin.User {
 	return &User{
 		Data: data,
 	}
 }
 
-func (u *User) Create(ctx context.Context, req domain.CreateOrUpdateUserReq) error {
+func (u *User) Create(ctx context.Context, req admin.CreateOrUpdateUserReq) error {
 	password, _ := encrypt.BcryptEncrypt(req.Password)
 	_, err := u.Data.DBClient.User.Create().
 		SetAvatar(req.Avatar).
@@ -50,7 +50,7 @@ func (u *User) Create(ctx context.Context, req domain.CreateOrUpdateUserReq) err
 	return nil
 }
 
-func (u *User) Update(ctx context.Context, req domain.CreateOrUpdateUserReq) error {
+func (u *User) Update(ctx context.Context, req admin.CreateOrUpdateUserReq) error {
 	password, _ := encrypt.BcryptEncrypt(req.Password)
 	_, err := u.Data.DBClient.User.Update().
 		Where(user.IDEQ(req.ID)).
@@ -89,12 +89,12 @@ func (u *User) ChangePassword(ctx context.Context, userID uint64, oldPassword, n
 	return err
 }
 
-func (u *User) UserInfo(ctx context.Context, id uint64) (userInfo *domain.UserInfo, err error) {
-	userInfo = new(domain.UserInfo)
+func (u *User) UserInfo(ctx context.Context, id uint64) (userInfo *admin.UserInfo, err error) {
+	userInfo = new(admin.UserInfo)
 	// get user info from cache
 	userInterface, exist := u.Data.Cache.Get("userInfo" + strconv.Itoa(int(id)))
 	if exist {
-		if u, ok := userInterface.(*domain.UserInfo); ok {
+		if u, ok := userInterface.(*admin.UserInfo); ok {
 			return u, nil
 		}
 	}
@@ -123,7 +123,7 @@ func (u *User) UserInfo(ctx context.Context, id uint64) (userInfo *domain.UserIn
 	return
 }
 
-func (u *User) List(ctx context.Context, req domain.UserListReq) (userList []*domain.UserInfo, total int, err error) {
+func (u *User) List(ctx context.Context, req admin.UserListReq) (userList []*admin.UserInfo, total int, err error) {
 	var predicates []predicate.User
 	if req.Mobile != "" {
 		predicates = append(predicates, user.MobileEQ(req.Mobile))
@@ -172,7 +172,7 @@ func (u *User) DeleteUser(ctx context.Context, id uint64) error {
 	return err
 }
 
-func (u *User) UpdateProfile(ctx context.Context, req domain.UpdateUserProfileReq) error {
+func (u *User) UpdateProfile(ctx context.Context, req admin.UpdateUserProfileReq) error {
 	_, err := u.Data.DBClient.User.Update().
 		Where(user.IDEQ(req.ID)).
 		SetNickname(req.Nickname).

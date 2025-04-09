@@ -4,8 +4,10 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  */
 
-package domain
+package admin
 
-type Captcha interface {
-	GetCaptcha() (id, b64s string, err error)
+import "context"
+
+type InitDatabase interface {
+	InitDatabase(ctx context.Context) error
 }

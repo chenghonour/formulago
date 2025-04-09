@@ -8,26 +8,26 @@ package admin
 
 import (
 	"context"
-	"formulago/biz/domain"
+	"formulago/biz/domain/admin"
 	"formulago/data"
 	"formulago/data/ent"
 	"formulago/data/ent/logs"
 	"formulago/data/ent/predicate"
 	"formulago/pkg/types"
-	"github.com/cockroachdb/errors"
+	"github.com/pkg/errors"
 )
 
 type Logs struct {
 	Data *data.Data
 }
 
-func NewLogs(data *data.Data) domain.Logs {
+func NewLogs(data *data.Data) admin.Logs {
 	return &Logs{
 		Data: data,
 	}
 }
 
-func (l *Logs) Create(ctx context.Context, logsReq *domain.LogsInfo) error {
+func (l *Logs) Create(ctx context.Context, logsReq *admin.LogsInfo) error {
 	logsReq.Api = types.SubStrByLen(logsReq.Api, 255)
 	logsReq.ReqContent = types.SubStrByLen(logsReq.ReqContent, 512)
 	logsReq.RespContent = types.SubStrByLen(logsReq.RespContent, 512)
@@ -51,7 +51,7 @@ func (l *Logs) Create(ctx context.Context, logsReq *domain.LogsInfo) error {
 	return nil
 }
 
-func (l *Logs) List(ctx context.Context, req *domain.LogsListReq) (list []*domain.LogsInfo, total int, err error) {
+func (l *Logs) List(ctx context.Context, req *admin.LogsListReq) (list []*admin.LogsInfo, total int, err error) {
 	var predicates []predicate.Logs
 	if req.Type != "" {
 		predicates = append(predicates, logs.TypeEQ(req.Type))
@@ -76,7 +76,7 @@ func (l *Logs) List(ctx context.Context, req *domain.LogsListReq) (list []*domai
 		return nil, 0, errors.Wrap(err, "query logsData list failed")
 	}
 	for _, v := range logsData {
-		list = append(list, &domain.LogsInfo{
+		list = append(list, &admin.LogsInfo{
 			Type:        v.Type,
 			Method:      v.Method,
 			Api:         v.API,

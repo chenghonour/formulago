@@ -4,7 +4,7 @@ package admin
 
 import (
 	"context"
-	"formulago/biz/domain"
+	admin2 "formulago/biz/domain/admin"
 	logic "formulago/biz/logic/admin"
 	"formulago/data"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -29,7 +29,7 @@ func CreateRole(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	err = logic.NewRole(data.Default()).Create(ctx, domain.RoleInfo{
+	err = logic.NewRole(data.Default()).Create(ctx, admin2.RoleInfo{
 		Name:          req.Name,
 		Value:         req.Value,
 		DefaultRouter: req.DefaultRouter,
@@ -63,7 +63,7 @@ func UpdateRole(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	err = logic.NewRole(data.Default()).Update(ctx, domain.RoleInfo{
+	err = logic.NewRole(data.Default()).Update(ctx, admin2.RoleInfo{
 		ID:            req.ID,
 		Name:          req.Name,
 		Value:         req.Value,
@@ -159,7 +159,7 @@ func RoleList(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	var listReq domain.RoleListReq
+	var listReq admin2.RoleListReq
 	listReq.Page = req.Page
 	listReq.PageSize = req.PageSize
 	list, total, err := logic.NewRole(data.Default()).List(ctx, &listReq)

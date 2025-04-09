@@ -4,7 +4,7 @@ package admin
 
 import (
 	"context"
-	"formulago/biz/domain"
+	admin2 "formulago/biz/domain/admin"
 	logic "formulago/biz/logic/admin"
 	"formulago/data"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -30,7 +30,7 @@ func CreateAuthority(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	var apiInfos []*domain.ApiAuthorityInfo
+	var apiInfos []*admin2.ApiAuthorityInfo
 	err = copier.Copy(&apiInfos, &req.Data)
 	if err != nil {
 		resp.ErrCode = base.ErrCode_Fail
@@ -65,7 +65,7 @@ func UpdateApiAuthority(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	var apiInfos []*domain.ApiAuthorityInfo
+	var apiInfos []*admin2.ApiAuthorityInfo
 	err = copier.Copy(&apiInfos, &req.Data)
 	if err != nil {
 		resp.ErrCode = base.ErrCode_Fail

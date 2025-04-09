@@ -9,13 +9,13 @@ package admin
 import (
 	"context"
 	"fmt"
-	"formulago/biz/domain"
+	"formulago/biz/domain/admin"
 	"formulago/data"
 	"formulago/data/ent"
 	"formulago/data/ent/predicate"
 	"formulago/data/ent/token"
 	"formulago/data/ent/user"
-	"github.com/cockroachdb/errors"
+	"github.com/pkg/errors"
 	"time"
 )
 
@@ -23,13 +23,13 @@ type Token struct {
 	Data *data.Data
 }
 
-func NewToken(data *data.Data) domain.Token {
+func NewToken(data *data.Data) admin.Token {
 	return &Token{
 		Data: data,
 	}
 }
 
-func (t *Token) Create(ctx context.Context, req *domain.TokenInfo) error {
+func (t *Token) Create(ctx context.Context, req *admin.TokenInfo) error {
 	expiredAt, _ := time.ParseInLocation("2006-01-02 15:04:05", req.ExpiredAt, time.Local)
 	if expiredAt.Sub(time.Now()).Seconds() < 5 {
 		return errors.New("expired time must be greater than now, more than 5s")
@@ -70,7 +70,7 @@ func (t *Token) Create(ctx context.Context, req *domain.TokenInfo) error {
 	return nil
 }
 
-func (t *Token) Update(ctx context.Context, req *domain.TokenInfo) error {
+func (t *Token) Update(ctx context.Context, req *admin.TokenInfo) error {
 	expiredAt, _ := time.ParseInLocation("2006-01-02 15:04:05", req.ExpiredAt, time.Local)
 	if expiredAt.Sub(time.Now()).Seconds() < 5 {
 		return errors.New("expired time must be greater than now, more than 5s")
@@ -114,7 +114,7 @@ func (t *Token) Delete(ctx context.Context, userID uint64) error {
 	return nil
 }
 
-func (t *Token) List(ctx context.Context, req *domain.TokenListReq) (res []*domain.TokenInfo, total int, err error) {
+func (t *Token) List(ctx context.Context, req *admin.TokenListReq) (res []*admin.TokenInfo, total int, err error) {
 	// list token with user info
 	var userPredicates = []predicate.User{user.HasToken()}
 	if req.Username != "" {
@@ -133,7 +133,7 @@ func (t *Token) List(ctx context.Context, req *domain.TokenListReq) (res []*doma
 	}
 
 	for _, userEnt := range UserTokens {
-		res = append(res, &domain.TokenInfo{
+		res = append(res, &admin.TokenInfo{
 			ID:        userEnt.Edges.Token.ID,
 			UserID:    userEnt.ID,
 			UserName:  userEnt.Username,

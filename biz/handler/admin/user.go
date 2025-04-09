@@ -4,7 +4,7 @@ package admin
 
 import (
 	"context"
-	"formulago/biz/domain"
+	admin2 "formulago/biz/domain/admin"
 	logic "formulago/biz/logic/admin"
 	"formulago/data"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -101,7 +101,7 @@ func CreateUser(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	err = logic.NewUser(data.Default()).Create(ctx, domain.CreateOrUpdateUserReq{
+	err = logic.NewUser(data.Default()).Create(ctx, admin2.CreateOrUpdateUserReq{
 		Username: req.Username,
 		Password: req.Password,
 		Email:    req.Email,
@@ -138,7 +138,7 @@ func UpdateUser(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	err = logic.NewUser(data.Default()).Update(ctx, domain.CreateOrUpdateUserReq{
+	err = logic.NewUser(data.Default()).Update(ctx, admin2.CreateOrUpdateUserReq{
 		ID:       req.ID,
 		Username: req.Username,
 		Password: req.Password,
@@ -227,7 +227,7 @@ func UserList(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	var userListReq domain.UserListReq
+	var userListReq admin2.UserListReq
 	err = copier.Copy(&userListReq, &req)
 	if err != nil {
 		resp.ErrCode = base.ErrCode_Fail
@@ -304,7 +304,7 @@ func UpdateProfile(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	var profileReq domain.UpdateUserProfileReq
+	var profileReq admin2.UpdateUserProfileReq
 	err = copier.Copy(&profileReq, &req)
 	if err != nil {
 		resp.ErrCode = base.ErrCode_Fail

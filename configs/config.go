@@ -138,6 +138,7 @@ type CasbinConf struct {
 type S3 struct {
 	Type      string `yaml:"Type"`
 	AliyunOSS struct {
+		Region     string `yaml:"Region"`
 		Endpoint   string `yaml:"Endpoint"`
 		BucketName string `yaml:"BucketName"`
 		BasePath   string `yaml:"BasePath"`
@@ -149,6 +150,8 @@ type S3 struct {
 
 // Wecom corp
 type Wecom struct {
-	CorpID   string `yaml:"CorpId"`
-	SecretID string `yaml:"SecretId"`
+	CorpID         string `yaml:"CorpId"`
+	SecretID       string `yaml:"SecretId"`
+	Token          string `yaml:"Token"`
+	EncodingAESKey string `yaml:"EncodingAESKey"`
 }
