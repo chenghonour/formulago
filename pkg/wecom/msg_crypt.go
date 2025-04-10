@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HaiCheng Authors
+ * Copyright 2023 FormulaGo Authors
  *
  * Created by hua
  */
