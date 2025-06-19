@@ -19,8 +19,10 @@ type FileInfo struct {
 	Name string `json:"fileName"`
 	// FileSize file size in bytes
 	Size int64 `json:"fileSize"`
-	// File path, no need bucket name(have been set in config), no need / prefix
+	// File path, no need bucket name(have been set in config) and fileName, no need / prefix
 	Path string `json:"filePath"`
+	// FileURL, full file url, include path and fileName
+	URL string `json:"fileURL"`
 	// File type, eg: img/file
 	Type string `json:"fileType"`
 	// FileReader

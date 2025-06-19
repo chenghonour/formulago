@@ -50,7 +50,7 @@ func (u *UploadAliyunOSSAdapter) UploadFile(ctx context.Context, file *FileInfo)
 		return
 	}
 
-	file.Path, err = u.upAction(ctx, file)
+	file.URL, err = u.upAction(ctx, file)
 	return file, err
 }
 
@@ -280,7 +280,7 @@ func (u *UploadAliyunOSSAdapter) DeleteFile(ctx context.Context, filePath []stri
 }
 
 // upAction, upload file to aliyun oss
-func (u *UploadAliyunOSSAdapter) upAction(ctx context.Context, file *FileInfo) (path string, err error) {
+func (u *UploadAliyunOSSAdapter) upAction(ctx context.Context, file *FileInfo) (URL string, err error) {
 	// <yourObjectName>upload file to OSS need specify the full path of file, like abc/efg/123.jpg
 	objectName := u.getPathInBucket(ctx, file)
 	// create oss client
@@ -322,8 +322,8 @@ func (u *UploadAliyunOSSAdapter) upAction(ctx context.Context, file *FileInfo) (
 		return
 	}
 
-	path = objectName
-	return path, nil
+	URL = objectName
+	return URL, nil
 }
 
 // get the full path of file in bucket
