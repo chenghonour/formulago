@@ -10,12 +10,13 @@ import (
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/rand"
 	"crypto/sha1"
 	"encoding/base64"
 	"encoding/binary"
 	"encoding/xml"
 	"fmt"
-	"math/rand"
+	"math/big"
 	"sort"
 	"strings"
 
@@ -127,7 +128,8 @@ func NewWXBizMsgCrypt(token, encoding_aeskey, receiver_id string, protocol_type 
 func (self *WXBizMsgCrypt) randString(n int) string {
 	b := make([]byte, n)
 	for i := range b {
-		b[i] = letterBytes[rand.Int63()%int64(len(letterBytes))]
+		idx, _ := rand.Int(rand.Reader, big.NewInt(int64(len(letterBytes))))
+		b[i] = letterBytes[idx.Int64()]
 	}
 	return string(b)
 }

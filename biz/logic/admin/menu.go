@@ -9,12 +9,13 @@ package admin
 import (
 	"context"
 	"fmt"
+"errors"
 	"formulago/biz/domain/admin"
+	"formulago/pkg/times"
 	"formulago/data"
 	"formulago/data/ent"
 	"formulago/data/ent/menu"
 	"formulago/data/ent/role"
-	"github.com/pkg/errors"
 )
 
 type Menu struct {
@@ -38,7 +39,7 @@ func (m *Menu) Create(ctx context.Context, menuReq *admin.MenuInfo) error {
 		// get parent menu level
 		parent, err := m.Data.DBClient.Menu.Query().Where(menu.IDEQ(menuReq.ParentID)).First(ctx)
 		if err != nil {
-			return errors.Wrap(err, "query menu failed")
+			return fmt.Errorf("query menu failed: %w", err)
 		}
 		// set menu level
 		menuReq.Level = parent.MenuLevel + 1
@@ -72,7 +73,7 @@ func (m *Menu) Create(ctx context.Context, menuReq *admin.MenuInfo) error {
 		Exec(ctx)
 
 	if err != nil {
-		return errors.Wrap(err, "create menu failed")
+		return fmt.Errorf("create menu failed: %w", err)
 	}
 	return nil
 }
@@ -88,7 +89,7 @@ func (m *Menu) Update(ctx context.Context, menuReq *admin.MenuInfo) error {
 		// get parent menu level
 		parent, err := m.Data.DBClient.Menu.Query().Where(menu.IDEQ(menuReq.ParentID)).First(ctx)
 		if err != nil {
-			return errors.Wrap(err, "query menu failed")
+			return fmt.Errorf("query menu failed: %w", err)
 		}
 		// set menu level
 		menuReq.Level = parent.MenuLevel + 1
@@ -121,7 +122,7 @@ func (m *Menu) Update(ctx context.Context, menuReq *admin.MenuInfo) error {
 		SetRealPath(menuReq.Meta.RealPath).
 		Exec(ctx)
 	if err != nil {
-		return errors.Wrap(err, "update menu failed")
+		return fmt.Errorf("update menu failed: %w", err)
 	}
 
 	return nil
@@ -132,7 +133,7 @@ func (m *Menu) Delete(ctx context.Context, id uint64) error {
 	// if it has children, it can not be deleted
 	exist, err := m.Data.DBClient.Menu.Query().Where(menu.ParentIDEQ(id)).Exist(ctx)
 	if err != nil {
-		return errors.Wrap(err, "query menu failed")
+		return fmt.Errorf("query menu failed: %w", err)
 	}
 	if exist {
 		return errors.New("menu has children, can not be deleted")
@@ -141,7 +142,7 @@ func (m *Menu) Delete(ctx context.Context, id uint64) error {
 	// delete menu
 	err = m.Data.DBClient.Menu.DeleteOneID(id).Exec(ctx)
 	if err != nil {
-		return errors.Wrap(err, "delete menu failed")
+		return fmt.Errorf("delete menu failed: %w", err)
 	}
 	return nil
 }
@@ -150,7 +151,7 @@ func (m *Menu) ListByRole(ctx context.Context, roleID uint64) (list []*admin.Men
 	menus, err := m.Data.DBClient.Role.Query().Where(role.IDEQ(roleID)).
 		QueryMenus().Order(ent.Asc(menu.FieldOrderNo)).All(ctx)
 	if err != nil {
-		return nil, 0, errors.Wrap(err, "query m by role failed")
+		return nil, 0, fmt.Errorf("query m by role failed: %w", err)
 	}
 
 	list = findMenuChildren(menus, 1)
@@ -164,10 +165,14 @@ func (m *Menu) List(ctx context.Context, req *admin.MenuListReq) (list []*admin.
 		Offset(int(req.Page-1) * int(req.PageSize)).
 		Limit(int(req.PageSize)).All(ctx)
 	if err != nil {
-		return nil, 0, errors.Wrap(err, "query menu list failed")
+		return nil, 0, fmt.Errorf("query menu list failed: %w", err)
 	}
 	list = findMenuChildren(menus, 1)
-	total, _ = m.Data.DBClient.Menu.Query().Count(ctx)
+	total, err = m.Data.DBClient.Menu.Query().Count(ctx)
+	if err != nil {
+		err = fmt.Errorf("count menu failed: %w", err)
+		return
+	}
 	return
 }
 
@@ -181,8 +186,8 @@ func findMenuChildren(data []*ent.Menu, parentID uint64) []*admin.MenuInfoTree {
 		if v.ParentID == parentID && v.ID != parentID {
 			var m = new(admin.MenuInfoTree)
 			m.ID = v.ID
-			m.CreatedAt = v.CreatedAt.Format("2006-01-02 15:04:05")
-			m.UpdatedAt = v.UpdatedAt.Format("2006-01-02 15:04:05")
+			m.CreatedAt = v.CreatedAt.Format(times.TimeFormat)
+			m.UpdatedAt = v.UpdatedAt.Format(times.TimeFormat)
 			m.MenuType = v.MenuType
 			m.Level = v.MenuLevel
 			m.ParentID = v.ParentID
@@ -218,7 +223,7 @@ func (m *Menu) CreateMenuParam(ctx context.Context, req *admin.MenuParam) error 
 	// check menu whether exist
 	exist, err := m.Data.DBClient.Menu.Query().Where(menu.IDEQ(req.MenuID)).Exist(ctx)
 	if err != nil {
-		return errors.Wrap(err, "query menu failed")
+		return fmt.Errorf("query menu failed: %w", err)
 	}
 	if !exist {
 		return errors.New(fmt.Sprintf("menu not exist, menu id: %d", req.MenuID))
@@ -232,7 +237,7 @@ func (m *Menu) CreateMenuParam(ctx context.Context, req *admin.MenuParam) error 
 		SetValue(req.Value).
 		Exec(ctx)
 	if err != nil {
-		return errors.Wrap(err, "create menu param failed")
+		return fmt.Errorf("create menu param failed: %w", err)
 	}
 	return nil
 }
@@ -241,7 +246,7 @@ func (m *Menu) UpdateMenuParam(ctx context.Context, req *admin.MenuParam) error 
 	// check menu whether exist
 	exist, err := m.Data.DBClient.Menu.Query().Where(menu.IDEQ(req.MenuID)).Exist(ctx)
 	if err != nil {
-		return errors.Wrap(err, "query menu failed")
+		return fmt.Errorf("query menu failed: %w", err)
 	}
 	if !exist {
 		return errors.New(fmt.Sprintf("menu not exist, menu id: %d", req.MenuID))
@@ -255,7 +260,7 @@ func (m *Menu) UpdateMenuParam(ctx context.Context, req *admin.MenuParam) error 
 		SetValue(req.Value).
 		Exec(ctx)
 	if err != nil {
-		return errors.Wrap(err, "update menu param failed")
+		return fmt.Errorf("update menu param failed: %w", err)
 	}
 	return nil
 }
@@ -264,7 +269,7 @@ func (m *Menu) DeleteMenuParam(ctx context.Context, menuParamID uint64) error {
 	// delete menu param
 	err := m.Data.DBClient.MenuParam.DeleteOneID(menuParamID).Exec(ctx)
 	if err != nil {
-		return errors.Wrap(err, "delete menu param failed")
+		return fmt.Errorf("delete menu param failed: %w", err)
 	}
 	return nil
 }
@@ -273,7 +278,7 @@ func (m *Menu) MenuParamListByMenuID(ctx context.Context, menuID uint64) (list [
 	// query menu param list
 	params, err := m.Data.DBClient.Menu.Query().Where(menu.IDEQ(menuID)).QueryParams().All(ctx)
 	if err != nil {
-		return nil, 0, errors.Wrap(err, "query menu param list failed")
+		return nil, 0, fmt.Errorf("query menu param list failed: %w", err)
 	}
 
 	// convert to MenuParam
@@ -283,8 +288,8 @@ func (m *Menu) MenuParamListByMenuID(ctx context.Context, menuID uint64) (list [
 		p.Type = v.Type
 		p.Key = v.Key
 		p.Value = v.Value
-		p.CreatedAt = v.CreatedAt.Format("2006-01-02 15:04:05")
-		p.UpdatedAt = v.UpdatedAt.Format("2006-01-02 15:04:05")
+		p.CreatedAt = v.CreatedAt.Format(times.TimeFormat)
+		p.UpdatedAt = v.UpdatedAt.Format(times.TimeFormat)
 		list = append(list, p)
 	}
 

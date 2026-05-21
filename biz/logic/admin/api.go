@@ -10,11 +10,12 @@ package admin
 
 import (
 	"context"
+	"fmt"
 	"formulago/biz/domain/admin"
+	"formulago/pkg/times"
 	"formulago/data"
 	"formulago/data/ent/api"
 	"formulago/data/ent/predicate"
-	"github.com/pkg/errors"
 )
 
 type Api struct {
@@ -35,7 +36,7 @@ func (a *Api) Create(ctx context.Context, req admin.ApiInfo) error {
 		SetMethod(req.Method).
 		Save(ctx)
 	if err != nil {
-		err = errors.Wrap(err, "create Api failed")
+		err = fmt.Errorf("create Api failed: %w", err)
 		return err
 	}
 	return nil
@@ -49,7 +50,7 @@ func (a *Api) Update(ctx context.Context, req admin.ApiInfo) error {
 		SetMethod(req.Method).
 		Save(ctx)
 	if err != nil {
-		err = errors.Wrap(err, "update Api failed")
+		err = fmt.Errorf("update Api failed: %w", err)
 		return err
 	}
 	return nil
@@ -79,20 +80,24 @@ func (a *Api) List(ctx context.Context, req admin.ListApiReq) (resp []*admin.Api
 		Offset(int(req.Page-1) * int(req.PageSize)).
 		Limit(int(req.PageSize)).All(ctx)
 	if err != nil {
-		err = errors.Wrap(err, "get api list failed")
+		err = fmt.Errorf("get api list failed: %w", err)
 		return resp, total, err
 	}
 	for _, a := range apis {
 		resp = append(resp, &admin.ApiInfo{
 			ID:          a.ID,
-			CreatedAt:   a.CreatedAt.Format("2006-01-02 15:04:05"),
-			UpdatedAt:   a.UpdatedAt.Format("2006-01-02 15:04:05"),
+			CreatedAt:   a.CreatedAt.Format(times.TimeFormat),
+			UpdatedAt:   a.UpdatedAt.Format(times.TimeFormat),
 			Path:        a.Path,
 			Description: a.Description,
 			Group:       a.APIGroup,
 			Method:      a.Method,
 		})
 	}
-	total, _ = a.Data.DBClient.API.Query().Where(predicates...).Count(ctx)
+	total, err = a.Data.DBClient.API.Query().Where(predicates...).Count(ctx)
+	if err != nil {
+		err = fmt.Errorf("count api failed: %w", err)
+		return resp, total, err
+	}
 	return resp, total, nil
 }

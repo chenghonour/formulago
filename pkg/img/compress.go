@@ -10,6 +10,7 @@ package img
 
 import (
 	"bytes"
+	"fmt"
 	"image"
 	"image/gif"
 	"image/jpeg"
@@ -17,7 +18,6 @@ import (
 	"io"
 
 	"github.com/nfnt/resize"
-	"github.com/pkg/errors"
 )
 
 // Compress image compress
@@ -25,8 +25,7 @@ func Compress(file io.Reader, fileFormat string) (io.Reader, error) {
 	// Reader not reset default, only support read once, convert to byte
 	body, err := io.ReadAll(file)
 	if err != nil {
-		err = errors.Wrap(err, "file transfer to byte failed")
-		return nil, err
+		return nil, fmt.Errorf("file transfer to byte failed: %w", err)
 	}
 	var img image.Image
 	switch fileFormat {
@@ -39,7 +38,7 @@ func Compress(file io.Reader, fileFormat string) (io.Reader, error) {
 	case ".gif":
 		img, err = gif.Decode(bytes.NewReader(body))
 	default:
-		return nil, errors.New("this file is not image type")
+		return nil, fmt.Errorf("this file is not image type")
 	}
 	if err != nil {
 		// wrong png format, try to parse jpg format

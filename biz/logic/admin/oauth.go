@@ -9,14 +9,15 @@ package admin
 import (
 	"context"
 	"fmt"
+"errors"
 	"formulago/biz/domain/admin"
+	"formulago/pkg/times"
 	"formulago/configs"
 	"formulago/data"
 	"formulago/data/ent/oauthprovider"
 	"formulago/data/ent/predicate"
 	"formulago/pkg/wecom"
 	"github.com/cloudwego/hertz/pkg/common/json"
-	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
 	"io"
 	"net/http"
@@ -50,7 +51,7 @@ func (o *Oauth) Create(ctx context.Context, providerReq *admin.ProviderInfo) err
 		SetInfoURL(providerReq.InfoUrl).
 		Save(ctx)
 	if err != nil {
-		return errors.Wrap(err, "create oauth failed")
+		return fmt.Errorf("create oauth failed: %w", err)
 	}
 	return nil
 }
@@ -68,7 +69,7 @@ func (o *Oauth) Update(ctx context.Context, providerReq *admin.ProviderInfo) err
 		SetInfoURL(providerReq.InfoUrl).
 		Save(ctx)
 	if err != nil {
-		return errors.Wrap(err, "update oauth failed")
+		return fmt.Errorf("update oauth failed: %w", err)
 	}
 	return nil
 }
@@ -76,7 +77,7 @@ func (o *Oauth) Update(ctx context.Context, providerReq *admin.ProviderInfo) err
 func (o *Oauth) Delete(ctx context.Context, providerID uint64) error {
 	err := o.Data.DBClient.OauthProvider.DeleteOneID(providerID).Exec(ctx)
 	if err != nil {
-		return errors.Wrap(err, "delete oauth failed")
+		return fmt.Errorf("delete oauth failed: %w", err)
 	}
 	return nil
 }
@@ -92,7 +93,7 @@ func (o *Oauth) List(ctx context.Context, req *admin.OauthListReq) (list []*admi
 		Limit(int(req.PageSize)).
 		All(ctx)
 	if err != nil {
-		return nil, 0, errors.Wrap(err, "list oauth failed")
+		return nil, 0, fmt.Errorf("list oauth failed: %w", err)
 	}
 
 	for _, provider := range providers {
@@ -107,18 +108,22 @@ func (o *Oauth) List(ctx context.Context, req *admin.OauthListReq) (list []*admi
 			TokenUrl:     provider.TokenURL,
 			AuthStyle:    provider.AuthStyle,
 			InfoUrl:      provider.InfoURL,
-			CreatedAt:    provider.CreatedAt.Format("2006-01-02 15:04:05"),
-			UpdatedAt:    provider.UpdatedAt.Format("2006-01-02 15:04:05"),
+			CreatedAt:    provider.CreatedAt.Format(times.TimeFormat),
+			UpdatedAt:    provider.UpdatedAt.Format(times.TimeFormat),
 		})
 	}
-	total, _ = o.Data.DBClient.OauthProvider.Query().Where(predicates...).Count(ctx)
+	total, err = o.Data.DBClient.OauthProvider.Query().Where(predicates...).Count(ctx)
+	if err != nil {
+		err = fmt.Errorf("count oauth provider failed: %w", err)
+		return list, total, err
+	}
 	return list, total, nil
 }
 
 func (o *Oauth) Login(ctx context.Context, req *admin.OauthLoginReq) (string, error) {
 	provider, err := o.Data.DBClient.OauthProvider.Query().Where(oauthprovider.Name(req.Provider)).First(ctx)
 	if err != nil {
-		return "", errors.Wrap(err, "get oauth provider failed")
+		return "", fmt.Errorf("get oauth provider failed: %w", err)
 	}
 
 	var config oauth2.Config
@@ -169,7 +174,7 @@ func (o *Oauth) Callback(ctx context.Context, req *admin.OauthCallbackReq) (*adm
 	if _, found := o.Data.Cache.Get("oauthProviderConfig" + req.ProviderName); !found {
 		provider, err := o.Data.DBClient.OauthProvider.Query().Where(oauthprovider.Name(req.ProviderName)).First(ctx)
 		if err != nil {
-			return nil, errors.Wrap(err, "get oauth provider failed")
+			return nil, fmt.Errorf("get oauth provider failed: %w", err)
 		}
 		config := oauth2.Config{
 			ClientID:     provider.ClientID,
@@ -196,11 +201,11 @@ func (o *Oauth) Callback(ctx context.Context, req *admin.OauthCallbackReq) (*adm
 		wecom := wecom.New(o.Config, o.Data)
 		u, err := wecom.GetOAuthUser(ctx, req.Code)
 		if err != nil {
-			return nil, errors.Wrap(err, "get wecom user info failed")
+			return nil, fmt.Errorf("get wecom user info failed: %w", err)
 		}
 		wecomUser, err := wecom.GetUserByID(ctx, u.UserID)
 		if err != nil {
-			return nil, errors.Wrap(err, "get wecom user info failed")
+			return nil, fmt.Errorf("get wecom user info failed: %w", err)
 		}
 		userInfo.Credential = wecomUser.UserID
 		userInfo.Mobile = wecomUser.Mobile
@@ -217,7 +222,7 @@ func (o *Oauth) Callback(ctx context.Context, req *admin.OauthCallbackReq) (*adm
 		var err error
 		userInfo, err = getUserInfo(c.(oauth2.Config), userInfoURL.(string), req.Code)
 		if err != nil {
-			return nil, errors.Wrap(err, "get user info failed")
+			return nil, fmt.Errorf("get user info failed: %w", err)
 		}
 		if userInfo == nil {
 			userInfo.Credential = userInfo.Username
@@ -230,7 +235,7 @@ func (o *Oauth) Callback(ctx context.Context, req *admin.OauthCallbackReq) (*adm
 func getUserInfo(c oauth2.Config, infoURL string, code string) (*admin.OauthUserInfo, error) {
 	token, err := c.Exchange(context.Background(), code)
 	if err != nil {
-		return nil, errors.Wrap(err, "code exchange failed")
+		return nil, fmt.Errorf("code exchange failed: %w", err)
 	}
 
 	var response *http.Response
@@ -243,7 +248,7 @@ func getUserInfo(c oauth2.Config, infoURL string, code string) (*admin.OauthUser
 		client := &http.Client{}
 		request, err := http.NewRequest("GET", infoURL, nil)
 		if err != nil {
-			return nil, errors.Wrap(err, "Endpoint Request failed")
+			return nil, fmt.Errorf("Endpoint Request failed: %w", err)
 		}
 
 		request.Header.Set("Accept", "application/json")
@@ -251,20 +256,20 @@ func getUserInfo(c oauth2.Config, infoURL string, code string) (*admin.OauthUser
 
 		response, err = client.Do(request)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed getting user info")
+			return nil, fmt.Errorf("failed getting user info: %w", err)
 		}
 	}
 
 	defer response.Body.Close()
 	contents, err := io.ReadAll(response.Body)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed reading response body")
+		return nil, fmt.Errorf("failed reading response body: %w", err)
 	}
 
 	var u *admin.OauthUserInfo
 	err = json.Unmarshal(contents, &u)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed unmarshaling response body")
+		return nil, fmt.Errorf("failed unmarshaling response body: %w", err)
 	}
 
 	return u, nil

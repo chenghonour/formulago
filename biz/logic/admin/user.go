@@ -8,6 +8,8 @@ package admin
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"formulago/biz/domain/admin"
 	"formulago/data"
 	"formulago/data/ent"
@@ -15,7 +17,6 @@ import (
 	"formulago/data/ent/user"
 	"formulago/pkg/encrypt"
 	"github.com/jinzhu/copier"
-	"github.com/pkg/errors"
 	"strconv"
 	"time"
 )
@@ -43,8 +44,7 @@ func (u *User) Create(ctx context.Context, req admin.CreateOrUpdateUserReq) erro
 		SetNickname(req.Nickname).
 		Save(ctx)
 	if err != nil {
-		err = errors.Wrap(err, "create user failed")
-		return err
+		return fmt.Errorf("create user failed: %w", err)
 	}
 
 	return nil
@@ -64,8 +64,7 @@ func (u *User) Update(ctx context.Context, req admin.CreateOrUpdateUserReq) erro
 		SetNickname(req.Nickname).
 		Save(ctx)
 	if err != nil {
-		err = errors.Wrap(err, "update user failed")
-		return err
+		return fmt.Errorf("update user failed: %w", err)
 	}
 
 	return nil
@@ -75,11 +74,11 @@ func (u *User) ChangePassword(ctx context.Context, userID uint64, oldPassword, n
 	// get user info
 	targetUser, err := u.Data.DBClient.User.Query().Where(user.IDEQ(userID)).First(ctx)
 	if err != nil {
-		return errors.Wrap(err, "targetUser not found")
+		return fmt.Errorf("targetUser not found: %w", err)
 	}
 	// check old password
 	if ok := encrypt.BcryptCheck(oldPassword, targetUser.Password); !ok {
-		err = errors.New("wrong old password")
+		return errors.New("wrong old password")
 		return err
 	}
 	// update password
@@ -101,13 +100,13 @@ func (u *User) UserInfo(ctx context.Context, id uint64) (userInfo *admin.UserInf
 	// get user info from db
 	userEnt, err := u.Data.DBClient.User.Query().Where(user.IDEQ(id)).First(ctx)
 	if err != nil {
-		err = errors.Wrap(err, "get user failed")
+		err = fmt.Errorf("get user failed: %w", err)
 		return userInfo, err
 	}
 	// copy to UserInfo struct
 	err = copier.Copy(&userInfo, &userEnt)
 	if err != nil {
-		err = errors.Wrap(err, "copy user info failed")
+		err = fmt.Errorf("copy user info failed: %w", err)
 		return userInfo, err
 	}
 	// role info from cache
@@ -149,16 +148,20 @@ func (u *User) List(ctx context.Context, req admin.UserListReq) (userList []*adm
 		Offset(int(req.Page-1) * int(req.PageSize)).
 		Limit(int(req.PageSize)).All(ctx)
 	if err != nil {
-		err = errors.Wrap(err, "get user list failed")
+		err = fmt.Errorf("get user list failed: %w", err)
 		return userList, total, err
 	}
 	// copy to UserInfo struct
 	err = copier.Copy(&userList, &users)
 	if err != nil {
-		err = errors.Wrap(err, "copy user info failed")
+		err = fmt.Errorf("copy user info failed: %w", err)
 		return userList, 0, err
 	}
-	total, _ = u.Data.DBClient.User.Query().Where(predicates...).Count(ctx)
+	total, err = u.Data.DBClient.User.Query().Where(predicates...).Count(ctx)
+	if err != nil {
+		err = fmt.Errorf("count user failed: %w", err)
+		return
+	}
 	return
 }
 

@@ -10,11 +10,11 @@ package wecom
 
 import (
 	"context"
+	"fmt"
 
 	wechatSDK "github.com/chenghonour/wechat-sdk"
 	"github.com/chenghonour/wechat-sdk/corp"
 	"github.com/chenghonour/wechat-sdk/corp/addrbook"
-	"github.com/pkg/errors"
 )
 
 // GetUserIDByPhone get user id from wecom by phone
@@ -25,14 +25,14 @@ func (w *Wecom) GetUserIDByPhone(ctx context.Context, phone string) (userID stri
 	// get token
 	token, err := cp.AccessToken(ctx, w.Config.Wecom.SecretID)
 	if err != nil {
-		err = errors.Wrap(err, "get wecom token failed")
+		err = fmt.Errorf("get wecom token failed: %w", err)
 		return "", err
 	}
 	// execute
 	res := new(addrbook.ResultUserID)
 	apply := addrbook.GetUserID(phone, res)
 	if err := cp.Do(ctx, token.Token, apply); err != nil {
-		err = errors.Wrap(err, "get wecom user id failed")
+		err = fmt.Errorf("get wecom user id failed: %w", err)
 		return "", err
 	}
 	userID = res.UserID
@@ -47,14 +47,14 @@ func (w *Wecom) GetUserByID(ctx context.Context, userID string) (userInfo *addrb
 	// get token
 	token, err := cp.AccessToken(ctx, w.Config.Wecom.SecretID)
 	if err != nil {
-		err = errors.Wrap(err, "get wecom token failed")
+		err = fmt.Errorf("get wecom token failed: %w", err)
 		return nil, err
 	}
 	// execute
 	userInfo = new(addrbook.User)
 	apply := addrbook.GetUser(userID, userInfo)
 	if err := cp.Do(ctx, token.Token, apply); err != nil {
-		err = errors.Wrap(err, "get wecom user id failed")
+		err = fmt.Errorf("get wecom user id failed: %w", err)
 		return nil, err
 	}
 	return
@@ -68,7 +68,7 @@ func (w *Wecom) GetOAuthUser(ctx context.Context, code string) (userInfo *corp.R
 	// get token
 	token, err := cp.AccessToken(ctx, w.Config.Wecom.SecretID)
 	if err != nil {
-		err = errors.Wrap(err, "get wecom token failed")
+		err = fmt.Errorf("get wecom token failed: %w", err)
 		return nil, err
 	}
 
@@ -76,7 +76,7 @@ func (w *Wecom) GetOAuthUser(ctx context.Context, code string) (userInfo *corp.R
 	userInfo = new(corp.ResultOAuthUser)
 	apply := corp.GetOAuthUser(code, userInfo)
 	if err := cp.Do(ctx, token.Token, apply); err != nil {
-		err = errors.Wrap(err, "get wecom user id failed")
+		err = fmt.Errorf("get wecom user id failed: %w", err)
 		return nil, err
 	}
 	return

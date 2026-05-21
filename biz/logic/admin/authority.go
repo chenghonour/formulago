@@ -8,14 +8,14 @@ package admin
 
 import (
 	"context"
-
+	"errors"
+	"fmt"
 	"formulago/biz/domain/admin"
 	"formulago/data"
 	"formulago/data/ent/role"
 
 	"github.com/casbin/casbin/v2"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"github.com/pkg/errors"
 )
 
 type Authority struct {
@@ -78,7 +78,7 @@ func (a *Authority) ApiAuthority(ctx context.Context, roleIDStr string) (infos [
 func (a *Authority) UpdateMenuAuthority(ctx context.Context, roleID uint64, menuIDs []uint64) error {
 	tx, err := a.Data.DBClient.Tx(ctx)
 	if err != nil {
-		return errors.Wrap(err, "starting a transaction err")
+		return fmt.Errorf("starting a transaction err: %w", err)
 	}
 	defer func() {
 		if err != nil {
@@ -91,12 +91,12 @@ func (a *Authority) UpdateMenuAuthority(ctx context.Context, roleID uint64, menu
 
 	err = tx.Role.UpdateOneID(roleID).ClearMenus().Exec(ctx)
 	if err != nil {
-		return errors.Wrap(err, "delete role's menu failed, error")
+		return fmt.Errorf("delete role's menu failed, error: %w", err)
 	}
 
 	err = tx.Role.UpdateOneID(roleID).AddMenuIDs(menuIDs...).Exec(ctx)
 	if err != nil {
-		return errors.Wrap(err, "add role's menu failed, error")
+		return fmt.Errorf("add role's menu failed, error: %w", err)
 	}
 
 	return tx.Commit()

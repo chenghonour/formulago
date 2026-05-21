@@ -8,17 +8,17 @@ package admin
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"formulago/biz/domain/admin"
 	"formulago/data"
 	"formulago/pkg/encrypt"
 	"strconv"
 	"time"
 
-	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"github.com/pkg/errors"
-
 	"formulago/data/ent"
 	"formulago/data/ent/user"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 )
 
 type Login struct {
@@ -108,7 +108,7 @@ func (l *Login) getRoleInfo(ctx context.Context, roleID uint64) (roleName, roleV
 	roleData, err := l.Data.DBClient.Role.Query().All(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			err = errors.Wrap(err, "fail to find any roles")
+			err = fmt.Errorf("fail to find any roles: %w", err)
 			return "", "", err
 		}
 		hlog.Error(err, "database error")

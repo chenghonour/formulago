@@ -8,12 +8,14 @@ package admin
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"formulago/biz/domain/admin"
+	"formulago/pkg/times"
 	"formulago/data"
 	"formulago/data/ent"
 	"formulago/data/ent/role"
 	"formulago/data/ent/user"
-	"github.com/pkg/errors"
 	"strconv"
 	"time"
 )
@@ -38,7 +40,7 @@ func (r *Role) Create(ctx context.Context, req admin.RoleInfo) error {
 		SetOrderNo(req.OrderNo).
 		Save(ctx)
 	if err != nil {
-		err = errors.Wrap(err, "create Role failed")
+		err = fmt.Errorf("create Role failed: %w", err)
 		return err
 	}
 
@@ -58,7 +60,7 @@ func (r *Role) Update(ctx context.Context, req admin.RoleInfo) error {
 		SetUpdatedAt(time.Now()).
 		Save(ctx)
 	if err != nil {
-		err = errors.Wrap(err, "update Role failed")
+		err = fmt.Errorf("update Role failed: %w", err)
 		return err
 	}
 
@@ -71,7 +73,7 @@ func (r *Role) Delete(ctx context.Context, id uint64) error {
 	// whether role is used by user
 	exist, err := r.Data.DBClient.User.Query().Where(user.RoleIDEQ(id)).Exist(ctx)
 	if err != nil {
-		err = errors.Wrap(err, "query user - role failed")
+		err = fmt.Errorf("query user - role failed: %w", err)
 		return err
 	}
 	if exist {
@@ -80,7 +82,7 @@ func (r *Role) Delete(ctx context.Context, id uint64) error {
 	// delete role from db
 	err = r.Data.DBClient.Role.DeleteOneID(id).Exec(ctx)
 	if err != nil {
-		err = errors.Wrap(err, "delete Role failed")
+		err = fmt.Errorf("delete Role failed: %w", err)
 		return err
 	}
 	// delete role from cache
@@ -101,15 +103,15 @@ func (r *Role) RoleInfoByID(ctx context.Context, ID uint64) (roleInfo *admin.Rol
 				Status:        uint64(r.Status),
 				Remark:        r.Remark,
 				OrderNo:       r.OrderNo,
-				CreatedAt:     r.CreatedAt.Format("2006-01-02 15:04:05"),
-				UpdatedAt:     r.UpdatedAt.Format("2006-01-02 15:04:05"),
+				CreatedAt:     r.CreatedAt.Format(times.TimeFormat),
+				UpdatedAt:     r.UpdatedAt.Format(times.TimeFormat),
 			}, nil
 		}
 	}
 	// get role from db
 	roleEnt, err := r.Data.DBClient.Role.Query().Where(role.IDEQ(ID)).Only(ctx)
 	if err != nil {
-		err = errors.Wrap(err, "get Role failed")
+		err = fmt.Errorf("get Role failed: %w", err)
 		return nil, err
 	}
 	// set role to cache
@@ -123,8 +125,8 @@ func (r *Role) RoleInfoByID(ctx context.Context, ID uint64) (roleInfo *admin.Rol
 		Status:        uint64(roleEnt.Status),
 		Remark:        roleEnt.Remark,
 		OrderNo:       roleEnt.OrderNo,
-		CreatedAt:     roleEnt.CreatedAt.Format("2006-01-02 15:04:05"),
-		UpdatedAt:     roleEnt.UpdatedAt.Format("2006-01-02 15:04:05"),
+		CreatedAt:     roleEnt.CreatedAt.Format(times.TimeFormat),
+		UpdatedAt:     roleEnt.UpdatedAt.Format(times.TimeFormat),
 	}
 	return
 }
@@ -134,7 +136,7 @@ func (r *Role) List(ctx context.Context, req *admin.RoleListReq) (roleInfoList [
 		Offset(int(req.Page-1) * int(req.PageSize)).
 		Limit(int(req.PageSize)).All(ctx)
 	if err != nil {
-		err = errors.Wrap(err, "get RoleList failed")
+		err = fmt.Errorf("get RoleList failed: %w", err)
 		return nil, 0, err
 	}
 	// convert to List
@@ -147,11 +149,15 @@ func (r *Role) List(ctx context.Context, req *admin.RoleListReq) (roleInfoList [
 			Status:        uint64(roleEnt.Status),
 			Remark:        roleEnt.Remark,
 			OrderNo:       roleEnt.OrderNo,
-			CreatedAt:     roleEnt.CreatedAt.Format("2006-01-02 15:04:05"),
-			UpdatedAt:     roleEnt.UpdatedAt.Format("2006-01-02 15:04:05"),
+			CreatedAt:     roleEnt.CreatedAt.Format(times.TimeFormat),
+			UpdatedAt:     roleEnt.UpdatedAt.Format(times.TimeFormat),
 		})
 	}
-	total, _ = r.Data.DBClient.Role.Query().Count(ctx)
+	total, err = r.Data.DBClient.Role.Query().Count(ctx)
+	if err != nil {
+		err = fmt.Errorf("count role failed: %w", err)
+		return
+	}
 	return
 }
 
@@ -159,7 +165,7 @@ func (r *Role) List(ctx context.Context, req *admin.RoleListReq) (roleInfoList [
 func (r *Role) UpdateStatus(ctx context.Context, ID uint64, status uint8) error {
 	roleEnt, err := r.Data.DBClient.Role.UpdateOneID(ID).SetStatus(status).Save(ctx)
 	if err != nil {
-		err = errors.Wrap(err, "update Role status failed")
+		err = fmt.Errorf("update Role status failed: %w", err)
 		return err
 	}
 	// set role to cache

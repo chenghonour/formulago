@@ -11,18 +11,19 @@ package middleware
 import (
 	"context"
 	"formulago/biz/domain/admin"
+	"errors"
 	"strconv"
 	"time"
 
 	logic "formulago/biz/logic/admin"
 	"formulago/configs"
+	"formulago/pkg/times"
 	Data "formulago/data"
 
 	"github.com/casbin/casbin/v2"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/hertz-contrib/jwt"
-	"github.com/pkg/errors"
 	"github.com/spf13/cast"
 )
 
@@ -132,7 +133,7 @@ func newJWT(config configs.Config, db *Data.Data, enforcer *casbin.Enforcer) (jw
 			var tokenInfo admin.TokenInfo
 			tokenInfo.UserID = res.UserID
 			tokenInfo.UserName = res.Username
-			tokenInfo.ExpiredAt = time.Now().Add(time.Duration(config.Auth.AccessExpire) * time.Second).Format("2006-01-02 15:04:05")
+			tokenInfo.ExpiredAt = time.Now().Add(time.Duration(config.Auth.AccessExpire) * time.Second).Format(times.TimeFormat)
 			err = logic.NewToken(db).Create(ctx, &tokenInfo)
 			if err != nil {
 				hlog.Error(err, "jwtLogin error, store token error")

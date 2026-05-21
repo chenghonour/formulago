@@ -11,8 +11,8 @@ Captcha:
   ImgHeight: 80
 
 Auth:
-  OAuthKey: OauthJf3z1n2xxx2cr1
-  AccessSecret: D86VKDtsJf3z1nxxxxtsJf3z1n5
+  OAuthKey: change-me
+  AccessSecret: change-me
   AccessExpire: 259200 # seconds, 3 days
 
 Redis:
@@ -20,7 +20,7 @@ Redis:
   Host: 127.0.0.1
   Port: 6379
   Type: node
-  Password: password
+  Password: change-me
   DB: 0
 
 Database:
@@ -29,7 +29,7 @@ Database:
   Port: 3306
   DBName: formula_go
   Username: root # set your username
-  Password: password # set your password
+  Password: change-me # set your password from env DB_PASSWORD
   MaxOpenConn: 100
   SSLMode: false
   CacheTime: 5
@@ -53,15 +53,15 @@ S3:
   AliyunOSS:
     Region: "cn-shenzhen"
     Endpoint:   "oss-cn-shenzhen.aliyuncs.com"
-    BucketName: "xxxxx"
-    BasePath: "xxxxx"
-    SecretID: "LTAI5t9YQEF4uAxxxxxxxxxxxx"
-    SecretKey: "WUintXCcccuwFWOV8FAxxxxxxxxxxxx"
+    BucketName: "change-me"
+    BasePath: "change-me"
+    SecretID: "change-me"
+    SecretKey: "change-me"
     Domain: "oss.xxx.com"
 
 # Wecom（企业微信）
 Wecom:
-  CorpId: "wwxeddc2dddd8cxxx"
-  SecretId: "x7T_hcxv8qxxxabRobddddcNActLf3b5xxxT_I"
-  Token: "B5pX6OIPjyZ3IPQGwexxxxxx661"
-  EncodingAESKey: "KGbWptQao6u7yPExxx4QR2wzDricfqobLMmqxxx5661"
+  CorpId: "change-me"
+  SecretId: "change-me"
+  Token: "change-me"
+  EncodingAESKey: "change-me"

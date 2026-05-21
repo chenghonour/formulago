@@ -9,13 +9,14 @@ package admin
 import (
 	"context"
 	"fmt"
+"errors"
 	"formulago/biz/domain/admin"
+	"formulago/pkg/times"
 	"formulago/data"
 	"formulago/data/ent"
 	"formulago/data/ent/predicate"
 	"formulago/data/ent/token"
 	"formulago/data/ent/user"
-	"github.com/pkg/errors"
 	"time"
 )
 
@@ -30,7 +31,7 @@ func NewToken(data *data.Data) admin.Token {
 }
 
 func (t *Token) Create(ctx context.Context, req *admin.TokenInfo) error {
-	expiredAt, _ := time.ParseInLocation("2006-01-02 15:04:05", req.ExpiredAt, time.Local)
+	expiredAt, _ := time.ParseInLocation(times.TimeFormat, req.ExpiredAt, time.Local)
 	if expiredAt.Sub(time.Now()).Seconds() < 5 {
 		return errors.New("expired time must be greater than now, more than 5s")
 	}
@@ -38,7 +39,7 @@ func (t *Token) Create(ctx context.Context, req *admin.TokenInfo) error {
 	tokenExist, err := t.Data.DBClient.Token.Query().Where(token.UserID(req.UserID)).Only(ctx)
 	if err != nil {
 		if !ent.IsNotFound(err) {
-			return errors.Wrap(err, "create Token failed")
+			return fmt.Errorf("create Token failed: %w", err)
 		}
 	}
 	// if exists, update token
@@ -49,7 +50,7 @@ func (t *Token) Create(ctx context.Context, req *admin.TokenInfo) error {
 	// userinfo
 	userInfo, err := t.Data.DBClient.User.Query().Where(user.IDEQ(req.UserID)).Only(ctx)
 	if err != nil {
-		return errors.Wrap(err, "get userinfo failed")
+		return fmt.Errorf("get userinfo failed: %w", err)
 	}
 
 	// create token
@@ -61,7 +62,7 @@ func (t *Token) Create(ctx context.Context, req *admin.TokenInfo) error {
 		SetExpiredAt(expiredAt).
 		Save(ctx)
 	if err != nil {
-		return errors.Wrap(err, "create Token failed")
+		return fmt.Errorf("create Token failed: %w", err)
 	}
 
 	// add to cache
@@ -71,7 +72,7 @@ func (t *Token) Create(ctx context.Context, req *admin.TokenInfo) error {
 }
 
 func (t *Token) Update(ctx context.Context, req *admin.TokenInfo) error {
-	expiredAt, _ := time.ParseInLocation("2006-01-02 15:04:05", req.ExpiredAt, time.Local)
+	expiredAt, _ := time.ParseInLocation(times.TimeFormat, req.ExpiredAt, time.Local)
 	if expiredAt.Sub(time.Now()).Seconds() < 5 {
 		return errors.New("expired time must be greater than now, more than 5s")
 	}
@@ -83,7 +84,7 @@ func (t *Token) Update(ctx context.Context, req *admin.TokenInfo) error {
 		SetExpiredAt(expiredAt).
 		Save(ctx)
 	if err != nil {
-		return errors.Wrap(err, "update Token failed")
+		return fmt.Errorf("update Token failed: %w", err)
 	}
 
 	// add to cache
@@ -106,7 +107,7 @@ func (t *Token) IsExistByUserID(ctx context.Context, userID uint64) bool {
 func (t *Token) Delete(ctx context.Context, userID uint64) error {
 	_, err := t.Data.DBClient.Token.Delete().Where(token.UserID(userID)).Exec(ctx)
 	if err != nil {
-		return errors.Wrap(err, "delete Token failed")
+		return fmt.Errorf("delete Token failed: %w", err)
 	}
 
 	// delete from cache
@@ -129,7 +130,7 @@ func (t *Token) List(ctx context.Context, req *admin.TokenListReq) (res []*admin
 		}).Offset(int(req.Page-1) * int(req.PageSize)).
 		Limit(int(req.PageSize)).All(ctx)
 	if err != nil {
-		return res, total, errors.Wrap(err, "get User - Token list failed")
+		return res, total, fmt.Errorf("get User - Token list failed: %w", err)
 	}
 
 	for _, userEnt := range UserTokens {
@@ -139,9 +140,9 @@ func (t *Token) List(ctx context.Context, req *admin.TokenListReq) (res []*admin
 			UserName:  userEnt.Username,
 			Token:     userEnt.Edges.Token.Token,
 			Source:    userEnt.Edges.Token.Source,
-			CreatedAt: userEnt.CreatedAt.Format("2006-01-02 15:04:05"),
-			UpdatedAt: userEnt.UpdatedAt.Format("2006-01-02 15:04:05"),
-			ExpiredAt: userEnt.Edges.Token.ExpiredAt.Format("2006-01-02 15:04:05"),
+			CreatedAt: userEnt.CreatedAt.Format(times.TimeFormat),
+			UpdatedAt: userEnt.UpdatedAt.Format(times.TimeFormat),
+			ExpiredAt: userEnt.Edges.Token.ExpiredAt.Format(times.TimeFormat),
 		})
 
 		// delete expired token from db
@@ -149,6 +150,10 @@ func (t *Token) List(ctx context.Context, req *admin.TokenListReq) (res []*admin
 			_ = t.Delete(ctx, userEnt.ID)
 		}
 	}
-	total, _ = t.Data.DBClient.User.Query().Where(userPredicates...).Count(ctx)
+	total, err = t.Data.DBClient.User.Query().Where(userPredicates...).Count(ctx)
+	if err != nil {
+		err = fmt.Errorf("count token failed: %w", err)
+		return
+	}
 	return
 }

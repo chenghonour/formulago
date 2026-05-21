@@ -9,13 +9,14 @@ package admin
 import (
 	"context"
 	"fmt"
+"errors"
 	"formulago/biz/domain/admin"
+	"formulago/pkg/times"
 	"formulago/data"
 	"formulago/data/ent"
 	"formulago/data/ent/dictionary"
 	"formulago/data/ent/dictionarydetail"
 	"formulago/data/ent/predicate"
-	"github.com/pkg/errors"
 	"time"
 )
 
@@ -43,7 +44,7 @@ func (d *Dictionary) Create(ctx context.Context, req *admin.DictionaryInfo) erro
 		SetDescription(req.Description).
 		Save(ctx)
 	if err != nil {
-		return errors.Wrap(err, "create Dictionary failed")
+		return fmt.Errorf("create Dictionary failed: %w", err)
 	}
 	return nil
 }
@@ -62,7 +63,7 @@ func (d *Dictionary) Update(ctx context.Context, req *admin.DictionaryInfo) erro
 		SetDescription(req.Description).
 		Save(ctx)
 	if err != nil {
-		return errors.Wrap(err, "update Dictionary failed")
+		return fmt.Errorf("update Dictionary failed: %w", err)
 	}
 	return nil
 }
@@ -71,7 +72,7 @@ func (d *Dictionary) Delete(ctx context.Context, id uint64) error {
 	// whether dictionary is exists
 	dict, err := d.Data.DBClient.Dictionary.Query().Where(dictionary.ID(id)).Only(ctx)
 	if err != nil {
-		return errors.Wrap(err, "query Dictionary failed")
+		return fmt.Errorf("query Dictionary failed: %w", err)
 	}
 	if dict == nil {
 		return errors.New(fmt.Sprintf("The dictionary(id=%d) try to delete is not exists", id))
@@ -85,7 +86,7 @@ func (d *Dictionary) Delete(ctx context.Context, id uint64) error {
 			// get all fields default, or use q.Select() to get some fields
 		}).All(ctx)
 	if err != nil {
-		return errors.Wrap(err, "query DictionaryDetail failed")
+		return fmt.Errorf("query DictionaryDetail failed: %w", err)
 	}
 	if len(details) > 0 {
 		return errors.New("dictionary has detail, please delete detail first")
@@ -93,7 +94,7 @@ func (d *Dictionary) Delete(ctx context.Context, id uint64) error {
 	// delete dictionary
 	err = d.Data.DBClient.Dictionary.DeleteOneID(id).Exec(ctx)
 	if err != nil {
-		return errors.Wrap(err, "delete Dictionary failed")
+		return fmt.Errorf("delete Dictionary failed: %w", err)
 	}
 	return nil
 }
@@ -111,7 +112,7 @@ func (d *Dictionary) List(ctx context.Context, req *admin.DictListReq) (list []*
 		Offset(int(req.Page-1) * int(req.PageSize)).
 		Limit(int(req.PageSize)).All(ctx)
 	if err != nil {
-		return nil, 0, errors.Wrap(err, "query Dictionary list failed")
+		return nil, 0, fmt.Errorf("query Dictionary list failed: %w", err)
 	}
 
 	// format result
@@ -122,11 +123,15 @@ func (d *Dictionary) List(ctx context.Context, req *admin.DictListReq) (list []*
 			Name:        dict.Name,
 			Status:      uint64(dict.Status),
 			Description: dict.Description,
-			CreatedAt:   dict.CreatedAt.Format("2006-01-02 15:04:05"),
-			UpdatedAt:   dict.UpdatedAt.Format("2006-01-02 15:04:05"),
+			CreatedAt:   dict.CreatedAt.Format(times.TimeFormat),
+			UpdatedAt:   dict.UpdatedAt.Format(times.TimeFormat),
 		})
 	}
-	total, _ = d.Data.DBClient.Dictionary.Query().Where(predicates...).Count(ctx)
+	total, err = d.Data.DBClient.Dictionary.Query().Where(predicates...).Count(ctx)
+	if err != nil {
+		err = fmt.Errorf("count dictionary failed: %w", err)
+		return
+	}
 	return
 }
 
@@ -135,7 +140,7 @@ func (d *Dictionary) CreateDetail(ctx context.Context, req *admin.DictionaryDeta
 	exist, err := d.Data.DBClient.DictionaryDetail.Query().Where(dictionarydetail.Key(req.Key)).
 		Where(dictionarydetail.Value(req.Value)).Where(dictionarydetail.HasDictionaryWith(dictionary.ID(req.ParentID))).Exist(ctx)
 	if err != nil {
-		return errors.Wrap(err, "query DictionaryDetail exist failed")
+		return fmt.Errorf("query DictionaryDetail exist failed: %w", err)
 	}
 	if exist {
 		return errors.New("dictionary detail already exists")
@@ -144,7 +149,7 @@ func (d *Dictionary) CreateDetail(ctx context.Context, req *admin.DictionaryDeta
 	// find dictionary by id
 	dict, err := d.Data.DBClient.Dictionary.Query().Where(dictionary.ID(req.ParentID)).Only(ctx)
 	if err != nil {
-		return errors.Wrap(err, "query Dictionary failed")
+		return fmt.Errorf("query Dictionary failed: %w", err)
 	}
 	if dict == nil {
 		return errors.New(fmt.Sprintf("dictionary not found, please check dictionary id, %d", req.ParentID))
@@ -159,7 +164,7 @@ func (d *Dictionary) CreateDetail(ctx context.Context, req *admin.DictionaryDeta
 		SetStatus(uint8(req.Status)).
 		Save(ctx)
 	if err != nil {
-		return errors.Wrap(err, "create DictionaryDetail failed")
+		return fmt.Errorf("create DictionaryDetail failed: %w", err)
 	}
 	return nil
 }
@@ -173,7 +178,7 @@ func (d *Dictionary) UpdateDetail(ctx context.Context, req *admin.DictionaryDeta
 			// get all fields default, or use q.Select() to get some fields
 		}).Only(ctx)
 	if err != nil {
-		return errors.Wrap(err, "query DictionaryDetail failed")
+		return fmt.Errorf("query DictionaryDetail failed: %w", err)
 	}
 	// update dictionary detail
 	_, err = d.Data.DBClient.DictionaryDetail.UpdateOneID(req.ID).
@@ -183,7 +188,7 @@ func (d *Dictionary) UpdateDetail(ctx context.Context, req *admin.DictionaryDeta
 		SetStatus(uint8(req.Status)).
 		Save(ctx)
 	if err != nil {
-		return errors.Wrap(err, "update DictionaryDetail failed")
+		return fmt.Errorf("update DictionaryDetail failed: %w", err)
 	}
 	// delete dictionary detail from cache
 	d.Data.Cache.Delete(fmt.Sprintf("Dictionary%s-key%s", detail.Edges.Dictionary.Name, detail.Key))
@@ -200,12 +205,12 @@ func (d *Dictionary) DeleteDetail(ctx context.Context, id uint64) error {
 			// get all fields default, or use q.Select() to get some fields
 		}).Only(ctx)
 	if err != nil {
-		return errors.Wrap(err, "query DictionaryDetail failed")
+		return fmt.Errorf("query DictionaryDetail failed: %w", err)
 	}
 	// delete dictionary detail
 	err = d.Data.DBClient.DictionaryDetail.DeleteOneID(id).Exec(ctx)
 	if err != nil {
-		return errors.Wrap(err, "delete DictionaryDetail failed")
+		return fmt.Errorf("delete DictionaryDetail failed: %w", err)
 	}
 	// delete dictionary detail from cache
 	d.Data.Cache.Delete(fmt.Sprintf("Dictionary%s-key%s", detail.Edges.Dictionary.Name, detail.Key))
@@ -222,7 +227,7 @@ func (d *Dictionary) DetailListByDictName(ctx context.Context, dictName string) 
 			// get all fields default, or use q.Select() to get some fields
 		}).All(ctx)
 	if err != nil {
-		return nil, 0, errors.Wrap(err, "query DictionaryDetail list failed")
+		return nil, 0, fmt.Errorf("query DictionaryDetail list failed: %w", err)
 	}
 
 	// format result
@@ -233,8 +238,8 @@ func (d *Dictionary) DetailListByDictName(ctx context.Context, dictName string) 
 			Key:       detail.Key,
 			Value:     detail.Value,
 			Status:    uint64(detail.Status),
-			CreatedAt: detail.CreatedAt.Format("2006-01-02 15:04:05"),
-			UpdatedAt: detail.UpdatedAt.Format("2006-01-02 15:04:05"),
+			CreatedAt: detail.CreatedAt.Format(times.TimeFormat),
+			UpdatedAt: detail.UpdatedAt.Format(times.TimeFormat),
 			ParentID:  detail.Edges.Dictionary.ID,
 		})
 	}
@@ -252,7 +257,7 @@ func (d *Dictionary) K2VMapByDictName(ctx context.Context, dictName string) (K2V
 			// get all fields default, or use q.Select() to get some fields
 		}).All(ctx)
 	if err != nil {
-		return nil, errors.Wrap(err, "query DictionaryDetail list failed")
+		return nil, fmt.Errorf("query DictionaryDetail list failed: %w", err)
 	}
 
 	// format result
@@ -272,7 +277,7 @@ func (d *Dictionary) V2KMapByDictName(ctx context.Context, dictName string) (V2K
 			// get all fields default, or use q.Select() to get some fields
 		}).All(ctx)
 	if err != nil {
-		return nil, errors.Wrap(err, "query DictionaryDetail list failed")
+		return nil, fmt.Errorf("query DictionaryDetail list failed: %w", err)
 	}
 
 	// format result
@@ -293,7 +298,7 @@ func (d *Dictionary) DetailByDictNameAndKey(ctx context.Context, dictName, key s
 		Where(dictionarydetail.HasDictionaryWith(dictionary.NameEQ(dictName))).
 		Where(dictionarydetail.Key(key)).First(ctx)
 	if err != nil {
-		return nil, errors.Wrap(err, "query DictionaryDetail list failed")
+		return nil, fmt.Errorf("query DictionaryDetail list failed: %w", err)
 	}
 
 	// format result
@@ -303,8 +308,8 @@ func (d *Dictionary) DetailByDictNameAndKey(ctx context.Context, dictName, key s
 	detail.Key = dictDetail.Key
 	detail.Value = dictDetail.Value
 	detail.Status = uint64(dictDetail.Status)
-	detail.CreatedAt = dictDetail.CreatedAt.Format("2006-01-02 15:04:05")
-	detail.UpdatedAt = dictDetail.UpdatedAt.Format("2006-01-02 15:04:05")
+	detail.CreatedAt = dictDetail.CreatedAt.Format(times.TimeFormat)
+	detail.UpdatedAt = dictDetail.UpdatedAt.Format(times.TimeFormat)
 
 	// set cache
 	d.Data.Cache.Set(fmt.Sprintf("Dictionary%s-key%s", dictName, key), detail, 72*time.Hour)
@@ -322,7 +327,7 @@ func (d *Dictionary) DetailByDictNameAndValue(ctx context.Context, dictName, val
 		Where(dictionarydetail.HasDictionaryWith(dictionary.NameEQ(dictName))).
 		Where(dictionarydetail.Value(value)).First(ctx)
 	if err != nil {
-		return nil, errors.Wrap(err, "query DictionaryDetail list failed")
+		return nil, fmt.Errorf("query DictionaryDetail list failed: %w", err)
 	}
 
 	// format result
@@ -332,8 +337,8 @@ func (d *Dictionary) DetailByDictNameAndValue(ctx context.Context, dictName, val
 	detail.Key = dictDetail.Key
 	detail.Value = dictDetail.Value
 	detail.Status = uint64(dictDetail.Status)
-	detail.CreatedAt = dictDetail.CreatedAt.Format("2006-01-02 15:04:05")
-	detail.UpdatedAt = dictDetail.UpdatedAt.Format("2006-01-02 15:04:05")
+	detail.CreatedAt = dictDetail.CreatedAt.Format(times.TimeFormat)
+	detail.UpdatedAt = dictDetail.UpdatedAt.Format(times.TimeFormat)
 
 	// set cache
 	d.Data.Cache.Set(fmt.Sprintf("Dictionary%s-value%s", dictName, value), detail, 72*time.Hour)

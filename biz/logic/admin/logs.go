@@ -8,13 +8,14 @@ package admin
 
 import (
 	"context"
+	"fmt"
 	"formulago/biz/domain/admin"
+	"formulago/pkg/times"
 	"formulago/data"
 	"formulago/data/ent"
 	"formulago/data/ent/logs"
 	"formulago/data/ent/predicate"
 	"formulago/pkg/types"
-	"github.com/pkg/errors"
 )
 
 type Logs struct {
@@ -45,7 +46,7 @@ func (l *Logs) Create(ctx context.Context, logsReq *admin.LogsInfo) error {
 		SetTime(int(logsReq.Time)).
 		Exec(ctx)
 	if err != nil {
-		err = errors.Wrap(err, "create logs failed")
+		err = fmt.Errorf("create logs failed: %w", err)
 		return err
 	}
 	return nil
@@ -73,7 +74,7 @@ func (l *Logs) List(ctx context.Context, req *admin.LogsListReq) (list []*admin.
 		Limit(int(req.PageSize)).
 		Order(ent.Desc(logs.FieldCreatedAt)).All(ctx)
 	if err != nil {
-		return nil, 0, errors.Wrap(err, "query logsData list failed")
+		return nil, 0, fmt.Errorf("query logsData list failed: %w", err)
 	}
 	for _, v := range logsData {
 		list = append(list, &admin.LogsInfo{
@@ -87,13 +88,13 @@ func (l *Logs) List(ctx context.Context, req *admin.LogsListReq) (list []*admin.
 			UserAgent:   v.UserAgent,
 			Operator:    v.Operator,
 			Time:        uint32(v.Time),
-			CreatedAt:   v.CreatedAt.Format("2006-01-02 15:04:05"),
-			UpdatedAt:   v.UpdatedAt.Format("2006-01-02 15:04:05"),
+			CreatedAt:   v.CreatedAt.Format(times.TimeFormat),
+			UpdatedAt:   v.UpdatedAt.Format(times.TimeFormat),
 		})
 	}
 	total, err = l.Data.DBClient.Logs.Query().Where(predicates...).Count(ctx)
 	if err != nil {
-		return nil, 0, errors.Wrap(err, "query logsData count failed")
+		return nil, 0, fmt.Errorf("query logsData count failed: %w", err)
 	}
 	return
 }
@@ -101,7 +102,7 @@ func (l *Logs) List(ctx context.Context, req *admin.LogsListReq) (list []*admin.
 func (l *Logs) DeleteAll(ctx context.Context) error {
 	_, err := l.Data.DBClient.Logs.Delete().Exec(ctx)
 	if err != nil {
-		return errors.Wrap(err, "delete logsData failed")
+		return fmt.Errorf("delete logsData failed: %w", err)
 	}
 	return nil
 }

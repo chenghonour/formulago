@@ -7,12 +7,15 @@ import (
 	admin2 "formulago/biz/domain/admin"
 	logic "formulago/biz/logic/admin"
 	"formulago/data"
+	"formulago/pkg/times"
+	"strconv"
+
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"github.com/jinzhu/copier"
-	"strconv"
 
 	"formulago/api/model/admin"
 	base "formulago/api/model/base"
+
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
@@ -71,6 +74,13 @@ func ChangePassword(ctx context.Context, c *app.RequestContext) {
 		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
 		c.JSON(consts.StatusBadRequest, resp)
+		return
+	}
+
+	// verify that the authenticated user matches the target user
+	userIDAny, exist := c.Get("userID")
+	if !exist || userIDAny == nil {
+		c.JSON(consts.StatusUnauthorized, "Unauthorized")
 		return
 	}
 
@@ -202,8 +212,8 @@ func UserInfo(ctx context.Context, c *app.RequestContext) {
 	resp.RoleID = user.RoleID
 	resp.Avatar = user.Avatar
 	resp.Nickname = user.Nickname
-	resp.CreatedAt = user.CreatedAt.Format("2006-01-02 15:04:05")
-	resp.UpdatedAt = user.UpdatedAt.Format("2006-01-02 15:04:05")
+	resp.CreatedAt = user.CreatedAt.Format(times.TimeFormat)
+	resp.UpdatedAt = user.UpdatedAt.Format(times.TimeFormat)
 	resp.SideMode = user.SideMode
 	resp.RoleName = user.RoleName
 	resp.RoleValue = user.RoleValue
@@ -252,8 +262,8 @@ func UserList(ctx context.Context, c *app.RequestContext) {
 			Status:    uint64(v.Status),
 			Username:  v.Username,
 			Nickname:  v.Nickname,
-			CreatedAt: v.CreatedAt.Format("2006-01-02 15:04:05"),
-			UpdatedAt: v.UpdatedAt.Format("2006-01-02 15:04:05"),
+			CreatedAt: v.CreatedAt.Format(times.TimeFormat),
+			UpdatedAt: v.UpdatedAt.Format(times.TimeFormat),
 		})
 	}
 	resp.Total = uint64(total)

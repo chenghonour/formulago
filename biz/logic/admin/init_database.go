@@ -11,10 +11,12 @@ import (
 	"formulago/pkg/encrypt"
 	"github.com/casbin/casbin/v2"
 	"sync"
+	"sync/atomic"
 
+"fmt"
+"errors"
 	"formulago/data/ent"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"github.com/pkg/errors"
 )
 
 type InitDatabase struct {
@@ -25,7 +27,7 @@ type InitDatabase struct {
 
 var (
 	mutex              = new(sync.Mutex)
-	InitDatabaseStatus bool
+	InitDatabaseStatus atomic.Bool
 )
 
 func NewInitDatabase(db *ent.Client, csb *casbin.Enforcer) *InitDatabase {
@@ -43,7 +45,7 @@ func (I *InitDatabase) InitDatabase(ctx context.Context) error {
 
 	// judge if the initialization had been done
 	check, err := I.DB.API.Query().Count(ctx)
-	if InitDatabaseStatus || check > 0 {
+	if InitDatabaseStatus.Load() || check > 0 {
 		return errors.New("Database had been initialized")
 	}
 
@@ -51,52 +53,52 @@ func (I *InitDatabase) InitDatabase(ctx context.Context) error {
 	err = I.insertUserData(ctx)
 	if err != nil {
 		hlog.Error("insert user data failed", err)
-		err = errors.Wrap(err, "insert user data failed")
+		err = fmt.Errorf("insert user data failed: %w", err)
 		return err
 	}
 
 	err = I.insertRoleData(ctx)
 	if err != nil {
 		hlog.Error("insert role data failed", err)
-		err = errors.Wrap(err, "insert role data failed")
+		err = fmt.Errorf("insert role data failed: %w", err)
 		return err
 	}
 
 	err = I.insertMenuData(ctx)
 	if err != nil {
 		hlog.Error("insert menu data failed", err)
-		err = errors.Wrap(err, "insert menu data failed")
+		err = fmt.Errorf("insert menu data failed: %w", err)
 		return err
 	}
 
 	err = I.insertApiData(ctx)
 	if err != nil {
 		hlog.Error("insert api data failed", err)
-		err = errors.Wrap(err, "insert api data failed")
+		err = fmt.Errorf("insert api data failed: %w", err)
 		return err
 	}
 	err = I.insertRoleMenuAuthorityData(ctx)
 	if err != nil {
 		hlog.Error("insert role menu authority data failed", err)
-		err = errors.Wrap(err, "insert role menu authority data failed")
+		err = fmt.Errorf("insert role menu authority data failed: %w", err)
 		return err
 	}
 	err = I.insertCasbinPoliciesData(ctx)
 	if err != nil {
 		hlog.Error("insert casbin policies data failed", err)
-		err = errors.Wrap(err, "insert casbin policies data failed")
+		err = fmt.Errorf("insert casbin policies data failed: %w", err)
 		return err
 	}
 
 	err = I.insertProviderData(ctx)
 	if err != nil {
 		hlog.Error("insert provider data failed", err)
-		err = errors.Wrap(err, "insert provider data failed")
+		err = fmt.Errorf("insert provider data failed: %w", err)
 		return err
 	}
 
 	// set init status
-	InitDatabaseStatus = true
+	InitDatabaseStatus.Store(true)
 	return nil
 }
 
@@ -116,7 +118,7 @@ func (I *InitDatabase) insertUserData(ctx context.Context) error {
 
 	err := I.DB.User.CreateBulk(users...).Exec(ctx)
 	if err != nil {
-		return errors.Wrap(err, "db failed")
+		return fmt.Errorf("db failed: %w", err)
 	}
 	return nil
 }
@@ -145,7 +147,7 @@ func (I *InitDatabase) insertRoleData(ctx context.Context) error {
 
 	err := I.DB.Role.CreateBulk(roles...).Exec(ctx)
 	if err != nil {
-		return errors.Wrap(err, "db failed")
+		return fmt.Errorf("db failed: %w", err)
 	}
 	return nil
 }
@@ -519,7 +521,7 @@ func (I *InitDatabase) insertApiData(ctx context.Context) error {
 
 	err := I.DB.API.CreateBulk(apis...).Exec(ctx)
 	if err != nil {
-		return errors.Wrap(err, "db failed")
+		return fmt.Errorf("db failed: %w", err)
 	}
 	return nil
 }
@@ -746,7 +748,7 @@ func (I *InitDatabase) insertMenuData(ctx context.Context) error {
 
 	err := I.DB.Menu.CreateBulk(menus...).Exec(ctx)
 	if err != nil {
-		return errors.Wrap(err, "db failed")
+		return fmt.Errorf("db failed: %w", err)
 	}
 	return nil
 }
@@ -756,7 +758,7 @@ func (I *InitDatabase) insertMenuData(ctx context.Context) error {
 func (I *InitDatabase) insertRoleMenuAuthorityData(ctx context.Context) error {
 	count, err := I.DB.Menu.Query().Count(ctx)
 	if err != nil {
-		return errors.Wrap(err, "db failed")
+		return fmt.Errorf("db failed: %w", err)
 	}
 
 	var menuIDs []uint64
@@ -769,7 +771,7 @@ func (I *InitDatabase) insertRoleMenuAuthorityData(ctx context.Context) error {
 	err = I.DB.Role.Update().AddMenuIDs(menuIDs...).Exec(ctx)
 
 	if err != nil {
-		return errors.Wrap(err, "db failed")
+		return fmt.Errorf("db failed: %w", err)
 	}
 	return nil
 }
@@ -779,7 +781,7 @@ func (I *InitDatabase) insertRoleMenuAuthorityData(ctx context.Context) error {
 func (I *InitDatabase) insertCasbinPoliciesData(ctx context.Context) error {
 	apis, err := I.DB.API.Query().All(ctx)
 	if err != nil {
-		return errors.Wrap(err, "db failed")
+		return fmt.Errorf("db failed: %w", err)
 	}
 
 	var policies [][]string
@@ -789,11 +791,11 @@ func (I *InitDatabase) insertCasbinPoliciesData(ctx context.Context) error {
 
 	addResult, err := I.Csb.AddPolicies(policies)
 	if err != nil {
-		return errors.Wrap(err, "db failed")
+		return fmt.Errorf("db failed: %w", err)
 	}
 
 	if !addResult {
-		return errors.Wrap(err, "db failed")
+		return fmt.Errorf("db failed: %w", err)
 	}
 	return nil
 }
@@ -838,7 +840,7 @@ func (I *InitDatabase) insertProviderData(ctx context.Context) error {
 
 	err := I.DB.OauthProvider.CreateBulk(providers...).Exec(ctx)
 	if err != nil {
-		return errors.Wrap(err, "db failed")
+		return fmt.Errorf("db failed: %w", err)
 	}
 	return nil
 }

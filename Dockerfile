@@ -1,21 +1,23 @@
-FROM golang:1.19-alpine
+FROM golang:1.26-alpine AS builder
 
 LABEL maintainer="coko@duck.com"
 
-###############################################################################
-#                                INSTALLATION
-###############################################################################
-# Set project path
-ENV WORKDIR /var/www/formulago
-# Add the application executable and set the execution permission
-ADD ./formulago   $WORKDIR/formulago
-RUN chmod +x $WORKDIR/formulago
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -o formulago .
 
-###############################################################################
-#                                   START
-###############################################################################
+FROM alpine:3.21
+
+RUN apk add --no-cache ca-certificates tzdata
+
+ENV WORKDIR /var/www/formulago
+ENV IS_PROD false
+
 WORKDIR $WORKDIR
-# Set the environment variables
-ENV IS_PROD true
-# Run the application
+COPY --from=builder /src/formulago .
+
+EXPOSE 8191
+
 CMD ./formulago

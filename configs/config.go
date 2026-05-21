@@ -12,6 +12,7 @@ import (
 	"embed"
 	"os"
 	"sync"
+	"sync/atomic"
 
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/knadh/koanf/parsers/yaml"
@@ -25,7 +26,7 @@ var configFiles embed.FS
 // GlobalConfig .
 var (
 	globalConfig Config
-	isInit       = false
+	isInit       atomic.Bool
 )
 
 var initConfigMutex sync.Mutex
@@ -33,7 +34,7 @@ var initConfigMutex sync.Mutex
 func InitConfig(configBytes []byte) {
 	initConfigMutex.Lock()
 	defer initConfigMutex.Unlock()
-	if isInit {
+	if isInit.Load() {
 		return
 	}
 	// log print embed config file
@@ -46,20 +47,21 @@ func InitConfig(configBytes []byte) {
 	}
 	// load config
 	globalConfig, _ = load(configBytes)
-	isInit = true
+	isInit.Store(true)
 }
 
 func Data() Config {
-	if !isInit {
+	if !isInit.Load() {
 		InitConfig(nil)
 	}
 	return globalConfig
 }
 
 func ReLoad(configBytes []byte) {
+	initConfigMutex.Lock()
+	defer initConfigMutex.Unlock()
 	globalConfig, _ = load(configBytes)
 	hlog.Info("reload config")
-	return
 }
 
 // load from bytes, if nil, load from embed file
@@ -81,12 +83,42 @@ func load(data []byte) (config Config, err error) {
 	if err != nil {
 		return config, err
 	}
-	// load db password from env
-	DBPassword := os.Getenv("DB_PASSWORD")
-	if DBPassword != "" {
-		config.Database.Password = DBPassword
-	}
+	// override secrets from environment variables
+	overrideSecretFromEnv(&config)
 	return
+}
+
+func overrideSecretFromEnv(config *Config) {
+	if v := os.Getenv("DB_PASSWORD"); v != "" {
+		config.Database.Password = v
+	}
+	if v := os.Getenv("ACCESS_SECRET"); v != "" {
+		config.Auth.AccessSecret = v
+	}
+	if v := os.Getenv("OAUTH_KEY"); v != "" {
+		config.Auth.OAuthKey = v
+	}
+	if v := os.Getenv("OSS_SECRET_ID"); v != "" {
+		config.S3.AliyunOSS.SecretID = v
+	}
+	if v := os.Getenv("OSS_SECRET_KEY"); v != "" {
+		config.S3.AliyunOSS.SecretKey = v
+	}
+	if v := os.Getenv("WECOM_CORP_ID"); v != "" {
+		config.Wecom.CorpID = v
+	}
+	if v := os.Getenv("WECOM_SECRET_ID"); v != "" {
+		config.Wecom.SecretID = v
+	}
+	if v := os.Getenv("WECOM_TOKEN"); v != "" {
+		config.Wecom.Token = v
+	}
+	if v := os.Getenv("WECOM_AES_KEY"); v != "" {
+		config.Wecom.EncodingAESKey = v
+	}
+	if v := os.Getenv("REDIS_PASSWORD"); v != "" {
+		config.Redis.Password = v
+	}
 }
 
 func FSConfigFileToBytes(fs embed.FS) ([]byte, error) {

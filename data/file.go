@@ -30,7 +30,7 @@ type FileAdapter struct {
 func NewFileAdapter(c configs.Config) *FileAdapter {
 	if c.S3.Type == "AliyunOSS" {
 		return &FileAdapter{
-			Adapter: s3.NewUploadAliyunOSSAdapter(c),
+			Adapter: s3.NewAliyunOSSAdapter(c),
 		}
 	}
 	return nil
