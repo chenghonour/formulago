@@ -27,4 +27,4 @@ type Wecom struct {
 }
 
 // http client
-var client = &http.DefaultClient
+var client = http.DefaultClient
