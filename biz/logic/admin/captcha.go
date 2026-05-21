@@ -43,6 +43,6 @@ func NewCaptcha() admin.Captcha {
 
 func (c *Captcha) GetCaptcha() (id, b64s string, err error) {
 	captchaGen := base64Captcha.NewCaptcha(c.CaptchaDriver, c.CaptchaStore)
-	id, b64s, err = captchaGen.Generate()
+	id, b64s, _, err = captchaGen.Generate()
 	return
 }

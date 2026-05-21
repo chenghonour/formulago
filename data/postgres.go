@@ -21,7 +21,7 @@ import (
 )
 
 const (
-	postgresDsn = "host=<host> port=<port> user=<user> dbname=<database> password=<pass>"
+	postgresDsn = "host=%s port=%d user=%v dbname=%s password=%v"
 )
 
 // NewPostgresClient returns a new ent client.

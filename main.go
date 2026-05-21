@@ -17,7 +17,7 @@ import (
 
 func main() {
 	// init
-	configs.InitConfig()
+	configs.InitConfig(nil)
 	data.InitDataConfig()
 
 	// start server
