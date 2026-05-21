@@ -73,3 +73,6 @@ hz update -I api -idl api/admin/admin.proto -model_dir api/model --unset_omitemp
 - Time format: use `pkg/times/format.go  `TimeFormat` constant instead of `"2006-01-02 15:04:05"`
 - Comments only for non-obvious WHY — don't explain what the code does
 
+### Slice Index Safety
+- Always guard slice/array access with bounds check: `if i < len(s) { s[i] }`
+

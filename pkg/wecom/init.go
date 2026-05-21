@@ -10,7 +10,7 @@ package wecom
 import (
 	"formulago/configs"
 	"formulago/data"
-	"github.com/imroc/req/v3"
+	"net/http"
 )
 
 func New(config configs.Config, data *data.Data) *Wecom {
@@ -27,4 +27,4 @@ type Wecom struct {
 }
 
 // http client
-var client = req.C()
+var client = &http.DefaultClient

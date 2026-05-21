@@ -7,6 +7,8 @@
 package wecom
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"strings"
 )
@@ -68,27 +70,28 @@ func NewMarkdownMsg(title, content string, emoji string) *MarkdownMsg {
 // PostToGroupBot 推送信息到企业微信机器人
 // url 支持多个机器人地址，用逗号,分隔
 func PostToGroupBot(urlList []string, msg *MarkdownMsg) error {
+	body, err := json.Marshal(msg)
+	if err != nil {
+		return err
+	}
 	for _, v := range urlList {
 		if v == "" {
 			continue
 		}
-		// code==0, 表示推送成功，否则失败
-		type SheinResp struct {
-			Code int    `json:"errcode"`
-			Msg  string `json:"errmsg"`
-		}
-		var resp SheinResp
-		_, err := client.R().SetHeader("Content-Type", "application/json").
-			SetBody(msg).
-			SetErrorResult(&resp).
-			SetSuccessResult(&resp).
-			Post(v)
+		resp, err := client.Post(v, "application/json", bytes.NewReader(body))
 		if err != nil {
 			return err
 		}
-		if resp.Code != 0 {
-			err = fmt.Errorf("推送信息到企业微信机器人失败，失败原因：%s", resp.Msg)
-			return err
+		// code==0, 表示推送成功，否则失败
+		type Resp struct {
+			Code int    `json:"errcode"`
+			Msg  string `json:"errmsg"`
+		}
+		var r Resp
+		_ = json.NewDecoder(resp.Body).Decode(&r)
+		resp.Body.Close()
+		if r.Code != 0 {
+			return fmt.Errorf("推送信息到企业微信机器人失败，失败原因：%s", r.Msg)
 		}
 	}
 	return nil
