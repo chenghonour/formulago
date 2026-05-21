@@ -17,9 +17,22 @@ import (
 	"formulago/data/ent/user"
 	"formulago/pkg/encrypt"
 	"github.com/jinzhu/copier"
+	"regexp"
 	"strconv"
 	"time"
 )
+
+var usernameRegex = regexp.MustCompile(`^[a-z]{5,}$`)
+
+func validateUserInput(username, password string) error {
+	if !usernameRegex.MatchString(username) {
+		return errors.New("username must be at least 5 lowercase letters, no spaces or special characters")
+	}
+	if len(password) < 8 {
+		return errors.New("password must be at least 8 characters")
+	}
+	return nil
+}
 
 type User struct {
 	Data *data.Data
@@ -32,6 +45,9 @@ func NewUser(data *data.Data) admin.User {
 }
 
 func (u *User) Create(ctx context.Context, req admin.CreateOrUpdateUserReq) error {
+	if err := validateUserInput(req.Username, req.Password); err != nil {
+		return err
+	}
 	password, _ := encrypt.BcryptEncrypt(req.Password)
 	_, err := u.Data.DBClient.User.Create().
 		SetAvatar(req.Avatar).
@@ -51,6 +67,9 @@ func (u *User) Create(ctx context.Context, req admin.CreateOrUpdateUserReq) erro
 }
 
 func (u *User) Update(ctx context.Context, req admin.CreateOrUpdateUserReq) error {
+	if err := validateUserInput(req.Username, req.Password); err != nil {
+		return err
+	}
 	password, _ := encrypt.BcryptEncrypt(req.Password)
 	_, err := u.Data.DBClient.User.Update().
 		Where(user.IDEQ(req.ID)).
@@ -71,6 +90,9 @@ func (u *User) Update(ctx context.Context, req admin.CreateOrUpdateUserReq) erro
 }
 
 func (u *User) ChangePassword(ctx context.Context, userID uint64, oldPassword, newPassword string) error {
+	if len(newPassword) < 8 {
+		return errors.New("password must be at least 8 characters")
+	}
 	// get user info
 	targetUser, err := u.Data.DBClient.User.Query().Where(user.IDEQ(userID)).First(ctx)
 	if err != nil {
@@ -79,7 +101,6 @@ func (u *User) ChangePassword(ctx context.Context, userID uint64, oldPassword, n
 	// check old password
 	if ok := encrypt.BcryptCheck(oldPassword, targetUser.Password); !ok {
 		return errors.New("wrong old password")
-		return err
 	}
 	// update password
 	password, _ := encrypt.BcryptEncrypt(newPassword)
