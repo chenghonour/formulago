@@ -9,12 +9,12 @@ package admin
 import (
 	"context"
 	"formulago/pkg/encrypt"
-	"github.com/casbin/casbin/v2"
+	"github.com/casbin/casbin/v3"
 	"sync"
 	"sync/atomic"
 
-"fmt"
-"errors"
+	"errors"
+	"fmt"
 	"formulago/data/ent"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 )

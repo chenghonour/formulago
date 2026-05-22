@@ -10,17 +10,17 @@ package middleware
 
 import (
 	"context"
-	"formulago/biz/domain/admin"
 	"errors"
+	"formulago/biz/domain/admin"
 	"strconv"
 	"time"
 
 	logic "formulago/biz/logic/admin"
 	"formulago/configs"
-	"formulago/pkg/times"
 	Data "formulago/data"
+	"formulago/pkg/times"
 
-	"github.com/casbin/casbin/v2"
+	"github.com/casbin/casbin/v3"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/hertz-contrib/jwt"

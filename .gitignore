@@ -36,3 +36,4 @@ _testmain.go
 dumped_hertz_remote_config.json
 secret.sh
 		  
+.claude/settings.local.json

@@ -6,7 +6,7 @@ require (
 	ariga.io/atlas v1.2.0
 	entgo.io/ent v0.14.6
 	github.com/aliyun/alibabacloud-oss-go-sdk-v2 v1.5.1
-	github.com/casbin/casbin/v2 v2.135.0
+	github.com/casbin/casbin/v3 v3.10.0
 	github.com/casbin/ent-adapter v1.4.0
 	github.com/chenghonour/wechat-sdk v0.0.0-20240416081535-4a5442611a87
 	github.com/cloudwego/hertz v0.10.4
