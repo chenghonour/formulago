@@ -4,6 +4,7 @@ package enttest
 
 import (
 	"context"
+
 	"formulago/data/ent"
 	// required by schema hooks.
 	_ "formulago/data/ent/runtime"

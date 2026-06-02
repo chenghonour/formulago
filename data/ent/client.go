@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"reflect"
 
 	"formulago/data/ent/migrate"
 
@@ -15,12 +16,12 @@ import (
 	"formulago/data/ent/dictionarydetail"
 	"formulago/data/ent/logs"
 	"formulago/data/ent/menu"
-	"formulago/data/ent/menuparam"
 	"formulago/data/ent/oauthprovider"
 	"formulago/data/ent/role"
 	"formulago/data/ent/token"
 	"formulago/data/ent/user"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -41,8 +42,6 @@ type Client struct {
 	Logs *LogsClient
 	// Menu is the client for interacting with the Menu builders.
 	Menu *MenuClient
-	// MenuParam is the client for interacting with the MenuParam builders.
-	MenuParam *MenuParamClient
 	// OauthProvider is the client for interacting with the OauthProvider builders.
 	OauthProvider *OauthProviderClient
 	// Role is the client for interacting with the Role builders.
@@ -55,9 +54,7 @@ type Client struct {
 
 // NewClient creates a new client configured with the given options.
 func NewClient(opts ...Option) *Client {
-	cfg := config{log: log.Println, hooks: &hooks{}, inters: &inters{}}
-	cfg.options(opts...)
-	client := &Client{config: cfg}
+	client := &Client{config: newConfig(opts...)}
 	client.init()
 	return client
 }
@@ -69,11 +66,66 @@ func (c *Client) init() {
 	c.DictionaryDetail = NewDictionaryDetailClient(c.config)
 	c.Logs = NewLogsClient(c.config)
 	c.Menu = NewMenuClient(c.config)
-	c.MenuParam = NewMenuParamClient(c.config)
 	c.OauthProvider = NewOauthProviderClient(c.config)
 	c.Role = NewRoleClient(c.config)
 	c.Token = NewTokenClient(c.config)
 	c.User = NewUserClient(c.config)
+}
+
+type (
+	// config is the configuration for the client and its builder.
+	config struct {
+		// driver used for executing database requests.
+		driver dialect.Driver
+		// debug enable a debug logging.
+		debug bool
+		// log used for logging on debug mode.
+		log func(...any)
+		// hooks to execute on mutations.
+		hooks *hooks
+		// interceptors to execute on queries.
+		inters *inters
+	}
+	// Option function to configure the client.
+	Option func(*config)
+)
+
+// newConfig creates a new config for the client.
+func newConfig(opts ...Option) config {
+	cfg := config{log: log.Println, hooks: &hooks{}, inters: &inters{}}
+	cfg.options(opts...)
+	return cfg
+}
+
+// options applies the options on the config object.
+func (c *config) options(opts ...Option) {
+	for _, opt := range opts {
+		opt(c)
+	}
+	if c.debug {
+		c.driver = dialect.Debug(c.driver, c.log)
+	}
+}
+
+// Debug enables debug logging on the ent.Driver.
+func Debug() Option {
+	return func(c *config) {
+		c.debug = true
+	}
+}
+
+// Log sets the logging function for debug mode.
+func Log(fn func(...any)) Option {
+	return func(c *config) {
+		c.log = fn
+	}
+}
+
+// Driver configures the client driver.
+func Driver(driver dialect.Driver) Option {
+	return func(c *config) {
+		c.driver = driver
+	}
 }
 
 // Open opens a database/sql.DB specified by the driver name and
@@ -92,11 +144,14 @@ func Open(driverName, dataSourceName string, options ...Option) (*Client, error)
 	}
 }
 
+// ErrTxStarted is returned when trying to start a new transaction from a transactional client.
+var ErrTxStarted = errors.New("ent: cannot start a transaction within a transaction")
+
 // Tx returns a new transactional client. The provided context
 // is used until the transaction is committed or rolled back.
 func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	if _, ok := c.driver.(*txDriver); ok {
-		return nil, errors.New("ent: cannot start a transaction within a transaction")
+		return nil, ErrTxStarted
 	}
 	tx, err := newTx(ctx, c.driver)
 	if err != nil {
@@ -112,7 +167,6 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		DictionaryDetail: NewDictionaryDetailClient(cfg),
 		Logs:             NewLogsClient(cfg),
 		Menu:             NewMenuClient(cfg),
-		MenuParam:        NewMenuParamClient(cfg),
 		OauthProvider:    NewOauthProviderClient(cfg),
 		Role:             NewRoleClient(cfg),
 		Token:            NewTokenClient(cfg),
@@ -141,7 +195,6 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		DictionaryDetail: NewDictionaryDetailClient(cfg),
 		Logs:             NewLogsClient(cfg),
 		Menu:             NewMenuClient(cfg),
-		MenuParam:        NewMenuParamClient(cfg),
 		OauthProvider:    NewOauthProviderClient(cfg),
 		Role:             NewRoleClient(cfg),
 		Token:            NewTokenClient(cfg),
@@ -174,31 +227,23 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.API.Use(hooks...)
-	c.Dictionary.Use(hooks...)
-	c.DictionaryDetail.Use(hooks...)
-	c.Logs.Use(hooks...)
-	c.Menu.Use(hooks...)
-	c.MenuParam.Use(hooks...)
-	c.OauthProvider.Use(hooks...)
-	c.Role.Use(hooks...)
-	c.Token.Use(hooks...)
-	c.User.Use(hooks...)
+	for _, n := range []interface{ Use(...Hook) }{
+		c.API, c.Dictionary, c.DictionaryDetail, c.Logs, c.Menu, c.OauthProvider,
+		c.Role, c.Token, c.User,
+	} {
+		n.Use(hooks...)
+	}
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
-	c.API.Intercept(interceptors...)
-	c.Dictionary.Intercept(interceptors...)
-	c.DictionaryDetail.Intercept(interceptors...)
-	c.Logs.Intercept(interceptors...)
-	c.Menu.Intercept(interceptors...)
-	c.MenuParam.Intercept(interceptors...)
-	c.OauthProvider.Intercept(interceptors...)
-	c.Role.Intercept(interceptors...)
-	c.Token.Intercept(interceptors...)
-	c.User.Intercept(interceptors...)
+	for _, n := range []interface{ Intercept(...Interceptor) }{
+		c.API, c.Dictionary, c.DictionaryDetail, c.Logs, c.Menu, c.OauthProvider,
+		c.Role, c.Token, c.User,
+	} {
+		n.Intercept(interceptors...)
+	}
 }
 
 // Mutate implements the ent.Mutator interface.
@@ -214,8 +259,6 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Logs.mutate(ctx, m)
 	case *MenuMutation:
 		return c.Menu.mutate(ctx, m)
-	case *MenuParamMutation:
-		return c.MenuParam.mutate(ctx, m)
 	case *OauthProviderMutation:
 		return c.OauthProvider.mutate(ctx, m)
 	case *RoleMutation:
@@ -245,7 +288,7 @@ func (c *APIClient) Use(hooks ...Hook) {
 	c.hooks.API = append(c.hooks.API, hooks...)
 }
 
-// Use adds a list of query interceptors to the interceptors stack.
+// Intercept adds a list of query interceptors to the interceptors stack.
 // A call to `Intercept(f, g, h)` equals to `api.Intercept(f(g(h())))`.
 func (c *APIClient) Intercept(interceptors ...Interceptor) {
 	c.inters.API = append(c.inters.API, interceptors...)
@@ -262,6 +305,21 @@ func (c *APIClient) CreateBulk(builders ...*APICreate) *APICreateBulk {
 	return &APICreateBulk{config: c.config, builders: builders}
 }
 
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *APIClient) MapCreateBulk(slice any, setFunc func(*APICreate, int)) *APICreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &APICreateBulk{err: fmt.Errorf("calling to APIClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*APICreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &APICreateBulk{config: c.config, builders: builders}
+}
+
 // Update returns an update builder for API.
 func (c *APIClient) Update() *APIUpdate {
 	mutation := newAPIMutation(c.config, OpUpdate)
@@ -269,8 +327,8 @@ func (c *APIClient) Update() *APIUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *APIClient) UpdateOne(a *API) *APIUpdateOne {
-	mutation := newAPIMutation(c.config, OpUpdateOne, withAPI(a))
+func (c *APIClient) UpdateOne(_m *API) *APIUpdateOne {
+	mutation := newAPIMutation(c.config, OpUpdateOne, withAPI(_m))
 	return &APIUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -287,8 +345,8 @@ func (c *APIClient) Delete() *APIDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *APIClient) DeleteOne(a *API) *APIDeleteOne {
-	return c.DeleteOneID(a.ID)
+func (c *APIClient) DeleteOne(_m *API) *APIDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -303,6 +361,7 @@ func (c *APIClient) DeleteOneID(id uint64) *APIDeleteOne {
 func (c *APIClient) Query() *APIQuery {
 	return &APIQuery{
 		config: c.config,
+		ctx:    &QueryContext{Type: TypeAPI},
 		inters: c.Interceptors(),
 	}
 }
@@ -362,7 +421,7 @@ func (c *DictionaryClient) Use(hooks ...Hook) {
 	c.hooks.Dictionary = append(c.hooks.Dictionary, hooks...)
 }
 
-// Use adds a list of query interceptors to the interceptors stack.
+// Intercept adds a list of query interceptors to the interceptors stack.
 // A call to `Intercept(f, g, h)` equals to `dictionary.Intercept(f(g(h())))`.
 func (c *DictionaryClient) Intercept(interceptors ...Interceptor) {
 	c.inters.Dictionary = append(c.inters.Dictionary, interceptors...)
@@ -379,6 +438,21 @@ func (c *DictionaryClient) CreateBulk(builders ...*DictionaryCreate) *Dictionary
 	return &DictionaryCreateBulk{config: c.config, builders: builders}
 }
 
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *DictionaryClient) MapCreateBulk(slice any, setFunc func(*DictionaryCreate, int)) *DictionaryCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &DictionaryCreateBulk{err: fmt.Errorf("calling to DictionaryClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*DictionaryCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &DictionaryCreateBulk{config: c.config, builders: builders}
+}
+
 // Update returns an update builder for Dictionary.
 func (c *DictionaryClient) Update() *DictionaryUpdate {
 	mutation := newDictionaryMutation(c.config, OpUpdate)
@@ -386,8 +460,8 @@ func (c *DictionaryClient) Update() *DictionaryUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *DictionaryClient) UpdateOne(d *Dictionary) *DictionaryUpdateOne {
-	mutation := newDictionaryMutation(c.config, OpUpdateOne, withDictionary(d))
+func (c *DictionaryClient) UpdateOne(_m *Dictionary) *DictionaryUpdateOne {
+	mutation := newDictionaryMutation(c.config, OpUpdateOne, withDictionary(_m))
 	return &DictionaryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -404,8 +478,8 @@ func (c *DictionaryClient) Delete() *DictionaryDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *DictionaryClient) DeleteOne(d *Dictionary) *DictionaryDeleteOne {
-	return c.DeleteOneID(d.ID)
+func (c *DictionaryClient) DeleteOne(_m *Dictionary) *DictionaryDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -420,6 +494,7 @@ func (c *DictionaryClient) DeleteOneID(id uint64) *DictionaryDeleteOne {
 func (c *DictionaryClient) Query() *DictionaryQuery {
 	return &DictionaryQuery{
 		config: c.config,
+		ctx:    &QueryContext{Type: TypeDictionary},
 		inters: c.Interceptors(),
 	}
 }
@@ -439,16 +514,16 @@ func (c *DictionaryClient) GetX(ctx context.Context, id uint64) *Dictionary {
 }
 
 // QueryDictionaryDetails queries the dictionary_details edge of a Dictionary.
-func (c *DictionaryClient) QueryDictionaryDetails(d *Dictionary) *DictionaryDetailQuery {
+func (c *DictionaryClient) QueryDictionaryDetails(_m *Dictionary) *DictionaryDetailQuery {
 	query := (&DictionaryDetailClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := d.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(dictionary.Table, dictionary.FieldID, id),
 			sqlgraph.To(dictionarydetail.Table, dictionarydetail.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, dictionary.DictionaryDetailsTable, dictionary.DictionaryDetailsColumn),
 		)
-		fromV = sqlgraph.Neighbors(d.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
@@ -495,7 +570,7 @@ func (c *DictionaryDetailClient) Use(hooks ...Hook) {
 	c.hooks.DictionaryDetail = append(c.hooks.DictionaryDetail, hooks...)
 }
 
-// Use adds a list of query interceptors to the interceptors stack.
+// Intercept adds a list of query interceptors to the interceptors stack.
 // A call to `Intercept(f, g, h)` equals to `dictionarydetail.Intercept(f(g(h())))`.
 func (c *DictionaryDetailClient) Intercept(interceptors ...Interceptor) {
 	c.inters.DictionaryDetail = append(c.inters.DictionaryDetail, interceptors...)
@@ -512,6 +587,21 @@ func (c *DictionaryDetailClient) CreateBulk(builders ...*DictionaryDetailCreate)
 	return &DictionaryDetailCreateBulk{config: c.config, builders: builders}
 }
 
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *DictionaryDetailClient) MapCreateBulk(slice any, setFunc func(*DictionaryDetailCreate, int)) *DictionaryDetailCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &DictionaryDetailCreateBulk{err: fmt.Errorf("calling to DictionaryDetailClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*DictionaryDetailCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &DictionaryDetailCreateBulk{config: c.config, builders: builders}
+}
+
 // Update returns an update builder for DictionaryDetail.
 func (c *DictionaryDetailClient) Update() *DictionaryDetailUpdate {
 	mutation := newDictionaryDetailMutation(c.config, OpUpdate)
@@ -519,8 +609,8 @@ func (c *DictionaryDetailClient) Update() *DictionaryDetailUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *DictionaryDetailClient) UpdateOne(dd *DictionaryDetail) *DictionaryDetailUpdateOne {
-	mutation := newDictionaryDetailMutation(c.config, OpUpdateOne, withDictionaryDetail(dd))
+func (c *DictionaryDetailClient) UpdateOne(_m *DictionaryDetail) *DictionaryDetailUpdateOne {
+	mutation := newDictionaryDetailMutation(c.config, OpUpdateOne, withDictionaryDetail(_m))
 	return &DictionaryDetailUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -537,8 +627,8 @@ func (c *DictionaryDetailClient) Delete() *DictionaryDetailDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *DictionaryDetailClient) DeleteOne(dd *DictionaryDetail) *DictionaryDetailDeleteOne {
-	return c.DeleteOneID(dd.ID)
+func (c *DictionaryDetailClient) DeleteOne(_m *DictionaryDetail) *DictionaryDetailDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -553,6 +643,7 @@ func (c *DictionaryDetailClient) DeleteOneID(id uint64) *DictionaryDetailDeleteO
 func (c *DictionaryDetailClient) Query() *DictionaryDetailQuery {
 	return &DictionaryDetailQuery{
 		config: c.config,
+		ctx:    &QueryContext{Type: TypeDictionaryDetail},
 		inters: c.Interceptors(),
 	}
 }
@@ -572,16 +663,16 @@ func (c *DictionaryDetailClient) GetX(ctx context.Context, id uint64) *Dictionar
 }
 
 // QueryDictionary queries the dictionary edge of a DictionaryDetail.
-func (c *DictionaryDetailClient) QueryDictionary(dd *DictionaryDetail) *DictionaryQuery {
+func (c *DictionaryDetailClient) QueryDictionary(_m *DictionaryDetail) *DictionaryQuery {
 	query := (&DictionaryClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := dd.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(dictionarydetail.Table, dictionarydetail.FieldID, id),
 			sqlgraph.To(dictionary.Table, dictionary.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, dictionarydetail.DictionaryTable, dictionarydetail.DictionaryColumn),
 		)
-		fromV = sqlgraph.Neighbors(dd.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
@@ -628,7 +719,7 @@ func (c *LogsClient) Use(hooks ...Hook) {
 	c.hooks.Logs = append(c.hooks.Logs, hooks...)
 }
 
-// Use adds a list of query interceptors to the interceptors stack.
+// Intercept adds a list of query interceptors to the interceptors stack.
 // A call to `Intercept(f, g, h)` equals to `logs.Intercept(f(g(h())))`.
 func (c *LogsClient) Intercept(interceptors ...Interceptor) {
 	c.inters.Logs = append(c.inters.Logs, interceptors...)
@@ -645,6 +736,21 @@ func (c *LogsClient) CreateBulk(builders ...*LogsCreate) *LogsCreateBulk {
 	return &LogsCreateBulk{config: c.config, builders: builders}
 }
 
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *LogsClient) MapCreateBulk(slice any, setFunc func(*LogsCreate, int)) *LogsCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &LogsCreateBulk{err: fmt.Errorf("calling to LogsClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*LogsCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &LogsCreateBulk{config: c.config, builders: builders}
+}
+
 // Update returns an update builder for Logs.
 func (c *LogsClient) Update() *LogsUpdate {
 	mutation := newLogsMutation(c.config, OpUpdate)
@@ -652,8 +758,8 @@ func (c *LogsClient) Update() *LogsUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *LogsClient) UpdateOne(l *Logs) *LogsUpdateOne {
-	mutation := newLogsMutation(c.config, OpUpdateOne, withLogs(l))
+func (c *LogsClient) UpdateOne(_m *Logs) *LogsUpdateOne {
+	mutation := newLogsMutation(c.config, OpUpdateOne, withLogs(_m))
 	return &LogsUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -670,8 +776,8 @@ func (c *LogsClient) Delete() *LogsDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *LogsClient) DeleteOne(l *Logs) *LogsDeleteOne {
-	return c.DeleteOneID(l.ID)
+func (c *LogsClient) DeleteOne(_m *Logs) *LogsDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -686,6 +792,7 @@ func (c *LogsClient) DeleteOneID(id uint64) *LogsDeleteOne {
 func (c *LogsClient) Query() *LogsQuery {
 	return &LogsQuery{
 		config: c.config,
+		ctx:    &QueryContext{Type: TypeLogs},
 		inters: c.Interceptors(),
 	}
 }
@@ -745,7 +852,7 @@ func (c *MenuClient) Use(hooks ...Hook) {
 	c.hooks.Menu = append(c.hooks.Menu, hooks...)
 }
 
-// Use adds a list of query interceptors to the interceptors stack.
+// Intercept adds a list of query interceptors to the interceptors stack.
 // A call to `Intercept(f, g, h)` equals to `menu.Intercept(f(g(h())))`.
 func (c *MenuClient) Intercept(interceptors ...Interceptor) {
 	c.inters.Menu = append(c.inters.Menu, interceptors...)
@@ -762,6 +869,21 @@ func (c *MenuClient) CreateBulk(builders ...*MenuCreate) *MenuCreateBulk {
 	return &MenuCreateBulk{config: c.config, builders: builders}
 }
 
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *MenuClient) MapCreateBulk(slice any, setFunc func(*MenuCreate, int)) *MenuCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &MenuCreateBulk{err: fmt.Errorf("calling to MenuClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*MenuCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &MenuCreateBulk{config: c.config, builders: builders}
+}
+
 // Update returns an update builder for Menu.
 func (c *MenuClient) Update() *MenuUpdate {
 	mutation := newMenuMutation(c.config, OpUpdate)
@@ -769,8 +891,8 @@ func (c *MenuClient) Update() *MenuUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *MenuClient) UpdateOne(m *Menu) *MenuUpdateOne {
-	mutation := newMenuMutation(c.config, OpUpdateOne, withMenu(m))
+func (c *MenuClient) UpdateOne(_m *Menu) *MenuUpdateOne {
+	mutation := newMenuMutation(c.config, OpUpdateOne, withMenu(_m))
 	return &MenuUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -787,8 +909,8 @@ func (c *MenuClient) Delete() *MenuDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *MenuClient) DeleteOne(m *Menu) *MenuDeleteOne {
-	return c.DeleteOneID(m.ID)
+func (c *MenuClient) DeleteOne(_m *Menu) *MenuDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -803,6 +925,7 @@ func (c *MenuClient) DeleteOneID(id uint64) *MenuDeleteOne {
 func (c *MenuClient) Query() *MenuQuery {
 	return &MenuQuery{
 		config: c.config,
+		ctx:    &QueryContext{Type: TypeMenu},
 		inters: c.Interceptors(),
 	}
 }
@@ -822,64 +945,48 @@ func (c *MenuClient) GetX(ctx context.Context, id uint64) *Menu {
 }
 
 // QueryRoles queries the roles edge of a Menu.
-func (c *MenuClient) QueryRoles(m *Menu) *RoleQuery {
+func (c *MenuClient) QueryRoles(_m *Menu) *RoleQuery {
 	query := (&RoleClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := m.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(menu.Table, menu.FieldID, id),
 			sqlgraph.To(role.Table, role.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, true, menu.RolesTable, menu.RolesPrimaryKey...),
 		)
-		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // QueryParent queries the parent edge of a Menu.
-func (c *MenuClient) QueryParent(m *Menu) *MenuQuery {
+func (c *MenuClient) QueryParent(_m *Menu) *MenuQuery {
 	query := (&MenuClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := m.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(menu.Table, menu.FieldID, id),
 			sqlgraph.To(menu.Table, menu.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, menu.ParentTable, menu.ParentColumn),
 		)
-		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // QueryChildren queries the children edge of a Menu.
-func (c *MenuClient) QueryChildren(m *Menu) *MenuQuery {
+func (c *MenuClient) QueryChildren(_m *Menu) *MenuQuery {
 	query := (&MenuClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := m.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(menu.Table, menu.FieldID, id),
 			sqlgraph.To(menu.Table, menu.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, menu.ChildrenTable, menu.ChildrenColumn),
 		)
-		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryParams queries the params edge of a Menu.
-func (c *MenuClient) QueryParams(m *Menu) *MenuParamQuery {
-	query := (&MenuParamClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(menu.Table, menu.FieldID, id),
-			sqlgraph.To(menuparam.Table, menuparam.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, menu.ParamsTable, menu.ParamsColumn),
-		)
-		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
@@ -910,139 +1017,6 @@ func (c *MenuClient) mutate(ctx context.Context, m *MenuMutation) (Value, error)
 	}
 }
 
-// MenuParamClient is a client for the MenuParam schema.
-type MenuParamClient struct {
-	config
-}
-
-// NewMenuParamClient returns a client for the MenuParam from the given config.
-func NewMenuParamClient(c config) *MenuParamClient {
-	return &MenuParamClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `menuparam.Hooks(f(g(h())))`.
-func (c *MenuParamClient) Use(hooks ...Hook) {
-	c.hooks.MenuParam = append(c.hooks.MenuParam, hooks...)
-}
-
-// Use adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `menuparam.Intercept(f(g(h())))`.
-func (c *MenuParamClient) Intercept(interceptors ...Interceptor) {
-	c.inters.MenuParam = append(c.inters.MenuParam, interceptors...)
-}
-
-// Create returns a builder for creating a MenuParam entity.
-func (c *MenuParamClient) Create() *MenuParamCreate {
-	mutation := newMenuParamMutation(c.config, OpCreate)
-	return &MenuParamCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of MenuParam entities.
-func (c *MenuParamClient) CreateBulk(builders ...*MenuParamCreate) *MenuParamCreateBulk {
-	return &MenuParamCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for MenuParam.
-func (c *MenuParamClient) Update() *MenuParamUpdate {
-	mutation := newMenuParamMutation(c.config, OpUpdate)
-	return &MenuParamUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *MenuParamClient) UpdateOne(mp *MenuParam) *MenuParamUpdateOne {
-	mutation := newMenuParamMutation(c.config, OpUpdateOne, withMenuParam(mp))
-	return &MenuParamUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *MenuParamClient) UpdateOneID(id uint64) *MenuParamUpdateOne {
-	mutation := newMenuParamMutation(c.config, OpUpdateOne, withMenuParamID(id))
-	return &MenuParamUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for MenuParam.
-func (c *MenuParamClient) Delete() *MenuParamDelete {
-	mutation := newMenuParamMutation(c.config, OpDelete)
-	return &MenuParamDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *MenuParamClient) DeleteOne(mp *MenuParam) *MenuParamDeleteOne {
-	return c.DeleteOneID(mp.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *MenuParamClient) DeleteOneID(id uint64) *MenuParamDeleteOne {
-	builder := c.Delete().Where(menuparam.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &MenuParamDeleteOne{builder}
-}
-
-// Query returns a query builder for MenuParam.
-func (c *MenuParamClient) Query() *MenuParamQuery {
-	return &MenuParamQuery{
-		config: c.config,
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a MenuParam entity by its id.
-func (c *MenuParamClient) Get(ctx context.Context, id uint64) (*MenuParam, error) {
-	return c.Query().Where(menuparam.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *MenuParamClient) GetX(ctx context.Context, id uint64) *MenuParam {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryMenus queries the menus edge of a MenuParam.
-func (c *MenuParamClient) QueryMenus(mp *MenuParam) *MenuQuery {
-	query := (&MenuClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := mp.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(menuparam.Table, menuparam.FieldID, id),
-			sqlgraph.To(menu.Table, menu.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, menuparam.MenusTable, menuparam.MenusColumn),
-		)
-		fromV = sqlgraph.Neighbors(mp.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *MenuParamClient) Hooks() []Hook {
-	return c.hooks.MenuParam
-}
-
-// Interceptors returns the client interceptors.
-func (c *MenuParamClient) Interceptors() []Interceptor {
-	return c.inters.MenuParam
-}
-
-func (c *MenuParamClient) mutate(ctx context.Context, m *MenuParamMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&MenuParamCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&MenuParamUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&MenuParamUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&MenuParamDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown MenuParam mutation op: %q", m.Op())
-	}
-}
-
 // OauthProviderClient is a client for the OauthProvider schema.
 type OauthProviderClient struct {
 	config
@@ -1059,7 +1033,7 @@ func (c *OauthProviderClient) Use(hooks ...Hook) {
 	c.hooks.OauthProvider = append(c.hooks.OauthProvider, hooks...)
 }
 
-// Use adds a list of query interceptors to the interceptors stack.
+// Intercept adds a list of query interceptors to the interceptors stack.
 // A call to `Intercept(f, g, h)` equals to `oauthprovider.Intercept(f(g(h())))`.
 func (c *OauthProviderClient) Intercept(interceptors ...Interceptor) {
 	c.inters.OauthProvider = append(c.inters.OauthProvider, interceptors...)
@@ -1076,6 +1050,21 @@ func (c *OauthProviderClient) CreateBulk(builders ...*OauthProviderCreate) *Oaut
 	return &OauthProviderCreateBulk{config: c.config, builders: builders}
 }
 
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *OauthProviderClient) MapCreateBulk(slice any, setFunc func(*OauthProviderCreate, int)) *OauthProviderCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &OauthProviderCreateBulk{err: fmt.Errorf("calling to OauthProviderClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*OauthProviderCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &OauthProviderCreateBulk{config: c.config, builders: builders}
+}
+
 // Update returns an update builder for OauthProvider.
 func (c *OauthProviderClient) Update() *OauthProviderUpdate {
 	mutation := newOauthProviderMutation(c.config, OpUpdate)
@@ -1083,8 +1072,8 @@ func (c *OauthProviderClient) Update() *OauthProviderUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *OauthProviderClient) UpdateOne(op *OauthProvider) *OauthProviderUpdateOne {
-	mutation := newOauthProviderMutation(c.config, OpUpdateOne, withOauthProvider(op))
+func (c *OauthProviderClient) UpdateOne(_m *OauthProvider) *OauthProviderUpdateOne {
+	mutation := newOauthProviderMutation(c.config, OpUpdateOne, withOauthProvider(_m))
 	return &OauthProviderUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -1101,8 +1090,8 @@ func (c *OauthProviderClient) Delete() *OauthProviderDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *OauthProviderClient) DeleteOne(op *OauthProvider) *OauthProviderDeleteOne {
-	return c.DeleteOneID(op.ID)
+func (c *OauthProviderClient) DeleteOne(_m *OauthProvider) *OauthProviderDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -1117,6 +1106,7 @@ func (c *OauthProviderClient) DeleteOneID(id uint64) *OauthProviderDeleteOne {
 func (c *OauthProviderClient) Query() *OauthProviderQuery {
 	return &OauthProviderQuery{
 		config: c.config,
+		ctx:    &QueryContext{Type: TypeOauthProvider},
 		inters: c.Interceptors(),
 	}
 }
@@ -1176,7 +1166,7 @@ func (c *RoleClient) Use(hooks ...Hook) {
 	c.hooks.Role = append(c.hooks.Role, hooks...)
 }
 
-// Use adds a list of query interceptors to the interceptors stack.
+// Intercept adds a list of query interceptors to the interceptors stack.
 // A call to `Intercept(f, g, h)` equals to `role.Intercept(f(g(h())))`.
 func (c *RoleClient) Intercept(interceptors ...Interceptor) {
 	c.inters.Role = append(c.inters.Role, interceptors...)
@@ -1193,6 +1183,21 @@ func (c *RoleClient) CreateBulk(builders ...*RoleCreate) *RoleCreateBulk {
 	return &RoleCreateBulk{config: c.config, builders: builders}
 }
 
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *RoleClient) MapCreateBulk(slice any, setFunc func(*RoleCreate, int)) *RoleCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &RoleCreateBulk{err: fmt.Errorf("calling to RoleClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*RoleCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &RoleCreateBulk{config: c.config, builders: builders}
+}
+
 // Update returns an update builder for Role.
 func (c *RoleClient) Update() *RoleUpdate {
 	mutation := newRoleMutation(c.config, OpUpdate)
@@ -1200,8 +1205,8 @@ func (c *RoleClient) Update() *RoleUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *RoleClient) UpdateOne(r *Role) *RoleUpdateOne {
-	mutation := newRoleMutation(c.config, OpUpdateOne, withRole(r))
+func (c *RoleClient) UpdateOne(_m *Role) *RoleUpdateOne {
+	mutation := newRoleMutation(c.config, OpUpdateOne, withRole(_m))
 	return &RoleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -1218,8 +1223,8 @@ func (c *RoleClient) Delete() *RoleDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *RoleClient) DeleteOne(r *Role) *RoleDeleteOne {
-	return c.DeleteOneID(r.ID)
+func (c *RoleClient) DeleteOne(_m *Role) *RoleDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -1234,6 +1239,7 @@ func (c *RoleClient) DeleteOneID(id uint64) *RoleDeleteOne {
 func (c *RoleClient) Query() *RoleQuery {
 	return &RoleQuery{
 		config: c.config,
+		ctx:    &QueryContext{Type: TypeRole},
 		inters: c.Interceptors(),
 	}
 }
@@ -1253,16 +1259,16 @@ func (c *RoleClient) GetX(ctx context.Context, id uint64) *Role {
 }
 
 // QueryMenus queries the menus edge of a Role.
-func (c *RoleClient) QueryMenus(r *Role) *MenuQuery {
+func (c *RoleClient) QueryMenus(_m *Role) *MenuQuery {
 	query := (&MenuClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := r.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(role.Table, role.FieldID, id),
 			sqlgraph.To(menu.Table, menu.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, false, role.MenusTable, role.MenusPrimaryKey...),
 		)
-		fromV = sqlgraph.Neighbors(r.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
@@ -1309,7 +1315,7 @@ func (c *TokenClient) Use(hooks ...Hook) {
 	c.hooks.Token = append(c.hooks.Token, hooks...)
 }
 
-// Use adds a list of query interceptors to the interceptors stack.
+// Intercept adds a list of query interceptors to the interceptors stack.
 // A call to `Intercept(f, g, h)` equals to `token.Intercept(f(g(h())))`.
 func (c *TokenClient) Intercept(interceptors ...Interceptor) {
 	c.inters.Token = append(c.inters.Token, interceptors...)
@@ -1326,6 +1332,21 @@ func (c *TokenClient) CreateBulk(builders ...*TokenCreate) *TokenCreateBulk {
 	return &TokenCreateBulk{config: c.config, builders: builders}
 }
 
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *TokenClient) MapCreateBulk(slice any, setFunc func(*TokenCreate, int)) *TokenCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &TokenCreateBulk{err: fmt.Errorf("calling to TokenClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*TokenCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &TokenCreateBulk{config: c.config, builders: builders}
+}
+
 // Update returns an update builder for Token.
 func (c *TokenClient) Update() *TokenUpdate {
 	mutation := newTokenMutation(c.config, OpUpdate)
@@ -1333,8 +1354,8 @@ func (c *TokenClient) Update() *TokenUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *TokenClient) UpdateOne(t *Token) *TokenUpdateOne {
-	mutation := newTokenMutation(c.config, OpUpdateOne, withToken(t))
+func (c *TokenClient) UpdateOne(_m *Token) *TokenUpdateOne {
+	mutation := newTokenMutation(c.config, OpUpdateOne, withToken(_m))
 	return &TokenUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -1351,8 +1372,8 @@ func (c *TokenClient) Delete() *TokenDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *TokenClient) DeleteOne(t *Token) *TokenDeleteOne {
-	return c.DeleteOneID(t.ID)
+func (c *TokenClient) DeleteOne(_m *Token) *TokenDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -1367,6 +1388,7 @@ func (c *TokenClient) DeleteOneID(id uint64) *TokenDeleteOne {
 func (c *TokenClient) Query() *TokenQuery {
 	return &TokenQuery{
 		config: c.config,
+		ctx:    &QueryContext{Type: TypeToken},
 		inters: c.Interceptors(),
 	}
 }
@@ -1386,16 +1408,16 @@ func (c *TokenClient) GetX(ctx context.Context, id uint64) *Token {
 }
 
 // QueryOwner queries the owner edge of a Token.
-func (c *TokenClient) QueryOwner(t *Token) *UserQuery {
+func (c *TokenClient) QueryOwner(_m *Token) *UserQuery {
 	query := (&UserClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := t.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(token.Table, token.FieldID, id),
 			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, true, token.OwnerTable, token.OwnerColumn),
 		)
-		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
@@ -1442,7 +1464,7 @@ func (c *UserClient) Use(hooks ...Hook) {
 	c.hooks.User = append(c.hooks.User, hooks...)
 }
 
-// Use adds a list of query interceptors to the interceptors stack.
+// Intercept adds a list of query interceptors to the interceptors stack.
 // A call to `Intercept(f, g, h)` equals to `user.Intercept(f(g(h())))`.
 func (c *UserClient) Intercept(interceptors ...Interceptor) {
 	c.inters.User = append(c.inters.User, interceptors...)
@@ -1459,6 +1481,21 @@ func (c *UserClient) CreateBulk(builders ...*UserCreate) *UserCreateBulk {
 	return &UserCreateBulk{config: c.config, builders: builders}
 }
 
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *UserClient) MapCreateBulk(slice any, setFunc func(*UserCreate, int)) *UserCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &UserCreateBulk{err: fmt.Errorf("calling to UserClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*UserCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &UserCreateBulk{config: c.config, builders: builders}
+}
+
 // Update returns an update builder for User.
 func (c *UserClient) Update() *UserUpdate {
 	mutation := newUserMutation(c.config, OpUpdate)
@@ -1466,8 +1503,8 @@ func (c *UserClient) Update() *UserUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *UserClient) UpdateOne(u *User) *UserUpdateOne {
-	mutation := newUserMutation(c.config, OpUpdateOne, withUser(u))
+func (c *UserClient) UpdateOne(_m *User) *UserUpdateOne {
+	mutation := newUserMutation(c.config, OpUpdateOne, withUser(_m))
 	return &UserUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -1484,8 +1521,8 @@ func (c *UserClient) Delete() *UserDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *UserClient) DeleteOne(u *User) *UserDeleteOne {
-	return c.DeleteOneID(u.ID)
+func (c *UserClient) DeleteOne(_m *User) *UserDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -1500,6 +1537,7 @@ func (c *UserClient) DeleteOneID(id uint64) *UserDeleteOne {
 func (c *UserClient) Query() *UserQuery {
 	return &UserQuery{
 		config: c.config,
+		ctx:    &QueryContext{Type: TypeUser},
 		inters: c.Interceptors(),
 	}
 }
@@ -1519,16 +1557,16 @@ func (c *UserClient) GetX(ctx context.Context, id uint64) *User {
 }
 
 // QueryToken queries the token edge of a User.
-func (c *UserClient) QueryToken(u *User) *TokenQuery {
+func (c *UserClient) QueryToken(_m *User) *TokenQuery {
 	query := (&TokenClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := u.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(token.Table, token.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, false, user.TokenTable, user.TokenColumn),
 		)
-		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
@@ -1558,3 +1596,15 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 		return nil, fmt.Errorf("ent: unknown User mutation op: %q", m.Op())
 	}
 }
+
+// hooks and interceptors per client, for fast access.
+type (
+	hooks struct {
+		API, Dictionary, DictionaryDetail, Logs, Menu, OauthProvider, Role, Token,
+		User []ent.Hook
+	}
+	inters struct {
+		API, Dictionary, DictionaryDetail, Logs, Menu, OauthProvider, Role, Token,
+		User []ent.Interceptor
+	}
+)

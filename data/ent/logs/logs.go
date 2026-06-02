@@ -4,6 +4,8 @@ package logs
 
 import (
 	"time"
+
+	"entgo.io/ent/dialect/sql"
 )
 
 const (
@@ -74,3 +76,71 @@ var (
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
 )
+
+// OrderOption defines the ordering options for the Logs queries.
+type OrderOption func(*sql.Selector)
+
+// ByID orders the results by the id field.
+func ByID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByCreatedAt orders the results by the created_at field.
+func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByUpdatedAt orders the results by the updated_at field.
+func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByType orders the results by the type field.
+func ByType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldType, opts...).ToFunc()
+}
+
+// ByMethod orders the results by the method field.
+func ByMethod(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldMethod, opts...).ToFunc()
+}
+
+// ByAPI orders the results by the api field.
+func ByAPI(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAPI, opts...).ToFunc()
+}
+
+// BySuccess orders the results by the success field.
+func BySuccess(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSuccess, opts...).ToFunc()
+}
+
+// ByReqContent orders the results by the req_content field.
+func ByReqContent(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldReqContent, opts...).ToFunc()
+}
+
+// ByRespContent orders the results by the resp_content field.
+func ByRespContent(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRespContent, opts...).ToFunc()
+}
+
+// ByIP orders the results by the ip field.
+func ByIP(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIP, opts...).ToFunc()
+}
+
+// ByUserAgent orders the results by the user_agent field.
+func ByUserAgent(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUserAgent, opts...).ToFunc()
+}
+
+// ByOperator orders the results by the operator field.
+func ByOperator(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOperator, opts...).ToFunc()
+}
+
+// ByTime orders the results by the time field.
+func ByTime(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTime, opts...).ToFunc()
+}

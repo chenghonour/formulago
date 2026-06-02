@@ -220,6 +220,7 @@ message UserInfoResp {
   string updatedAt = 13;
   string roleValue = 14;
   string sideMode = 15;
+  string defaultRouter = 16;
 }
 
 // The response data of user list | 用户列表数据
@@ -383,22 +384,6 @@ service menu {
   rpc MenuList (base.PageInfoReq) returns (MenuInfoListResp) {
     option (api.get) = "/api/admin/menu/list";
   }
-  // Create menu parameters | 创建菜单额外参数
-  rpc CreateMenuParam (CreateOrUpdateMenuParamReq) returns (base.BaseResp) {
-    option (api.post) = "/api/admin/menu/param/create";
-  }
-  // Update menu parameters | 更新菜单额外参数
-  rpc UpdateMenuParam (CreateOrUpdateMenuParamReq) returns (base.BaseResp) {
-    option (api.post) = "/api/admin/menu/param/update";
-  }
-  // Delete menu extra parameters | 删除菜单额外参数
-  rpc DeleteMenuParam (base.IDReq) returns (base.BaseResp) {
-    option (api.delete) = "/api/admin/menu/param";
-  }
-  // Get menu extra parameters by menu ID | 获取某个菜单的额外参数列表
-  rpc MenuParamListByMenuID (base.IDReq) returns (MenuParamListResp) {
-    option (api.get) = "/api/admin/menu/param/list";
-  }
 }
 
 // menu messages
@@ -473,35 +458,6 @@ message MenuListBase {
   bool disabled = 8;
   repeated MenuListBase children = 9;
   Meta meta = 10;
-}
-
-// Create or update menu extra parameters request params | 创建或更新菜单额外参数的请求参数
-message CreateOrUpdateMenuParamReq {
-  uint64 ID = 1;
-  uint64 menuID = 2;
-  string type = 3;
-  string key = 4;
-  string value = 5;
-}
-
-// The response data of menu parameters  | 菜单参数返回数据
-message MenuParamResp {
-  base.ErrCode errCode = 1;
-  string errMsg = 2;
-  uint64 ID = 3;
-  string type = 4;
-  string key = 5;
-  string value = 6;
-  string createdAt = 7;
-  string updatedAt = 8;
-}
-
-// The  data of menu parameters list | 菜单参数列表数据
-message MenuParamListResp {
-  base.ErrCode errCode = 1;
-  string errMsg = 2;
-  uint64 total = 3;
-  repeated MenuParamResp data = 4;
 }
 
 // role service

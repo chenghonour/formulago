@@ -155,7 +155,7 @@ func (I *InitDatabase) insertRoleData(ctx context.Context) error {
 // insert init API data
 func (I *InitDatabase) insertApiData(ctx context.Context) error {
 	var apis []*ent.APICreate
-	apis = make([]*ent.APICreate, 59)
+	apis = make([]*ent.APICreate, 55)
 	// USER
 	apis[0] = I.DB.API.Create().
 		SetPath("/api/admin/user/login").
@@ -297,223 +297,200 @@ func (I *InitDatabase) insertApiData(ctx context.Context) error {
 		SetAPIGroup("menu").
 		SetMethod("GET")
 
-	apis[23] = I.DB.API.Create().
-		SetPath("/api/admin/menu/param/create").
-		SetDescription("apiDesc.createMenuParam").
-		SetAPIGroup("menu").
-		SetMethod("POST")
-
-	apis[24] = I.DB.API.Create().
-		SetPath("/api/admin/menu/param/update").
-		SetDescription("apiDesc.updateMenuParam").
-		SetAPIGroup("menu").
-		SetMethod("POST")
-
-	apis[25] = I.DB.API.Create().
-		SetPath("/api/admin/menu/param/list").
-		SetDescription("apiDesc.menuParamListByMenuID").
-		SetAPIGroup("menu").
-		SetMethod("GET")
-
-	apis[26] = I.DB.API.Create().
-		SetPath("/api/admin/menu/param").
-		SetDescription("apiDesc.deleteMenuParam").
-		SetAPIGroup("menu").
-		SetMethod("DELETE")
 
 	// CAPTCHA
-	apis[27] = I.DB.API.Create().
+	apis[23] = I.DB.API.Create().
 		SetPath("/api/admin/captcha").
 		SetDescription("apiDesc.captcha").
 		SetAPIGroup("captcha").
 		SetMethod("GET")
 
 	// AUTHORIZATION
-	apis[28] = I.DB.API.Create().
+	apis[24] = I.DB.API.Create().
 		SetPath("/api/admin/authority/api/create").
 		SetDescription("apiDesc.createApiAuthority").
 		SetAPIGroup("authority").
 		SetMethod("POST")
 
-	apis[29] = I.DB.API.Create().
+	apis[25] = I.DB.API.Create().
 		SetPath("/api/admin/authority/api/update").
 		SetDescription("apiDesc.updateApiAuthority").
 		SetAPIGroup("authority").
 		SetMethod("POST")
 
-	apis[30] = I.DB.API.Create().
+	apis[26] = I.DB.API.Create().
 		SetPath("/api/admin/authority/api/role").
 		SetDescription("apiDesc.APIAuthorityOfRole").
 		SetAPIGroup("authority").
 		SetMethod("POST")
 
-	apis[31] = I.DB.API.Create().
+	apis[27] = I.DB.API.Create().
 		SetPath("/api/admin/authority/menu/create").
 		SetDescription("apiDesc.createMenuAuthority").
 		SetAPIGroup("authority").
 		SetMethod("POST")
 
-	apis[32] = I.DB.API.Create().
+	apis[28] = I.DB.API.Create().
 		SetPath("/api/admin/authority/menu/update").
 		SetDescription("apiDesc.updateMenuAuthority").
 		SetAPIGroup("authority").
 		SetMethod("POST")
 
-	apis[33] = I.DB.API.Create().
+	apis[29] = I.DB.API.Create().
 		SetPath("/api/admin/authority/menu/role").
 		SetDescription("apiDesc.menuAuthorityOfRole").
 		SetAPIGroup("authority").
 		SetMethod("POST")
 
 	// API
-	apis[34] = I.DB.API.Create().
+	apis[30] = I.DB.API.Create().
 		SetPath("/api/admin/api/create").
 		SetDescription("apiDesc.createApi").
 		SetAPIGroup("api").
 		SetMethod("POST")
 
-	apis[35] = I.DB.API.Create().
+	apis[31] = I.DB.API.Create().
 		SetPath("/api/admin/api/update").
 		SetDescription("apiDesc.updateApi").
 		SetAPIGroup("api").
 		SetMethod("POST")
 
-	apis[36] = I.DB.API.Create().
+	apis[32] = I.DB.API.Create().
 		SetPath("/api/admin/api").
 		SetDescription("apiDesc.deleteAPI").
 		SetAPIGroup("api").
 		SetMethod("DELETE")
 
-	apis[37] = I.DB.API.Create().
+	apis[33] = I.DB.API.Create().
 		SetPath("/api/admin/api/list").
 		SetDescription("apiDesc.APIList").
 		SetAPIGroup("api").
 		SetMethod("GET")
 
 	// DICTIONARY
-	apis[38] = I.DB.API.Create().
+	apis[34] = I.DB.API.Create().
 		SetPath("/api/admin/dict/create").
 		SetDescription("apiDesc.createDictionary").
 		SetAPIGroup("dictionary").
 		SetMethod("POST")
 
-	apis[39] = I.DB.API.Create().
+	apis[35] = I.DB.API.Create().
 		SetPath("/api/admin/dict/update").
 		SetDescription("apiDesc.updateDictionary").
 		SetAPIGroup("dictionary").
 		SetMethod("POST")
 
-	apis[40] = I.DB.API.Create().
+	apis[36] = I.DB.API.Create().
 		SetPath("/api/admin/dict").
 		SetDescription("apiDesc.deleteDictionary").
 		SetAPIGroup("dictionary").
 		SetMethod("DELETE")
 
-	apis[41] = I.DB.API.Create().
+	apis[37] = I.DB.API.Create().
 		SetPath("/api/admin/dict/detail").
 		SetDescription("apiDesc.deleteDictionaryDetail").
 		SetAPIGroup("dictionary").
 		SetMethod("DELETE")
 
-	apis[42] = I.DB.API.Create().
+	apis[38] = I.DB.API.Create().
 		SetPath("/api/admin/dict/detail/create").
 		SetDescription("apiDesc.createDictionaryDetail").
 		SetAPIGroup("dictionary").
 		SetMethod("POST")
 
-	apis[43] = I.DB.API.Create().
+	apis[39] = I.DB.API.Create().
 		SetPath("/api/admin/dict/detail/update").
 		SetDescription("apiDesc.updateDictionaryDetail").
 		SetAPIGroup("dictionary").
 		SetMethod("POST")
 
-	apis[44] = I.DB.API.Create().
+	apis[40] = I.DB.API.Create().
 		SetPath("/api/admin/dict/detail/list").
 		SetDescription("apiDesc.getDictionaryListDetail").
 		SetAPIGroup("dictionary").
 		SetMethod("GET")
 
-	apis[45] = I.DB.API.Create().
+	apis[41] = I.DB.API.Create().
 		SetPath("/api/admin/dict/list").
 		SetDescription("apiDesc.getDictionaryList").
 		SetAPIGroup("dictionary").
 		SetMethod("GET")
 
 	// OAUTH
-	apis[46] = I.DB.API.Create().
+	apis[42] = I.DB.API.Create().
 		SetPath("/api/admin/oauth/provider/create").
 		SetDescription("apiDesc.createProvider").
 		SetAPIGroup("oauth").
 		SetMethod("POST")
 
-	apis[47] = I.DB.API.Create().
+	apis[43] = I.DB.API.Create().
 		SetPath("/api/admin/oauth/provider/update").
 		SetDescription("apiDesc.updateProvider").
 		SetAPIGroup("oauth").
 		SetMethod("POST")
 
-	apis[48] = I.DB.API.Create().
+	apis[44] = I.DB.API.Create().
 		SetPath("/api/admin/oauth/provider").
 		SetDescription("apiDesc.deleteProvider").
 		SetAPIGroup("oauth").
 		SetMethod("DELETE")
 
-	apis[49] = I.DB.API.Create().
+	apis[45] = I.DB.API.Create().
 		SetPath("/api/admin/oauth/provider/list").
 		SetDescription("apiDesc.geProviderList").
 		SetAPIGroup("oauth").
 		SetMethod("GET")
 
-	apis[50] = I.DB.API.Create().
+	apis[46] = I.DB.API.Create().
 		SetPath("/api/admin/oauth/login").
 		SetDescription("apiDesc.oauthLogin").
 		SetAPIGroup("oauth").
 		SetMethod("POST")
 
 	// TOKEN
-	apis[51] = I.DB.API.Create().
+	apis[47] = I.DB.API.Create().
 		SetPath("/api/admin/token/create").
 		SetDescription("apiDesc.createToken").
 		SetAPIGroup("token").
 		SetMethod("POST")
 
-	apis[52] = I.DB.API.Create().
+	apis[48] = I.DB.API.Create().
 		SetPath("/api/admin/token/update").
 		SetDescription("apiDesc.updateToken").
 		SetAPIGroup("token").
 		SetMethod("POST")
 
-	apis[53] = I.DB.API.Create().
+	apis[49] = I.DB.API.Create().
 		SetPath("/api/admin/token").
 		SetDescription("apiDesc.deleteToken").
 		SetAPIGroup("token").
 		SetMethod("DELETE")
 
-	apis[54] = I.DB.API.Create().
+	apis[50] = I.DB.API.Create().
 		SetPath("/api/admin/token/list").
 		SetDescription("apiDesc.getTokenList").
 		SetAPIGroup("token").
 		SetMethod("GET")
 
-	apis[55] = I.DB.API.Create().
+	apis[51] = I.DB.API.Create().
 		SetPath("/api/admin/token/status").
 		SetDescription("apiDesc.setTokenStatus").
 		SetAPIGroup("token").
 		SetMethod("POST")
 
-	apis[56] = I.DB.API.Create().
+	apis[52] = I.DB.API.Create().
 		SetPath("/api/admin/token/logout").
 		SetDescription("user.forceLoggingOut").
 		SetAPIGroup("token").
 		SetMethod("POST")
 
-	apis[57] = I.DB.API.Create().
+	apis[53] = I.DB.API.Create().
 		SetPath("/api/admin/logs/list").
 		SetDescription("apiDesc.getLogsList").
 		SetAPIGroup("logs").
 		SetMethod("GET")
 
-	apis[58] = I.DB.API.Create().
+	apis[54] = I.DB.API.Create().
 		SetPath("/api/admin/logs/deleteAll").
 		SetDescription("apiDesc.deleteLogs").
 		SetAPIGroup("logs").

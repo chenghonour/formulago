@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 )
 
@@ -35,7 +36,8 @@ type Role struct {
 	OrderNo uint32 `json:"order_no,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the RoleQuery when eager-loading is set.
-	Edges RoleEdges `json:"edges"`
+	Edges        RoleEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // RoleEdges holds the relations/edges for other nodes in the graph.
@@ -68,7 +70,7 @@ func (*Role) scanValues(columns []string) ([]any, error) {
 		case role.FieldCreatedAt, role.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
 		default:
-			return nil, fmt.Errorf("unexpected column %q for type Role", columns[i])
+			values[i] = new(sql.UnknownType)
 		}
 	}
 	return values, nil
@@ -76,7 +78,7 @@ func (*Role) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the Role fields.
-func (r *Role) assignValues(columns []string, values []any) error {
+func (_m *Role) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -87,120 +89,122 @@ func (r *Role) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			r.ID = uint64(value.Int64)
+			_m.ID = uint64(value.Int64)
 		case role.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				r.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case role.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				r.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		case role.FieldStatus:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				r.Status = uint8(value.Int64)
+				_m.Status = uint8(value.Int64)
 			}
 		case role.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
-				r.Name = value.String
+				_m.Name = value.String
 			}
 		case role.FieldValue:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field value", values[i])
 			} else if value.Valid {
-				r.Value = value.String
+				_m.Value = value.String
 			}
 		case role.FieldDefaultRouter:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field default_router", values[i])
 			} else if value.Valid {
-				r.DefaultRouter = value.String
+				_m.DefaultRouter = value.String
 			}
 		case role.FieldRemark:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field remark", values[i])
 			} else if value.Valid {
-				r.Remark = value.String
+				_m.Remark = value.String
 			}
 		case role.FieldOrderNo:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field order_no", values[i])
 			} else if value.Valid {
-				r.OrderNo = uint32(value.Int64)
+				_m.OrderNo = uint32(value.Int64)
 			}
+		default:
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
 }
 
+// GetValue returns the ent.Value that was dynamically selected and assigned to the Role.
+// This includes values selected through modifiers, order, etc.
+func (_m *Role) GetValue(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
+}
+
 // QueryMenus queries the "menus" edge of the Role entity.
-func (r *Role) QueryMenus() *MenuQuery {
-	return (&RoleClient{config: r.config}).QueryMenus(r)
+func (_m *Role) QueryMenus() *MenuQuery {
+	return NewRoleClient(_m.config).QueryMenus(_m)
 }
 
 // Update returns a builder for updating this Role.
 // Note that you need to call Role.Unwrap() before calling this method if this Role
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (r *Role) Update() *RoleUpdateOne {
-	return (&RoleClient{config: r.config}).UpdateOne(r)
+func (_m *Role) Update() *RoleUpdateOne {
+	return NewRoleClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the Role entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (r *Role) Unwrap() *Role {
-	_tx, ok := r.config.driver.(*txDriver)
+func (_m *Role) Unwrap() *Role {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: Role is not a transactional entity")
 	}
-	r.config.driver = _tx.drv
-	return r
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (r *Role) String() string {
+func (_m *Role) String() string {
 	var builder strings.Builder
 	builder.WriteString("Role(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", r.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("created_at=")
-	builder.WriteString(r.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(r.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
-	builder.WriteString(fmt.Sprintf("%v", r.Status))
+	builder.WriteString(fmt.Sprintf("%v", _m.Status))
 	builder.WriteString(", ")
 	builder.WriteString("name=")
-	builder.WriteString(r.Name)
+	builder.WriteString(_m.Name)
 	builder.WriteString(", ")
 	builder.WriteString("value=")
-	builder.WriteString(r.Value)
+	builder.WriteString(_m.Value)
 	builder.WriteString(", ")
 	builder.WriteString("default_router=")
-	builder.WriteString(r.DefaultRouter)
+	builder.WriteString(_m.DefaultRouter)
 	builder.WriteString(", ")
 	builder.WriteString("remark=")
-	builder.WriteString(r.Remark)
+	builder.WriteString(_m.Remark)
 	builder.WriteString(", ")
 	builder.WriteString("order_no=")
-	builder.WriteString(fmt.Sprintf("%v", r.OrderNo))
+	builder.WriteString(fmt.Sprintf("%v", _m.OrderNo))
 	builder.WriteByte(')')
 	return builder.String()
 }
 
 // Roles is a parsable slice of Role.
 type Roles []*Role
-
-func (r Roles) config(cfg config) {
-	for _i := range r {
-		r[_i].config = cfg
-	}
-}

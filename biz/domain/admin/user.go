@@ -35,23 +35,24 @@ type CreateOrUpdateUserReq struct {
 }
 
 type UserInfo struct {
-	ID          uint64
-	Status      uint8
-	Username    string
-	Password    string
-	Nickname    string
-	SideMode    string
-	BaseColor   string
-	ActiveColor string
-	RoleID      uint64
-	Mobile      string
-	Email       string
-	Wecom       string
-	Avatar      string
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	RoleName    string
-	RoleValue   string
+	ID            uint64
+	Status        uint8
+	Username      string
+	Password      string
+	Nickname      string
+	SideMode      string
+	BaseColor     string
+	ActiveColor   string
+	RoleID        uint64
+	Mobile        string
+	Email         string
+	Wecom         string
+	Avatar        string
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	RoleName      string
+	RoleValue     string
+	DefaultRouter string
 }
 
 type UserListReq struct {

@@ -128,14 +128,14 @@ curl http://localhost:8191/api/initDatabase
 
 **Ent**（数据模型 → CRUD）：
 ```bash
-go run -mod=mod entgo.io/ent/cmd/ent generate --feature sql/versioned-migration ./data/ent/schema
+go generate ./data/ent
 ```
 
 **Hertz**（Protobuf → 处理器和路由）：
 ```bash
 hz update -I api -idl api/admin/admin.proto -model_dir api/model --unset_omitempty
 ```
-
+hz update -I api -idl api/admin/admin.proto -model_dir api/model --unset_omitempty
 ### 新增/编辑实体步骤
 下面是admin管理模块相关的步骤，其他模块的步骤类似
 1. 在 `data/ent/schema/` 创建/修改 schema

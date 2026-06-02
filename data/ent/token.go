@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 )
 
@@ -31,8 +32,9 @@ type Token struct {
 	ExpiredAt time.Time `json:"expired_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TokenQuery when eager-loading is set.
-	Edges      TokenEdges `json:"edges"`
-	user_token *uint64
+	Edges        TokenEdges `json:"edges"`
+	user_token   *uint64
+	selectValues sql.SelectValues
 }
 
 // TokenEdges holds the relations/edges for other nodes in the graph.
@@ -47,12 +49,10 @@ type TokenEdges struct {
 // OwnerOrErr returns the Owner value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e TokenEdges) OwnerOrErr() (*User, error) {
-	if e.loadedTypes[0] {
-		if e.Owner == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: user.Label}
-		}
+	if e.Owner != nil {
 		return e.Owner, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: user.Label}
 	}
 	return nil, &NotLoadedError{edge: "owner"}
 }
@@ -71,7 +71,7 @@ func (*Token) scanValues(columns []string) ([]any, error) {
 		case token.ForeignKeys[0]: // user_token
 			values[i] = new(sql.NullInt64)
 		default:
-			return nil, fmt.Errorf("unexpected column %q for type Token", columns[i])
+			values[i] = new(sql.UnknownType)
 		}
 	}
 	return values, nil
@@ -79,7 +79,7 @@ func (*Token) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the Token fields.
-func (t *Token) assignValues(columns []string, values []any) error {
+func (_m *Token) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -90,109 +90,111 @@ func (t *Token) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			t.ID = uint64(value.Int64)
+			_m.ID = uint64(value.Int64)
 		case token.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				t.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case token.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				t.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		case token.FieldUserID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value.Valid {
-				t.UserID = uint64(value.Int64)
+				_m.UserID = uint64(value.Int64)
 			}
 		case token.FieldToken:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field token", values[i])
 			} else if value.Valid {
-				t.Token = value.String
+				_m.Token = value.String
 			}
 		case token.FieldSource:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field source", values[i])
 			} else if value.Valid {
-				t.Source = value.String
+				_m.Source = value.String
 			}
 		case token.FieldExpiredAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field expired_at", values[i])
 			} else if value.Valid {
-				t.ExpiredAt = value.Time
+				_m.ExpiredAt = value.Time
 			}
 		case token.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for edge-field user_token", value)
 			} else if value.Valid {
-				t.user_token = new(uint64)
-				*t.user_token = uint64(value.Int64)
+				_m.user_token = new(uint64)
+				*_m.user_token = uint64(value.Int64)
 			}
+		default:
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
 }
 
+// Value returns the ent.Value that was dynamically selected and assigned to the Token.
+// This includes values selected through modifiers, order, etc.
+func (_m *Token) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
+}
+
 // QueryOwner queries the "owner" edge of the Token entity.
-func (t *Token) QueryOwner() *UserQuery {
-	return (&TokenClient{config: t.config}).QueryOwner(t)
+func (_m *Token) QueryOwner() *UserQuery {
+	return NewTokenClient(_m.config).QueryOwner(_m)
 }
 
 // Update returns a builder for updating this Token.
 // Note that you need to call Token.Unwrap() before calling this method if this Token
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (t *Token) Update() *TokenUpdateOne {
-	return (&TokenClient{config: t.config}).UpdateOne(t)
+func (_m *Token) Update() *TokenUpdateOne {
+	return NewTokenClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the Token entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (t *Token) Unwrap() *Token {
-	_tx, ok := t.config.driver.(*txDriver)
+func (_m *Token) Unwrap() *Token {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: Token is not a transactional entity")
 	}
-	t.config.driver = _tx.drv
-	return t
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (t *Token) String() string {
+func (_m *Token) String() string {
 	var builder strings.Builder
 	builder.WriteString("Token(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", t.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("created_at=")
-	builder.WriteString(t.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(t.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
-	builder.WriteString(fmt.Sprintf("%v", t.UserID))
+	builder.WriteString(fmt.Sprintf("%v", _m.UserID))
 	builder.WriteString(", ")
 	builder.WriteString("token=")
-	builder.WriteString(t.Token)
+	builder.WriteString(_m.Token)
 	builder.WriteString(", ")
 	builder.WriteString("source=")
-	builder.WriteString(t.Source)
+	builder.WriteString(_m.Source)
 	builder.WriteString(", ")
 	builder.WriteString("expired_at=")
-	builder.WriteString(t.ExpiredAt.Format(time.ANSIC))
+	builder.WriteString(_m.ExpiredAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }
 
 // Tokens is a parsable slice of Token.
 type Tokens []*Token
-
-func (t Tokens) config(cfg config) {
-	for _i := range t {
-		t[_i].config = cfg
-	}
-}

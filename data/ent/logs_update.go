@@ -23,182 +23,214 @@ type LogsUpdate struct {
 }
 
 // Where appends a list predicates to the LogsUpdate builder.
-func (lu *LogsUpdate) Where(ps ...predicate.Logs) *LogsUpdate {
-	lu.mutation.Where(ps...)
-	return lu
+func (_u *LogsUpdate) Where(ps ...predicate.Logs) *LogsUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (lu *LogsUpdate) SetUpdatedAt(t time.Time) *LogsUpdate {
-	lu.mutation.SetUpdatedAt(t)
-	return lu
+func (_u *LogsUpdate) SetUpdatedAt(v time.Time) *LogsUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetType sets the "type" field.
-func (lu *LogsUpdate) SetType(s string) *LogsUpdate {
-	lu.mutation.SetType(s)
-	return lu
+func (_u *LogsUpdate) SetType(v string) *LogsUpdate {
+	_u.mutation.SetType(v)
+	return _u
+}
+
+// SetNillableType sets the "type" field if the given value is not nil.
+func (_u *LogsUpdate) SetNillableType(v *string) *LogsUpdate {
+	if v != nil {
+		_u.SetType(*v)
+	}
+	return _u
 }
 
 // SetMethod sets the "method" field.
-func (lu *LogsUpdate) SetMethod(s string) *LogsUpdate {
-	lu.mutation.SetMethod(s)
-	return lu
+func (_u *LogsUpdate) SetMethod(v string) *LogsUpdate {
+	_u.mutation.SetMethod(v)
+	return _u
+}
+
+// SetNillableMethod sets the "method" field if the given value is not nil.
+func (_u *LogsUpdate) SetNillableMethod(v *string) *LogsUpdate {
+	if v != nil {
+		_u.SetMethod(*v)
+	}
+	return _u
 }
 
 // SetAPI sets the "api" field.
-func (lu *LogsUpdate) SetAPI(s string) *LogsUpdate {
-	lu.mutation.SetAPI(s)
-	return lu
+func (_u *LogsUpdate) SetAPI(v string) *LogsUpdate {
+	_u.mutation.SetAPI(v)
+	return _u
+}
+
+// SetNillableAPI sets the "api" field if the given value is not nil.
+func (_u *LogsUpdate) SetNillableAPI(v *string) *LogsUpdate {
+	if v != nil {
+		_u.SetAPI(*v)
+	}
+	return _u
 }
 
 // SetSuccess sets the "success" field.
-func (lu *LogsUpdate) SetSuccess(b bool) *LogsUpdate {
-	lu.mutation.SetSuccess(b)
-	return lu
+func (_u *LogsUpdate) SetSuccess(v bool) *LogsUpdate {
+	_u.mutation.SetSuccess(v)
+	return _u
+}
+
+// SetNillableSuccess sets the "success" field if the given value is not nil.
+func (_u *LogsUpdate) SetNillableSuccess(v *bool) *LogsUpdate {
+	if v != nil {
+		_u.SetSuccess(*v)
+	}
+	return _u
 }
 
 // SetReqContent sets the "req_content" field.
-func (lu *LogsUpdate) SetReqContent(s string) *LogsUpdate {
-	lu.mutation.SetReqContent(s)
-	return lu
+func (_u *LogsUpdate) SetReqContent(v string) *LogsUpdate {
+	_u.mutation.SetReqContent(v)
+	return _u
 }
 
 // SetNillableReqContent sets the "req_content" field if the given value is not nil.
-func (lu *LogsUpdate) SetNillableReqContent(s *string) *LogsUpdate {
-	if s != nil {
-		lu.SetReqContent(*s)
+func (_u *LogsUpdate) SetNillableReqContent(v *string) *LogsUpdate {
+	if v != nil {
+		_u.SetReqContent(*v)
 	}
-	return lu
+	return _u
 }
 
 // ClearReqContent clears the value of the "req_content" field.
-func (lu *LogsUpdate) ClearReqContent() *LogsUpdate {
-	lu.mutation.ClearReqContent()
-	return lu
+func (_u *LogsUpdate) ClearReqContent() *LogsUpdate {
+	_u.mutation.ClearReqContent()
+	return _u
 }
 
 // SetRespContent sets the "resp_content" field.
-func (lu *LogsUpdate) SetRespContent(s string) *LogsUpdate {
-	lu.mutation.SetRespContent(s)
-	return lu
+func (_u *LogsUpdate) SetRespContent(v string) *LogsUpdate {
+	_u.mutation.SetRespContent(v)
+	return _u
 }
 
 // SetNillableRespContent sets the "resp_content" field if the given value is not nil.
-func (lu *LogsUpdate) SetNillableRespContent(s *string) *LogsUpdate {
-	if s != nil {
-		lu.SetRespContent(*s)
+func (_u *LogsUpdate) SetNillableRespContent(v *string) *LogsUpdate {
+	if v != nil {
+		_u.SetRespContent(*v)
 	}
-	return lu
+	return _u
 }
 
 // ClearRespContent clears the value of the "resp_content" field.
-func (lu *LogsUpdate) ClearRespContent() *LogsUpdate {
-	lu.mutation.ClearRespContent()
-	return lu
+func (_u *LogsUpdate) ClearRespContent() *LogsUpdate {
+	_u.mutation.ClearRespContent()
+	return _u
 }
 
 // SetIP sets the "ip" field.
-func (lu *LogsUpdate) SetIP(s string) *LogsUpdate {
-	lu.mutation.SetIP(s)
-	return lu
+func (_u *LogsUpdate) SetIP(v string) *LogsUpdate {
+	_u.mutation.SetIP(v)
+	return _u
 }
 
 // SetNillableIP sets the "ip" field if the given value is not nil.
-func (lu *LogsUpdate) SetNillableIP(s *string) *LogsUpdate {
-	if s != nil {
-		lu.SetIP(*s)
+func (_u *LogsUpdate) SetNillableIP(v *string) *LogsUpdate {
+	if v != nil {
+		_u.SetIP(*v)
 	}
-	return lu
+	return _u
 }
 
 // ClearIP clears the value of the "ip" field.
-func (lu *LogsUpdate) ClearIP() *LogsUpdate {
-	lu.mutation.ClearIP()
-	return lu
+func (_u *LogsUpdate) ClearIP() *LogsUpdate {
+	_u.mutation.ClearIP()
+	return _u
 }
 
 // SetUserAgent sets the "user_agent" field.
-func (lu *LogsUpdate) SetUserAgent(s string) *LogsUpdate {
-	lu.mutation.SetUserAgent(s)
-	return lu
+func (_u *LogsUpdate) SetUserAgent(v string) *LogsUpdate {
+	_u.mutation.SetUserAgent(v)
+	return _u
 }
 
 // SetNillableUserAgent sets the "user_agent" field if the given value is not nil.
-func (lu *LogsUpdate) SetNillableUserAgent(s *string) *LogsUpdate {
-	if s != nil {
-		lu.SetUserAgent(*s)
+func (_u *LogsUpdate) SetNillableUserAgent(v *string) *LogsUpdate {
+	if v != nil {
+		_u.SetUserAgent(*v)
 	}
-	return lu
+	return _u
 }
 
 // ClearUserAgent clears the value of the "user_agent" field.
-func (lu *LogsUpdate) ClearUserAgent() *LogsUpdate {
-	lu.mutation.ClearUserAgent()
-	return lu
+func (_u *LogsUpdate) ClearUserAgent() *LogsUpdate {
+	_u.mutation.ClearUserAgent()
+	return _u
 }
 
 // SetOperator sets the "operator" field.
-func (lu *LogsUpdate) SetOperator(s string) *LogsUpdate {
-	lu.mutation.SetOperator(s)
-	return lu
+func (_u *LogsUpdate) SetOperator(v string) *LogsUpdate {
+	_u.mutation.SetOperator(v)
+	return _u
 }
 
 // SetNillableOperator sets the "operator" field if the given value is not nil.
-func (lu *LogsUpdate) SetNillableOperator(s *string) *LogsUpdate {
-	if s != nil {
-		lu.SetOperator(*s)
+func (_u *LogsUpdate) SetNillableOperator(v *string) *LogsUpdate {
+	if v != nil {
+		_u.SetOperator(*v)
 	}
-	return lu
+	return _u
 }
 
 // ClearOperator clears the value of the "operator" field.
-func (lu *LogsUpdate) ClearOperator() *LogsUpdate {
-	lu.mutation.ClearOperator()
-	return lu
+func (_u *LogsUpdate) ClearOperator() *LogsUpdate {
+	_u.mutation.ClearOperator()
+	return _u
 }
 
 // SetTime sets the "time" field.
-func (lu *LogsUpdate) SetTime(i int) *LogsUpdate {
-	lu.mutation.ResetTime()
-	lu.mutation.SetTime(i)
-	return lu
+func (_u *LogsUpdate) SetTime(v int) *LogsUpdate {
+	_u.mutation.ResetTime()
+	_u.mutation.SetTime(v)
+	return _u
 }
 
 // SetNillableTime sets the "time" field if the given value is not nil.
-func (lu *LogsUpdate) SetNillableTime(i *int) *LogsUpdate {
-	if i != nil {
-		lu.SetTime(*i)
+func (_u *LogsUpdate) SetNillableTime(v *int) *LogsUpdate {
+	if v != nil {
+		_u.SetTime(*v)
 	}
-	return lu
+	return _u
 }
 
-// AddTime adds i to the "time" field.
-func (lu *LogsUpdate) AddTime(i int) *LogsUpdate {
-	lu.mutation.AddTime(i)
-	return lu
+// AddTime adds value to the "time" field.
+func (_u *LogsUpdate) AddTime(v int) *LogsUpdate {
+	_u.mutation.AddTime(v)
+	return _u
 }
 
 // ClearTime clears the value of the "time" field.
-func (lu *LogsUpdate) ClearTime() *LogsUpdate {
-	lu.mutation.ClearTime()
-	return lu
+func (_u *LogsUpdate) ClearTime() *LogsUpdate {
+	_u.mutation.ClearTime()
+	return _u
 }
 
 // Mutation returns the LogsMutation object of the builder.
-func (lu *LogsUpdate) Mutation() *LogsMutation {
-	return lu.mutation
+func (_u *LogsUpdate) Mutation() *LogsMutation {
+	return _u.mutation
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (lu *LogsUpdate) Save(ctx context.Context) (int, error) {
-	lu.defaults()
-	return withHooks[int, LogsMutation](ctx, lu.sqlSave, lu.mutation, lu.hooks)
+func (_u *LogsUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (lu *LogsUpdate) SaveX(ctx context.Context) int {
-	affected, err := lu.Save(ctx)
+func (_u *LogsUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -206,99 +238,90 @@ func (lu *LogsUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (lu *LogsUpdate) Exec(ctx context.Context) error {
-	_, err := lu.Save(ctx)
+func (_u *LogsUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (lu *LogsUpdate) ExecX(ctx context.Context) {
-	if err := lu.Exec(ctx); err != nil {
+func (_u *LogsUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (lu *LogsUpdate) defaults() {
-	if _, ok := lu.mutation.UpdatedAt(); !ok {
+func (_u *LogsUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := logs.UpdateDefaultUpdatedAt()
-		lu.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
-func (lu *LogsUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	_spec := &sqlgraph.UpdateSpec{
-		Node: &sqlgraph.NodeSpec{
-			Table:   logs.Table,
-			Columns: logs.Columns,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUint64,
-				Column: logs.FieldID,
-			},
-		},
-	}
-	if ps := lu.mutation.predicates; len(ps) > 0 {
+func (_u *LogsUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	_spec := sqlgraph.NewUpdateSpec(logs.Table, logs.Columns, sqlgraph.NewFieldSpec(logs.FieldID, field.TypeUint64))
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := lu.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(logs.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := lu.mutation.GetType(); ok {
+	if value, ok := _u.mutation.GetType(); ok {
 		_spec.SetField(logs.FieldType, field.TypeString, value)
 	}
-	if value, ok := lu.mutation.Method(); ok {
+	if value, ok := _u.mutation.Method(); ok {
 		_spec.SetField(logs.FieldMethod, field.TypeString, value)
 	}
-	if value, ok := lu.mutation.API(); ok {
+	if value, ok := _u.mutation.API(); ok {
 		_spec.SetField(logs.FieldAPI, field.TypeString, value)
 	}
-	if value, ok := lu.mutation.Success(); ok {
+	if value, ok := _u.mutation.Success(); ok {
 		_spec.SetField(logs.FieldSuccess, field.TypeBool, value)
 	}
-	if value, ok := lu.mutation.ReqContent(); ok {
+	if value, ok := _u.mutation.ReqContent(); ok {
 		_spec.SetField(logs.FieldReqContent, field.TypeString, value)
 	}
-	if lu.mutation.ReqContentCleared() {
+	if _u.mutation.ReqContentCleared() {
 		_spec.ClearField(logs.FieldReqContent, field.TypeString)
 	}
-	if value, ok := lu.mutation.RespContent(); ok {
+	if value, ok := _u.mutation.RespContent(); ok {
 		_spec.SetField(logs.FieldRespContent, field.TypeString, value)
 	}
-	if lu.mutation.RespContentCleared() {
+	if _u.mutation.RespContentCleared() {
 		_spec.ClearField(logs.FieldRespContent, field.TypeString)
 	}
-	if value, ok := lu.mutation.IP(); ok {
+	if value, ok := _u.mutation.IP(); ok {
 		_spec.SetField(logs.FieldIP, field.TypeString, value)
 	}
-	if lu.mutation.IPCleared() {
+	if _u.mutation.IPCleared() {
 		_spec.ClearField(logs.FieldIP, field.TypeString)
 	}
-	if value, ok := lu.mutation.UserAgent(); ok {
+	if value, ok := _u.mutation.UserAgent(); ok {
 		_spec.SetField(logs.FieldUserAgent, field.TypeString, value)
 	}
-	if lu.mutation.UserAgentCleared() {
+	if _u.mutation.UserAgentCleared() {
 		_spec.ClearField(logs.FieldUserAgent, field.TypeString)
 	}
-	if value, ok := lu.mutation.Operator(); ok {
+	if value, ok := _u.mutation.Operator(); ok {
 		_spec.SetField(logs.FieldOperator, field.TypeString, value)
 	}
-	if lu.mutation.OperatorCleared() {
+	if _u.mutation.OperatorCleared() {
 		_spec.ClearField(logs.FieldOperator, field.TypeString)
 	}
-	if value, ok := lu.mutation.Time(); ok {
+	if value, ok := _u.mutation.Time(); ok {
 		_spec.SetField(logs.FieldTime, field.TypeInt, value)
 	}
-	if value, ok := lu.mutation.AddedTime(); ok {
+	if value, ok := _u.mutation.AddedTime(); ok {
 		_spec.AddField(logs.FieldTime, field.TypeInt, value)
 	}
-	if lu.mutation.TimeCleared() {
+	if _u.mutation.TimeCleared() {
 		_spec.ClearField(logs.FieldTime, field.TypeInt)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, lu.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{logs.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -306,8 +329,8 @@ func (lu *LogsUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	lu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // LogsUpdateOne is the builder for updating a single Logs entity.
@@ -319,183 +342,221 @@ type LogsUpdateOne struct {
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (luo *LogsUpdateOne) SetUpdatedAt(t time.Time) *LogsUpdateOne {
-	luo.mutation.SetUpdatedAt(t)
-	return luo
+func (_u *LogsUpdateOne) SetUpdatedAt(v time.Time) *LogsUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetType sets the "type" field.
-func (luo *LogsUpdateOne) SetType(s string) *LogsUpdateOne {
-	luo.mutation.SetType(s)
-	return luo
+func (_u *LogsUpdateOne) SetType(v string) *LogsUpdateOne {
+	_u.mutation.SetType(v)
+	return _u
+}
+
+// SetNillableType sets the "type" field if the given value is not nil.
+func (_u *LogsUpdateOne) SetNillableType(v *string) *LogsUpdateOne {
+	if v != nil {
+		_u.SetType(*v)
+	}
+	return _u
 }
 
 // SetMethod sets the "method" field.
-func (luo *LogsUpdateOne) SetMethod(s string) *LogsUpdateOne {
-	luo.mutation.SetMethod(s)
-	return luo
+func (_u *LogsUpdateOne) SetMethod(v string) *LogsUpdateOne {
+	_u.mutation.SetMethod(v)
+	return _u
+}
+
+// SetNillableMethod sets the "method" field if the given value is not nil.
+func (_u *LogsUpdateOne) SetNillableMethod(v *string) *LogsUpdateOne {
+	if v != nil {
+		_u.SetMethod(*v)
+	}
+	return _u
 }
 
 // SetAPI sets the "api" field.
-func (luo *LogsUpdateOne) SetAPI(s string) *LogsUpdateOne {
-	luo.mutation.SetAPI(s)
-	return luo
+func (_u *LogsUpdateOne) SetAPI(v string) *LogsUpdateOne {
+	_u.mutation.SetAPI(v)
+	return _u
+}
+
+// SetNillableAPI sets the "api" field if the given value is not nil.
+func (_u *LogsUpdateOne) SetNillableAPI(v *string) *LogsUpdateOne {
+	if v != nil {
+		_u.SetAPI(*v)
+	}
+	return _u
 }
 
 // SetSuccess sets the "success" field.
-func (luo *LogsUpdateOne) SetSuccess(b bool) *LogsUpdateOne {
-	luo.mutation.SetSuccess(b)
-	return luo
+func (_u *LogsUpdateOne) SetSuccess(v bool) *LogsUpdateOne {
+	_u.mutation.SetSuccess(v)
+	return _u
+}
+
+// SetNillableSuccess sets the "success" field if the given value is not nil.
+func (_u *LogsUpdateOne) SetNillableSuccess(v *bool) *LogsUpdateOne {
+	if v != nil {
+		_u.SetSuccess(*v)
+	}
+	return _u
 }
 
 // SetReqContent sets the "req_content" field.
-func (luo *LogsUpdateOne) SetReqContent(s string) *LogsUpdateOne {
-	luo.mutation.SetReqContent(s)
-	return luo
+func (_u *LogsUpdateOne) SetReqContent(v string) *LogsUpdateOne {
+	_u.mutation.SetReqContent(v)
+	return _u
 }
 
 // SetNillableReqContent sets the "req_content" field if the given value is not nil.
-func (luo *LogsUpdateOne) SetNillableReqContent(s *string) *LogsUpdateOne {
-	if s != nil {
-		luo.SetReqContent(*s)
+func (_u *LogsUpdateOne) SetNillableReqContent(v *string) *LogsUpdateOne {
+	if v != nil {
+		_u.SetReqContent(*v)
 	}
-	return luo
+	return _u
 }
 
 // ClearReqContent clears the value of the "req_content" field.
-func (luo *LogsUpdateOne) ClearReqContent() *LogsUpdateOne {
-	luo.mutation.ClearReqContent()
-	return luo
+func (_u *LogsUpdateOne) ClearReqContent() *LogsUpdateOne {
+	_u.mutation.ClearReqContent()
+	return _u
 }
 
 // SetRespContent sets the "resp_content" field.
-func (luo *LogsUpdateOne) SetRespContent(s string) *LogsUpdateOne {
-	luo.mutation.SetRespContent(s)
-	return luo
+func (_u *LogsUpdateOne) SetRespContent(v string) *LogsUpdateOne {
+	_u.mutation.SetRespContent(v)
+	return _u
 }
 
 // SetNillableRespContent sets the "resp_content" field if the given value is not nil.
-func (luo *LogsUpdateOne) SetNillableRespContent(s *string) *LogsUpdateOne {
-	if s != nil {
-		luo.SetRespContent(*s)
+func (_u *LogsUpdateOne) SetNillableRespContent(v *string) *LogsUpdateOne {
+	if v != nil {
+		_u.SetRespContent(*v)
 	}
-	return luo
+	return _u
 }
 
 // ClearRespContent clears the value of the "resp_content" field.
-func (luo *LogsUpdateOne) ClearRespContent() *LogsUpdateOne {
-	luo.mutation.ClearRespContent()
-	return luo
+func (_u *LogsUpdateOne) ClearRespContent() *LogsUpdateOne {
+	_u.mutation.ClearRespContent()
+	return _u
 }
 
 // SetIP sets the "ip" field.
-func (luo *LogsUpdateOne) SetIP(s string) *LogsUpdateOne {
-	luo.mutation.SetIP(s)
-	return luo
+func (_u *LogsUpdateOne) SetIP(v string) *LogsUpdateOne {
+	_u.mutation.SetIP(v)
+	return _u
 }
 
 // SetNillableIP sets the "ip" field if the given value is not nil.
-func (luo *LogsUpdateOne) SetNillableIP(s *string) *LogsUpdateOne {
-	if s != nil {
-		luo.SetIP(*s)
+func (_u *LogsUpdateOne) SetNillableIP(v *string) *LogsUpdateOne {
+	if v != nil {
+		_u.SetIP(*v)
 	}
-	return luo
+	return _u
 }
 
 // ClearIP clears the value of the "ip" field.
-func (luo *LogsUpdateOne) ClearIP() *LogsUpdateOne {
-	luo.mutation.ClearIP()
-	return luo
+func (_u *LogsUpdateOne) ClearIP() *LogsUpdateOne {
+	_u.mutation.ClearIP()
+	return _u
 }
 
 // SetUserAgent sets the "user_agent" field.
-func (luo *LogsUpdateOne) SetUserAgent(s string) *LogsUpdateOne {
-	luo.mutation.SetUserAgent(s)
-	return luo
+func (_u *LogsUpdateOne) SetUserAgent(v string) *LogsUpdateOne {
+	_u.mutation.SetUserAgent(v)
+	return _u
 }
 
 // SetNillableUserAgent sets the "user_agent" field if the given value is not nil.
-func (luo *LogsUpdateOne) SetNillableUserAgent(s *string) *LogsUpdateOne {
-	if s != nil {
-		luo.SetUserAgent(*s)
+func (_u *LogsUpdateOne) SetNillableUserAgent(v *string) *LogsUpdateOne {
+	if v != nil {
+		_u.SetUserAgent(*v)
 	}
-	return luo
+	return _u
 }
 
 // ClearUserAgent clears the value of the "user_agent" field.
-func (luo *LogsUpdateOne) ClearUserAgent() *LogsUpdateOne {
-	luo.mutation.ClearUserAgent()
-	return luo
+func (_u *LogsUpdateOne) ClearUserAgent() *LogsUpdateOne {
+	_u.mutation.ClearUserAgent()
+	return _u
 }
 
 // SetOperator sets the "operator" field.
-func (luo *LogsUpdateOne) SetOperator(s string) *LogsUpdateOne {
-	luo.mutation.SetOperator(s)
-	return luo
+func (_u *LogsUpdateOne) SetOperator(v string) *LogsUpdateOne {
+	_u.mutation.SetOperator(v)
+	return _u
 }
 
 // SetNillableOperator sets the "operator" field if the given value is not nil.
-func (luo *LogsUpdateOne) SetNillableOperator(s *string) *LogsUpdateOne {
-	if s != nil {
-		luo.SetOperator(*s)
+func (_u *LogsUpdateOne) SetNillableOperator(v *string) *LogsUpdateOne {
+	if v != nil {
+		_u.SetOperator(*v)
 	}
-	return luo
+	return _u
 }
 
 // ClearOperator clears the value of the "operator" field.
-func (luo *LogsUpdateOne) ClearOperator() *LogsUpdateOne {
-	luo.mutation.ClearOperator()
-	return luo
+func (_u *LogsUpdateOne) ClearOperator() *LogsUpdateOne {
+	_u.mutation.ClearOperator()
+	return _u
 }
 
 // SetTime sets the "time" field.
-func (luo *LogsUpdateOne) SetTime(i int) *LogsUpdateOne {
-	luo.mutation.ResetTime()
-	luo.mutation.SetTime(i)
-	return luo
+func (_u *LogsUpdateOne) SetTime(v int) *LogsUpdateOne {
+	_u.mutation.ResetTime()
+	_u.mutation.SetTime(v)
+	return _u
 }
 
 // SetNillableTime sets the "time" field if the given value is not nil.
-func (luo *LogsUpdateOne) SetNillableTime(i *int) *LogsUpdateOne {
-	if i != nil {
-		luo.SetTime(*i)
+func (_u *LogsUpdateOne) SetNillableTime(v *int) *LogsUpdateOne {
+	if v != nil {
+		_u.SetTime(*v)
 	}
-	return luo
+	return _u
 }
 
-// AddTime adds i to the "time" field.
-func (luo *LogsUpdateOne) AddTime(i int) *LogsUpdateOne {
-	luo.mutation.AddTime(i)
-	return luo
+// AddTime adds value to the "time" field.
+func (_u *LogsUpdateOne) AddTime(v int) *LogsUpdateOne {
+	_u.mutation.AddTime(v)
+	return _u
 }
 
 // ClearTime clears the value of the "time" field.
-func (luo *LogsUpdateOne) ClearTime() *LogsUpdateOne {
-	luo.mutation.ClearTime()
-	return luo
+func (_u *LogsUpdateOne) ClearTime() *LogsUpdateOne {
+	_u.mutation.ClearTime()
+	return _u
 }
 
 // Mutation returns the LogsMutation object of the builder.
-func (luo *LogsUpdateOne) Mutation() *LogsMutation {
-	return luo.mutation
+func (_u *LogsUpdateOne) Mutation() *LogsMutation {
+	return _u.mutation
+}
+
+// Where appends a list predicates to the LogsUpdate builder.
+func (_u *LogsUpdateOne) Where(ps ...predicate.Logs) *LogsUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (luo *LogsUpdateOne) Select(field string, fields ...string) *LogsUpdateOne {
-	luo.fields = append([]string{field}, fields...)
-	return luo
+func (_u *LogsUpdateOne) Select(field string, fields ...string) *LogsUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated Logs entity.
-func (luo *LogsUpdateOne) Save(ctx context.Context) (*Logs, error) {
-	luo.defaults()
-	return withHooks[*Logs, LogsMutation](ctx, luo.sqlSave, luo.mutation, luo.hooks)
+func (_u *LogsUpdateOne) Save(ctx context.Context) (*Logs, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (luo *LogsUpdateOne) SaveX(ctx context.Context) *Logs {
-	node, err := luo.Save(ctx)
+func (_u *LogsUpdateOne) SaveX(ctx context.Context) *Logs {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -503,43 +564,34 @@ func (luo *LogsUpdateOne) SaveX(ctx context.Context) *Logs {
 }
 
 // Exec executes the query on the entity.
-func (luo *LogsUpdateOne) Exec(ctx context.Context) error {
-	_, err := luo.Save(ctx)
+func (_u *LogsUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (luo *LogsUpdateOne) ExecX(ctx context.Context) {
-	if err := luo.Exec(ctx); err != nil {
+func (_u *LogsUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (luo *LogsUpdateOne) defaults() {
-	if _, ok := luo.mutation.UpdatedAt(); !ok {
+func (_u *LogsUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := logs.UpdateDefaultUpdatedAt()
-		luo.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
-func (luo *LogsUpdateOne) sqlSave(ctx context.Context) (_node *Logs, err error) {
-	_spec := &sqlgraph.UpdateSpec{
-		Node: &sqlgraph.NodeSpec{
-			Table:   logs.Table,
-			Columns: logs.Columns,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUint64,
-				Column: logs.FieldID,
-			},
-		},
-	}
-	id, ok := luo.mutation.ID()
+func (_u *LogsUpdateOne) sqlSave(ctx context.Context) (_node *Logs, err error) {
+	_spec := sqlgraph.NewUpdateSpec(logs.Table, logs.Columns, sqlgraph.NewFieldSpec(logs.FieldID, field.TypeUint64))
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Logs.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := luo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, logs.FieldID)
 		for _, f := range fields {
@@ -551,71 +603,71 @@ func (luo *LogsUpdateOne) sqlSave(ctx context.Context) (_node *Logs, err error) 
 			}
 		}
 	}
-	if ps := luo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := luo.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(logs.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := luo.mutation.GetType(); ok {
+	if value, ok := _u.mutation.GetType(); ok {
 		_spec.SetField(logs.FieldType, field.TypeString, value)
 	}
-	if value, ok := luo.mutation.Method(); ok {
+	if value, ok := _u.mutation.Method(); ok {
 		_spec.SetField(logs.FieldMethod, field.TypeString, value)
 	}
-	if value, ok := luo.mutation.API(); ok {
+	if value, ok := _u.mutation.API(); ok {
 		_spec.SetField(logs.FieldAPI, field.TypeString, value)
 	}
-	if value, ok := luo.mutation.Success(); ok {
+	if value, ok := _u.mutation.Success(); ok {
 		_spec.SetField(logs.FieldSuccess, field.TypeBool, value)
 	}
-	if value, ok := luo.mutation.ReqContent(); ok {
+	if value, ok := _u.mutation.ReqContent(); ok {
 		_spec.SetField(logs.FieldReqContent, field.TypeString, value)
 	}
-	if luo.mutation.ReqContentCleared() {
+	if _u.mutation.ReqContentCleared() {
 		_spec.ClearField(logs.FieldReqContent, field.TypeString)
 	}
-	if value, ok := luo.mutation.RespContent(); ok {
+	if value, ok := _u.mutation.RespContent(); ok {
 		_spec.SetField(logs.FieldRespContent, field.TypeString, value)
 	}
-	if luo.mutation.RespContentCleared() {
+	if _u.mutation.RespContentCleared() {
 		_spec.ClearField(logs.FieldRespContent, field.TypeString)
 	}
-	if value, ok := luo.mutation.IP(); ok {
+	if value, ok := _u.mutation.IP(); ok {
 		_spec.SetField(logs.FieldIP, field.TypeString, value)
 	}
-	if luo.mutation.IPCleared() {
+	if _u.mutation.IPCleared() {
 		_spec.ClearField(logs.FieldIP, field.TypeString)
 	}
-	if value, ok := luo.mutation.UserAgent(); ok {
+	if value, ok := _u.mutation.UserAgent(); ok {
 		_spec.SetField(logs.FieldUserAgent, field.TypeString, value)
 	}
-	if luo.mutation.UserAgentCleared() {
+	if _u.mutation.UserAgentCleared() {
 		_spec.ClearField(logs.FieldUserAgent, field.TypeString)
 	}
-	if value, ok := luo.mutation.Operator(); ok {
+	if value, ok := _u.mutation.Operator(); ok {
 		_spec.SetField(logs.FieldOperator, field.TypeString, value)
 	}
-	if luo.mutation.OperatorCleared() {
+	if _u.mutation.OperatorCleared() {
 		_spec.ClearField(logs.FieldOperator, field.TypeString)
 	}
-	if value, ok := luo.mutation.Time(); ok {
+	if value, ok := _u.mutation.Time(); ok {
 		_spec.SetField(logs.FieldTime, field.TypeInt, value)
 	}
-	if value, ok := luo.mutation.AddedTime(); ok {
+	if value, ok := _u.mutation.AddedTime(); ok {
 		_spec.AddField(logs.FieldTime, field.TypeInt, value)
 	}
-	if luo.mutation.TimeCleared() {
+	if _u.mutation.TimeCleared() {
 		_spec.ClearField(logs.FieldTime, field.TypeInt)
 	}
-	_node = &Logs{config: luo.config}
+	_node = &Logs{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, luo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{logs.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -623,6 +675,6 @@ func (luo *LogsUpdateOne) sqlSave(ctx context.Context) (_node *Logs, err error) 
 		}
 		return nil, err
 	}
-	luo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

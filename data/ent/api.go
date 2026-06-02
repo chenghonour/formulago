@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 )
 
@@ -28,7 +29,8 @@ type API struct {
 	// API group | API 分组
 	APIGroup string `json:"api_group,omitempty"`
 	// HTTP method | HTTP 请求类型
-	Method string `json:"method,omitempty"`
+	Method       string `json:"method,omitempty"`
+	selectValues sql.SelectValues
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -43,7 +45,7 @@ func (*API) scanValues(columns []string) ([]any, error) {
 		case api.FieldCreatedAt, api.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
 		default:
-			return nil, fmt.Errorf("unexpected column %q for type API", columns[i])
+			values[i] = new(sql.UnknownType)
 		}
 	}
 	return values, nil
@@ -51,7 +53,7 @@ func (*API) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the API fields.
-func (a *API) assignValues(columns []string, values []any) error {
+func (_m *API) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -62,97 +64,99 @@ func (a *API) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			a.ID = uint64(value.Int64)
+			_m.ID = uint64(value.Int64)
 		case api.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				a.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case api.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				a.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		case api.FieldPath:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field path", values[i])
 			} else if value.Valid {
-				a.Path = value.String
+				_m.Path = value.String
 			}
 		case api.FieldDescription:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
-				a.Description = value.String
+				_m.Description = value.String
 			}
 		case api.FieldAPIGroup:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field api_group", values[i])
 			} else if value.Valid {
-				a.APIGroup = value.String
+				_m.APIGroup = value.String
 			}
 		case api.FieldMethod:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field method", values[i])
 			} else if value.Valid {
-				a.Method = value.String
+				_m.Method = value.String
 			}
+		default:
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
 }
 
+// Value returns the ent.Value that was dynamically selected and assigned to the API.
+// This includes values selected through modifiers, order, etc.
+func (_m *API) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
+}
+
 // Update returns a builder for updating this API.
 // Note that you need to call API.Unwrap() before calling this method if this API
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (a *API) Update() *APIUpdateOne {
-	return (&APIClient{config: a.config}).UpdateOne(a)
+func (_m *API) Update() *APIUpdateOne {
+	return NewAPIClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the API entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (a *API) Unwrap() *API {
-	_tx, ok := a.config.driver.(*txDriver)
+func (_m *API) Unwrap() *API {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: API is not a transactional entity")
 	}
-	a.config.driver = _tx.drv
-	return a
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (a *API) String() string {
+func (_m *API) String() string {
 	var builder strings.Builder
 	builder.WriteString("API(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", a.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("created_at=")
-	builder.WriteString(a.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(a.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("path=")
-	builder.WriteString(a.Path)
+	builder.WriteString(_m.Path)
 	builder.WriteString(", ")
 	builder.WriteString("description=")
-	builder.WriteString(a.Description)
+	builder.WriteString(_m.Description)
 	builder.WriteString(", ")
 	builder.WriteString("api_group=")
-	builder.WriteString(a.APIGroup)
+	builder.WriteString(_m.APIGroup)
 	builder.WriteString(", ")
 	builder.WriteString("method=")
-	builder.WriteString(a.Method)
+	builder.WriteString(_m.Method)
 	builder.WriteByte(')')
 	return builder.String()
 }
 
 // APIs is a parsable slice of API.
 type APIs []*API
-
-func (a APIs) config(cfg config) {
-	for _i := range a {
-		a[_i].config = cfg
-	}
-}

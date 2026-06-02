@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 )
 
@@ -34,7 +35,8 @@ type DictionaryDetail struct {
 	DictionaryID uint64 `json:"dictionary_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the DictionaryDetailQuery when eager-loading is set.
-	Edges DictionaryDetailEdges `json:"edges"`
+	Edges        DictionaryDetailEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // DictionaryDetailEdges holds the relations/edges for other nodes in the graph.
@@ -49,12 +51,10 @@ type DictionaryDetailEdges struct {
 // DictionaryOrErr returns the Dictionary value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e DictionaryDetailEdges) DictionaryOrErr() (*Dictionary, error) {
-	if e.loadedTypes[0] {
-		if e.Dictionary == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: dictionary.Label}
-		}
+	if e.Dictionary != nil {
 		return e.Dictionary, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: dictionary.Label}
 	}
 	return nil, &NotLoadedError{edge: "dictionary"}
 }
@@ -71,7 +71,7 @@ func (*DictionaryDetail) scanValues(columns []string) ([]any, error) {
 		case dictionarydetail.FieldCreatedAt, dictionarydetail.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
 		default:
-			return nil, fmt.Errorf("unexpected column %q for type DictionaryDetail", columns[i])
+			values[i] = new(sql.UnknownType)
 		}
 	}
 	return values, nil
@@ -79,7 +79,7 @@ func (*DictionaryDetail) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the DictionaryDetail fields.
-func (dd *DictionaryDetail) assignValues(columns []string, values []any) error {
+func (_m *DictionaryDetail) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -90,111 +90,113 @@ func (dd *DictionaryDetail) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			dd.ID = uint64(value.Int64)
+			_m.ID = uint64(value.Int64)
 		case dictionarydetail.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				dd.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case dictionarydetail.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				dd.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		case dictionarydetail.FieldStatus:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				dd.Status = uint8(value.Int64)
+				_m.Status = uint8(value.Int64)
 			}
 		case dictionarydetail.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field title", values[i])
 			} else if value.Valid {
-				dd.Title = value.String
+				_m.Title = value.String
 			}
 		case dictionarydetail.FieldKey:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field key", values[i])
 			} else if value.Valid {
-				dd.Key = value.String
+				_m.Key = value.String
 			}
 		case dictionarydetail.FieldValue:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field value", values[i])
 			} else if value.Valid {
-				dd.Value = value.String
+				_m.Value = value.String
 			}
 		case dictionarydetail.FieldDictionaryID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field dictionary_id", values[i])
 			} else if value.Valid {
-				dd.DictionaryID = uint64(value.Int64)
+				_m.DictionaryID = uint64(value.Int64)
 			}
+		default:
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
 }
 
+// GetValue returns the ent.Value that was dynamically selected and assigned to the DictionaryDetail.
+// This includes values selected through modifiers, order, etc.
+func (_m *DictionaryDetail) GetValue(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
+}
+
 // QueryDictionary queries the "dictionary" edge of the DictionaryDetail entity.
-func (dd *DictionaryDetail) QueryDictionary() *DictionaryQuery {
-	return (&DictionaryDetailClient{config: dd.config}).QueryDictionary(dd)
+func (_m *DictionaryDetail) QueryDictionary() *DictionaryQuery {
+	return NewDictionaryDetailClient(_m.config).QueryDictionary(_m)
 }
 
 // Update returns a builder for updating this DictionaryDetail.
 // Note that you need to call DictionaryDetail.Unwrap() before calling this method if this DictionaryDetail
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (dd *DictionaryDetail) Update() *DictionaryDetailUpdateOne {
-	return (&DictionaryDetailClient{config: dd.config}).UpdateOne(dd)
+func (_m *DictionaryDetail) Update() *DictionaryDetailUpdateOne {
+	return NewDictionaryDetailClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the DictionaryDetail entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (dd *DictionaryDetail) Unwrap() *DictionaryDetail {
-	_tx, ok := dd.config.driver.(*txDriver)
+func (_m *DictionaryDetail) Unwrap() *DictionaryDetail {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: DictionaryDetail is not a transactional entity")
 	}
-	dd.config.driver = _tx.drv
-	return dd
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (dd *DictionaryDetail) String() string {
+func (_m *DictionaryDetail) String() string {
 	var builder strings.Builder
 	builder.WriteString("DictionaryDetail(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", dd.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("created_at=")
-	builder.WriteString(dd.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(dd.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
-	builder.WriteString(fmt.Sprintf("%v", dd.Status))
+	builder.WriteString(fmt.Sprintf("%v", _m.Status))
 	builder.WriteString(", ")
 	builder.WriteString("title=")
-	builder.WriteString(dd.Title)
+	builder.WriteString(_m.Title)
 	builder.WriteString(", ")
 	builder.WriteString("key=")
-	builder.WriteString(dd.Key)
+	builder.WriteString(_m.Key)
 	builder.WriteString(", ")
 	builder.WriteString("value=")
-	builder.WriteString(dd.Value)
+	builder.WriteString(_m.Value)
 	builder.WriteString(", ")
 	builder.WriteString("dictionary_id=")
-	builder.WriteString(fmt.Sprintf("%v", dd.DictionaryID))
+	builder.WriteString(fmt.Sprintf("%v", _m.DictionaryID))
 	builder.WriteByte(')')
 	return builder.String()
 }
 
 // DictionaryDetails is a parsable slice of DictionaryDetail.
 type DictionaryDetails []*DictionaryDetail
-
-func (dd DictionaryDetails) config(cfg config) {
-	for _i := range dd {
-		dd[_i].config = cfg
-	}
-}

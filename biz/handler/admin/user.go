@@ -217,6 +217,7 @@ func UserInfo(ctx context.Context, c *app.RequestContext) {
 	resp.SideMode = user.SideMode
 	resp.RoleName = user.RoleName
 	resp.RoleValue = user.RoleValue
+	resp.DefaultRouter = user.DefaultRouter
 
 	resp.ErrCode = base.ErrCode_Success
 	resp.ErrMsg = "success"

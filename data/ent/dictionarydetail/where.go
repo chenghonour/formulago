@@ -459,11 +459,7 @@ func HasDictionary() predicate.DictionaryDetail {
 // HasDictionaryWith applies the HasEdge predicate on the "dictionary" edge with a given conditions (other predicates).
 func HasDictionaryWith(preds ...predicate.Dictionary) predicate.DictionaryDetail {
 	return predicate.DictionaryDetail(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(DictionaryInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, DictionaryTable, DictionaryColumn),
-		)
+		step := newDictionaryStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -474,32 +470,15 @@ func HasDictionaryWith(preds ...predicate.Dictionary) predicate.DictionaryDetail
 
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.DictionaryDetail) predicate.DictionaryDetail {
-	return predicate.DictionaryDetail(func(s *sql.Selector) {
-		s1 := s.Clone().SetP(nil)
-		for _, p := range predicates {
-			p(s1)
-		}
-		s.Where(s1.P())
-	})
+	return predicate.DictionaryDetail(sql.AndPredicates(predicates...))
 }
 
 // Or groups predicates with the OR operator between them.
 func Or(predicates ...predicate.DictionaryDetail) predicate.DictionaryDetail {
-	return predicate.DictionaryDetail(func(s *sql.Selector) {
-		s1 := s.Clone().SetP(nil)
-		for i, p := range predicates {
-			if i > 0 {
-				s1.Or()
-			}
-			p(s1)
-		}
-		s.Where(s1.P())
-	})
+	return predicate.DictionaryDetail(sql.OrPredicates(predicates...))
 }
 
 // Not applies the not operator on the given predicate.
 func Not(p predicate.DictionaryDetail) predicate.DictionaryDetail {
-	return predicate.DictionaryDetail(func(s *sql.Selector) {
-		p(s.Not())
-	})
+	return predicate.DictionaryDetail(sql.NotPredicates(p))
 }

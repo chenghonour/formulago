@@ -22,96 +22,96 @@ type TokenCreate struct {
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (tc *TokenCreate) SetCreatedAt(t time.Time) *TokenCreate {
-	tc.mutation.SetCreatedAt(t)
-	return tc
+func (_c *TokenCreate) SetCreatedAt(v time.Time) *TokenCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (tc *TokenCreate) SetNillableCreatedAt(t *time.Time) *TokenCreate {
-	if t != nil {
-		tc.SetCreatedAt(*t)
+func (_c *TokenCreate) SetNillableCreatedAt(v *time.Time) *TokenCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
 	}
-	return tc
+	return _c
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (tc *TokenCreate) SetUpdatedAt(t time.Time) *TokenCreate {
-	tc.mutation.SetUpdatedAt(t)
-	return tc
+func (_c *TokenCreate) SetUpdatedAt(v time.Time) *TokenCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
 }
 
 // SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (tc *TokenCreate) SetNillableUpdatedAt(t *time.Time) *TokenCreate {
-	if t != nil {
-		tc.SetUpdatedAt(*t)
+func (_c *TokenCreate) SetNillableUpdatedAt(v *time.Time) *TokenCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
 	}
-	return tc
+	return _c
 }
 
 // SetUserID sets the "user_id" field.
-func (tc *TokenCreate) SetUserID(u uint64) *TokenCreate {
-	tc.mutation.SetUserID(u)
-	return tc
+func (_c *TokenCreate) SetUserID(v uint64) *TokenCreate {
+	_c.mutation.SetUserID(v)
+	return _c
 }
 
 // SetToken sets the "token" field.
-func (tc *TokenCreate) SetToken(s string) *TokenCreate {
-	tc.mutation.SetToken(s)
-	return tc
+func (_c *TokenCreate) SetToken(v string) *TokenCreate {
+	_c.mutation.SetToken(v)
+	return _c
 }
 
 // SetSource sets the "source" field.
-func (tc *TokenCreate) SetSource(s string) *TokenCreate {
-	tc.mutation.SetSource(s)
-	return tc
+func (_c *TokenCreate) SetSource(v string) *TokenCreate {
+	_c.mutation.SetSource(v)
+	return _c
 }
 
 // SetExpiredAt sets the "expired_at" field.
-func (tc *TokenCreate) SetExpiredAt(t time.Time) *TokenCreate {
-	tc.mutation.SetExpiredAt(t)
-	return tc
+func (_c *TokenCreate) SetExpiredAt(v time.Time) *TokenCreate {
+	_c.mutation.SetExpiredAt(v)
+	return _c
 }
 
 // SetID sets the "id" field.
-func (tc *TokenCreate) SetID(u uint64) *TokenCreate {
-	tc.mutation.SetID(u)
-	return tc
+func (_c *TokenCreate) SetID(v uint64) *TokenCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // SetOwnerID sets the "owner" edge to the User entity by ID.
-func (tc *TokenCreate) SetOwnerID(id uint64) *TokenCreate {
-	tc.mutation.SetOwnerID(id)
-	return tc
+func (_c *TokenCreate) SetOwnerID(id uint64) *TokenCreate {
+	_c.mutation.SetOwnerID(id)
+	return _c
 }
 
 // SetNillableOwnerID sets the "owner" edge to the User entity by ID if the given value is not nil.
-func (tc *TokenCreate) SetNillableOwnerID(id *uint64) *TokenCreate {
+func (_c *TokenCreate) SetNillableOwnerID(id *uint64) *TokenCreate {
 	if id != nil {
-		tc = tc.SetOwnerID(*id)
+		_c = _c.SetOwnerID(*id)
 	}
-	return tc
+	return _c
 }
 
 // SetOwner sets the "owner" edge to the User entity.
-func (tc *TokenCreate) SetOwner(u *User) *TokenCreate {
-	return tc.SetOwnerID(u.ID)
+func (_c *TokenCreate) SetOwner(v *User) *TokenCreate {
+	return _c.SetOwnerID(v.ID)
 }
 
 // Mutation returns the TokenMutation object of the builder.
-func (tc *TokenCreate) Mutation() *TokenMutation {
-	return tc.mutation
+func (_c *TokenCreate) Mutation() *TokenMutation {
+	return _c.mutation
 }
 
 // Save creates the Token in the database.
-func (tc *TokenCreate) Save(ctx context.Context) (*Token, error) {
-	tc.defaults()
-	return withHooks[*Token, TokenMutation](ctx, tc.sqlSave, tc.mutation, tc.hooks)
+func (_c *TokenCreate) Save(ctx context.Context) (*Token, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (tc *TokenCreate) SaveX(ctx context.Context) *Token {
-	v, err := tc.Save(ctx)
+func (_c *TokenCreate) SaveX(ctx context.Context) *Token {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -119,59 +119,59 @@ func (tc *TokenCreate) SaveX(ctx context.Context) *Token {
 }
 
 // Exec executes the query.
-func (tc *TokenCreate) Exec(ctx context.Context) error {
-	_, err := tc.Save(ctx)
+func (_c *TokenCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (tc *TokenCreate) ExecX(ctx context.Context) {
-	if err := tc.Exec(ctx); err != nil {
+func (_c *TokenCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (tc *TokenCreate) defaults() {
-	if _, ok := tc.mutation.CreatedAt(); !ok {
+func (_c *TokenCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := token.DefaultCreatedAt()
-		tc.mutation.SetCreatedAt(v)
+		_c.mutation.SetCreatedAt(v)
 	}
-	if _, ok := tc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		v := token.DefaultUpdatedAt()
-		tc.mutation.SetUpdatedAt(v)
+		_c.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (tc *TokenCreate) check() error {
-	if _, ok := tc.mutation.CreatedAt(); !ok {
+func (_c *TokenCreate) check() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Token.created_at"`)}
 	}
-	if _, ok := tc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Token.updated_at"`)}
 	}
-	if _, ok := tc.mutation.UserID(); !ok {
+	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "Token.user_id"`)}
 	}
-	if _, ok := tc.mutation.Token(); !ok {
+	if _, ok := _c.mutation.Token(); !ok {
 		return &ValidationError{Name: "token", err: errors.New(`ent: missing required field "Token.token"`)}
 	}
-	if _, ok := tc.mutation.Source(); !ok {
+	if _, ok := _c.mutation.Source(); !ok {
 		return &ValidationError{Name: "source", err: errors.New(`ent: missing required field "Token.source"`)}
 	}
-	if _, ok := tc.mutation.ExpiredAt(); !ok {
+	if _, ok := _c.mutation.ExpiredAt(); !ok {
 		return &ValidationError{Name: "expired_at", err: errors.New(`ent: missing required field "Token.expired_at"`)}
 	}
 	return nil
 }
 
-func (tc *TokenCreate) sqlSave(ctx context.Context) (*Token, error) {
-	if err := tc.check(); err != nil {
+func (_c *TokenCreate) sqlSave(ctx context.Context) (*Token, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := tc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, tc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -181,51 +181,45 @@ func (tc *TokenCreate) sqlSave(ctx context.Context) (*Token, error) {
 		id := _spec.ID.Value.(int64)
 		_node.ID = uint64(id)
 	}
-	tc.mutation.id = &_node.ID
-	tc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (tc *TokenCreate) createSpec() (*Token, *sqlgraph.CreateSpec) {
+func (_c *TokenCreate) createSpec() (*Token, *sqlgraph.CreateSpec) {
 	var (
-		_node = &Token{config: tc.config}
-		_spec = &sqlgraph.CreateSpec{
-			Table: token.Table,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUint64,
-				Column: token.FieldID,
-			},
-		}
+		_node = &Token{config: _c.config}
+		_spec = sqlgraph.NewCreateSpec(token.Table, sqlgraph.NewFieldSpec(token.FieldID, field.TypeUint64))
 	)
-	if id, ok := tc.mutation.ID(); ok {
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
-	if value, ok := tc.mutation.CreatedAt(); ok {
+	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(token.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if value, ok := tc.mutation.UpdatedAt(); ok {
+	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(token.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
-	if value, ok := tc.mutation.UserID(); ok {
+	if value, ok := _c.mutation.UserID(); ok {
 		_spec.SetField(token.FieldUserID, field.TypeUint64, value)
 		_node.UserID = value
 	}
-	if value, ok := tc.mutation.Token(); ok {
+	if value, ok := _c.mutation.Token(); ok {
 		_spec.SetField(token.FieldToken, field.TypeString, value)
 		_node.Token = value
 	}
-	if value, ok := tc.mutation.Source(); ok {
+	if value, ok := _c.mutation.Source(); ok {
 		_spec.SetField(token.FieldSource, field.TypeString, value)
 		_node.Source = value
 	}
-	if value, ok := tc.mutation.ExpiredAt(); ok {
+	if value, ok := _c.mutation.ExpiredAt(); ok {
 		_spec.SetField(token.FieldExpiredAt, field.TypeTime, value)
 		_node.ExpiredAt = value
 	}
-	if nodes := tc.mutation.OwnerIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -233,10 +227,7 @@ func (tc *TokenCreate) createSpec() (*Token, *sqlgraph.CreateSpec) {
 			Columns: []string{token.OwnerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeUint64,
-					Column: user.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUint64),
 			},
 		}
 		for _, k := range nodes {
@@ -251,17 +242,21 @@ func (tc *TokenCreate) createSpec() (*Token, *sqlgraph.CreateSpec) {
 // TokenCreateBulk is the builder for creating many Token entities in bulk.
 type TokenCreateBulk struct {
 	config
+	err      error
 	builders []*TokenCreate
 }
 
 // Save creates the Token entities in the database.
-func (tcb *TokenCreateBulk) Save(ctx context.Context) ([]*Token, error) {
-	specs := make([]*sqlgraph.CreateSpec, len(tcb.builders))
-	nodes := make([]*Token, len(tcb.builders))
-	mutators := make([]Mutator, len(tcb.builders))
-	for i := range tcb.builders {
+func (_c *TokenCreateBulk) Save(ctx context.Context) ([]*Token, error) {
+	if _c.err != nil {
+		return nil, _c.err
+	}
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*Token, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := tcb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*TokenMutation)
@@ -272,14 +267,14 @@ func (tcb *TokenCreateBulk) Save(ctx context.Context) ([]*Token, error) {
 					return nil, err
 				}
 				builder.mutation = mutation
-				nodes[i], specs[i] = builder.createSpec()
 				var err error
+				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, tcb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, tcb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -303,7 +298,7 @@ func (tcb *TokenCreateBulk) Save(ctx context.Context) ([]*Token, error) {
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, tcb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -311,8 +306,8 @@ func (tcb *TokenCreateBulk) Save(ctx context.Context) ([]*Token, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (tcb *TokenCreateBulk) SaveX(ctx context.Context) []*Token {
-	v, err := tcb.Save(ctx)
+func (_c *TokenCreateBulk) SaveX(ctx context.Context) []*Token {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -320,14 +315,14 @@ func (tcb *TokenCreateBulk) SaveX(ctx context.Context) []*Token {
 }
 
 // Exec executes the query.
-func (tcb *TokenCreateBulk) Exec(ctx context.Context) error {
-	_, err := tcb.Save(ctx)
+func (_c *TokenCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (tcb *TokenCreateBulk) ExecX(ctx context.Context) {
-	if err := tcb.Exec(ctx); err != nil {
+func (_c *TokenCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

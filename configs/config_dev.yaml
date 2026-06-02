@@ -29,7 +29,7 @@ Database:
   Port: 3306
   DBName: formula_go
   Username: root # set your username
-  Password: change-me # set your password from env DB_PASSWORD
+  Password: password # set your password from env DB_PASSWORD
   MaxOpenConn: 100
   SSLMode: false
   CacheTime: 5

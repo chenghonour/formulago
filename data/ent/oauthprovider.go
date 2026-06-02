@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 )
 
@@ -40,7 +41,8 @@ type OauthProvider struct {
 	// the auth style, 0: auto detect; 1: third party login; 2: login with username and password
 	AuthStyle uint64 `json:"auth_style,omitempty"`
 	// the URL to request user information by token | 用户信息请求地址
-	InfoURL string `json:"info_url,omitempty"`
+	InfoURL      string `json:"info_url,omitempty"`
+	selectValues sql.SelectValues
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -55,7 +57,7 @@ func (*OauthProvider) scanValues(columns []string) ([]any, error) {
 		case oauthprovider.FieldCreatedAt, oauthprovider.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
 		default:
-			return nil, fmt.Errorf("unexpected column %q for type OauthProvider", columns[i])
+			values[i] = new(sql.UnknownType)
 		}
 	}
 	return values, nil
@@ -63,7 +65,7 @@ func (*OauthProvider) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the OauthProvider fields.
-func (op *OauthProvider) assignValues(columns []string, values []any) error {
+func (_m *OauthProvider) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -74,151 +76,153 @@ func (op *OauthProvider) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			op.ID = uint64(value.Int64)
+			_m.ID = uint64(value.Int64)
 		case oauthprovider.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				op.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case oauthprovider.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				op.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		case oauthprovider.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
-				op.Name = value.String
+				_m.Name = value.String
 			}
 		case oauthprovider.FieldAppID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field app_id", values[i])
 			} else if value.Valid {
-				op.AppID = value.String
+				_m.AppID = value.String
 			}
 		case oauthprovider.FieldClientID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field client_id", values[i])
 			} else if value.Valid {
-				op.ClientID = value.String
+				_m.ClientID = value.String
 			}
 		case oauthprovider.FieldClientSecret:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field client_secret", values[i])
 			} else if value.Valid {
-				op.ClientSecret = value.String
+				_m.ClientSecret = value.String
 			}
 		case oauthprovider.FieldRedirectURL:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field redirect_url", values[i])
 			} else if value.Valid {
-				op.RedirectURL = value.String
+				_m.RedirectURL = value.String
 			}
 		case oauthprovider.FieldScopes:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field scopes", values[i])
 			} else if value.Valid {
-				op.Scopes = value.String
+				_m.Scopes = value.String
 			}
 		case oauthprovider.FieldAuthURL:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field auth_url", values[i])
 			} else if value.Valid {
-				op.AuthURL = value.String
+				_m.AuthURL = value.String
 			}
 		case oauthprovider.FieldTokenURL:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field token_url", values[i])
 			} else if value.Valid {
-				op.TokenURL = value.String
+				_m.TokenURL = value.String
 			}
 		case oauthprovider.FieldAuthStyle:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field auth_style", values[i])
 			} else if value.Valid {
-				op.AuthStyle = uint64(value.Int64)
+				_m.AuthStyle = uint64(value.Int64)
 			}
 		case oauthprovider.FieldInfoURL:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field info_url", values[i])
 			} else if value.Valid {
-				op.InfoURL = value.String
+				_m.InfoURL = value.String
 			}
+		default:
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
 }
 
+// Value returns the ent.Value that was dynamically selected and assigned to the OauthProvider.
+// This includes values selected through modifiers, order, etc.
+func (_m *OauthProvider) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
+}
+
 // Update returns a builder for updating this OauthProvider.
 // Note that you need to call OauthProvider.Unwrap() before calling this method if this OauthProvider
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (op *OauthProvider) Update() *OauthProviderUpdateOne {
-	return (&OauthProviderClient{config: op.config}).UpdateOne(op)
+func (_m *OauthProvider) Update() *OauthProviderUpdateOne {
+	return NewOauthProviderClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the OauthProvider entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (op *OauthProvider) Unwrap() *OauthProvider {
-	_tx, ok := op.config.driver.(*txDriver)
+func (_m *OauthProvider) Unwrap() *OauthProvider {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: OauthProvider is not a transactional entity")
 	}
-	op.config.driver = _tx.drv
-	return op
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (op *OauthProvider) String() string {
+func (_m *OauthProvider) String() string {
 	var builder strings.Builder
 	builder.WriteString("OauthProvider(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", op.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("created_at=")
-	builder.WriteString(op.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(op.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("name=")
-	builder.WriteString(op.Name)
+	builder.WriteString(_m.Name)
 	builder.WriteString(", ")
 	builder.WriteString("app_id=")
-	builder.WriteString(op.AppID)
+	builder.WriteString(_m.AppID)
 	builder.WriteString(", ")
 	builder.WriteString("client_id=")
-	builder.WriteString(op.ClientID)
+	builder.WriteString(_m.ClientID)
 	builder.WriteString(", ")
 	builder.WriteString("client_secret=")
-	builder.WriteString(op.ClientSecret)
+	builder.WriteString(_m.ClientSecret)
 	builder.WriteString(", ")
 	builder.WriteString("redirect_url=")
-	builder.WriteString(op.RedirectURL)
+	builder.WriteString(_m.RedirectURL)
 	builder.WriteString(", ")
 	builder.WriteString("scopes=")
-	builder.WriteString(op.Scopes)
+	builder.WriteString(_m.Scopes)
 	builder.WriteString(", ")
 	builder.WriteString("auth_url=")
-	builder.WriteString(op.AuthURL)
+	builder.WriteString(_m.AuthURL)
 	builder.WriteString(", ")
 	builder.WriteString("token_url=")
-	builder.WriteString(op.TokenURL)
+	builder.WriteString(_m.TokenURL)
 	builder.WriteString(", ")
 	builder.WriteString("auth_style=")
-	builder.WriteString(fmt.Sprintf("%v", op.AuthStyle))
+	builder.WriteString(fmt.Sprintf("%v", _m.AuthStyle))
 	builder.WriteString(", ")
 	builder.WriteString("info_url=")
-	builder.WriteString(op.InfoURL)
+	builder.WriteString(_m.InfoURL)
 	builder.WriteByte(')')
 	return builder.String()
 }
 
 // OauthProviders is a parsable slice of OauthProvider.
 type OauthProviders []*OauthProvider
-
-func (op OauthProviders) config(cfg config) {
-	for _i := range op {
-		op[_i].config = cfg
-	}
-}

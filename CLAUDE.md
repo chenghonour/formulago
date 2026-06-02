@@ -36,7 +36,7 @@ biz/handler/  →  biz/logic/  →  biz/domain/  →  data/
 ### ent (schema → CRUD)
 Run from project root:
 ```bash
-go run -mod=mod entgo.io/ent/cmd/ent generate --feature sql/versioned-migration ./data/ent/schema
+go generate ./data/ent
 ```
 
 ### hz (protobuf → handlers/routes)

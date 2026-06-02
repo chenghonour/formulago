@@ -22,8 +22,6 @@ type Tx struct {
 	Logs *LogsClient
 	// Menu is the client for interacting with the Menu builders.
 	Menu *MenuClient
-	// MenuParam is the client for interacting with the MenuParam builders.
-	MenuParam *MenuParamClient
 	// OauthProvider is the client for interacting with the OauthProvider builders.
 	OauthProvider *OauthProviderClient
 	// Role is the client for interacting with the Role builders.
@@ -168,7 +166,6 @@ func (tx *Tx) init() {
 	tx.DictionaryDetail = NewDictionaryDetailClient(tx.config)
 	tx.Logs = NewLogsClient(tx.config)
 	tx.Menu = NewMenuClient(tx.config)
-	tx.MenuParam = NewMenuParamClient(tx.config)
 	tx.OauthProvider = NewOauthProviderClient(tx.config)
 	tx.Role = NewRoleClient(tx.config)
 	tx.Token = NewTokenClient(tx.config)

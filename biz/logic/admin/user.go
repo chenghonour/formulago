@@ -16,10 +16,11 @@ import (
 	"formulago/data/ent/predicate"
 	"formulago/data/ent/user"
 	"formulago/pkg/encrypt"
-	"github.com/jinzhu/copier"
 	"regexp"
 	"strconv"
 	"time"
+
+	"github.com/jinzhu/copier"
 )
 
 var usernameRegex = regexp.MustCompile(`^[a-z]{5,}$`)
@@ -136,6 +137,7 @@ func (u *User) UserInfo(ctx context.Context, id uint64) (userInfo *admin.UserInf
 		if role, ok := roleInterface.(*ent.Role); ok {
 			userInfo.RoleName = role.Name
 			userInfo.RoleValue = role.Value
+			userInfo.DefaultRouter = role.DefaultRouter
 		}
 	}
 	// set user to cache

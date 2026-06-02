@@ -20,58 +20,56 @@ type LogsDelete struct {
 }
 
 // Where appends a list predicates to the LogsDelete builder.
-func (ld *LogsDelete) Where(ps ...predicate.Logs) *LogsDelete {
-	ld.mutation.Where(ps...)
-	return ld
+func (_d *LogsDelete) Where(ps ...predicate.Logs) *LogsDelete {
+	_d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (ld *LogsDelete) Exec(ctx context.Context) (int, error) {
-	return withHooks[int, LogsMutation](ctx, ld.sqlExec, ld.mutation, ld.hooks)
+func (_d *LogsDelete) Exec(ctx context.Context) (int, error) {
+	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ld *LogsDelete) ExecX(ctx context.Context) int {
-	n, err := ld.Exec(ctx)
+func (_d *LogsDelete) ExecX(ctx context.Context) int {
+	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return n
 }
 
-func (ld *LogsDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := &sqlgraph.DeleteSpec{
-		Node: &sqlgraph.NodeSpec{
-			Table: logs.Table,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUint64,
-				Column: logs.FieldID,
-			},
-		},
-	}
-	if ps := ld.mutation.predicates; len(ps) > 0 {
+func (_d *LogsDelete) sqlExec(ctx context.Context) (int, error) {
+	_spec := sqlgraph.NewDeleteSpec(logs.Table, sqlgraph.NewFieldSpec(logs.FieldID, field.TypeUint64))
+	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	affected, err := sqlgraph.DeleteNodes(ctx, ld.driver, _spec)
+	affected, err := sqlgraph.DeleteNodes(ctx, _d.driver, _spec)
 	if err != nil && sqlgraph.IsConstraintError(err) {
 		err = &ConstraintError{msg: err.Error(), wrap: err}
 	}
-	ld.mutation.done = true
+	_d.mutation.done = true
 	return affected, err
 }
 
 // LogsDeleteOne is the builder for deleting a single Logs entity.
 type LogsDeleteOne struct {
-	ld *LogsDelete
+	_d *LogsDelete
+}
+
+// Where appends a list predicates to the LogsDelete builder.
+func (_d *LogsDeleteOne) Where(ps ...predicate.Logs) *LogsDeleteOne {
+	_d._d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query.
-func (ldo *LogsDeleteOne) Exec(ctx context.Context) error {
-	n, err := ldo.ld.Exec(ctx)
+func (_d *LogsDeleteOne) Exec(ctx context.Context) error {
+	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
@@ -83,6 +81,8 @@ func (ldo *LogsDeleteOne) Exec(ctx context.Context) error {
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ldo *LogsDeleteOne) ExecX(ctx context.Context) {
-	ldo.ld.ExecX(ctx)
+func (_d *LogsDeleteOne) ExecX(ctx context.Context) {
+	if err := _d.Exec(ctx); err != nil {
+		panic(err)
+	}
 }

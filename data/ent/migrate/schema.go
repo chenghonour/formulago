@@ -57,7 +57,7 @@ var (
 		{Name: "title", Type: field.TypeString, Comment: "the title shown in the ui | 展示名称 （建议配合i18n）"},
 		{Name: "key", Type: field.TypeString, Comment: "key | 键"},
 		{Name: "value", Type: field.TypeString, Comment: "value | 值"},
-		{Name: "dictionary_id", Type: field.TypeUint64, Nullable: true},
+		{Name: "dictionary_id", Type: field.TypeUint64, Nullable: true, Comment: "Dictionary ID | 字典ID"},
 	}
 	// SysDictionaryDetailsTable holds the schema information for the "sys_dictionary_details" table.
 	SysDictionaryDetailsTable = &schema.Table{
@@ -135,7 +135,7 @@ var (
 		{Name: "affix", Type: field.TypeBool, Nullable: true, Comment: "affix tab | Tab 固定", Default: false},
 		{Name: "dynamic_level", Type: field.TypeUint32, Nullable: true, Comment: "the maximum number of pages the router can open | 能打开的子TAB数", Default: 20},
 		{Name: "real_path", Type: field.TypeString, Nullable: true, Comment: "the real path of the route without dynamic part | 菜单路由不包含参数部分", Default: ""},
-		{Name: "parent_id", Type: field.TypeUint64, Nullable: true},
+		{Name: "parent_id", Type: field.TypeUint64, Nullable: true, Comment: "parent menu ID | 父菜单ID"},
 	}
 	// SysMenusTable holds the schema information for the "sys_menus" table.
 	SysMenusTable = &schema.Table{
@@ -146,30 +146,6 @@ var (
 			{
 				Symbol:     "sys_menus_sys_menus_children",
 				Columns:    []*schema.Column{SysMenusColumns[24]},
-				RefColumns: []*schema.Column{SysMenusColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-		},
-	}
-	// SysMenuParamsColumns holds the columns for the "sys_menu_params" table.
-	SysMenuParamsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeUint64, Increment: true, Comment: "primary key"},
-		{Name: "created_at", Type: field.TypeTime, Comment: "created time"},
-		{Name: "updated_at", Type: field.TypeTime, Comment: "last update time"},
-		{Name: "type", Type: field.TypeString, Comment: "pass parameters via params or query | 参数类型"},
-		{Name: "key", Type: field.TypeString, Comment: "the key of parameters | 参数键"},
-		{Name: "value", Type: field.TypeString, Comment: "the value of parameters | 参数值"},
-		{Name: "menu_params", Type: field.TypeUint64, Nullable: true},
-	}
-	// SysMenuParamsTable holds the schema information for the "sys_menu_params" table.
-	SysMenuParamsTable = &schema.Table{
-		Name:       "sys_menu_params",
-		Columns:    SysMenuParamsColumns,
-		PrimaryKey: []*schema.Column{SysMenuParamsColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "sys_menu_params_sys_menus_params",
-				Columns:    []*schema.Column{SysMenuParamsColumns[6]},
 				RefColumns: []*schema.Column{SysMenusColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -205,7 +181,7 @@ var (
 		{Name: "status", Type: field.TypeUint8, Nullable: true, Comment: "status 1 normal 0 ban | 状态 1 正常 0 禁用", Default: 1},
 		{Name: "name", Type: field.TypeString, Comment: "role name | 角色名"},
 		{Name: "value", Type: field.TypeString, Unique: true, Comment: "role value for permission control in front end | 角色值，用于前端权限控制"},
-		{Name: "default_router", Type: field.TypeString, Comment: "default menu : dashboard | 默认登录页面", Default: "dashboard"},
+		{Name: "default_router", Type: field.TypeString, Comment: "default menu : dashboard | 默认登录页面", Default: "/dashboard"},
 		{Name: "remark", Type: field.TypeString, Comment: "remark | 备注", Default: ""},
 		{Name: "order_no", Type: field.TypeUint32, Comment: "order number | 排序编号", Default: 0},
 	}
@@ -315,7 +291,6 @@ var (
 		SysDictionaryDetailsTable,
 		SysLogsTable,
 		SysMenusTable,
-		SysMenuParamsTable,
 		SysOauthProvidersTable,
 		SysRolesTable,
 		SysTokensTable,
@@ -341,10 +316,6 @@ func init() {
 	SysMenusTable.ForeignKeys[0].RefTable = SysMenusTable
 	SysMenusTable.Annotation = &entsql.Annotation{
 		Table: "sys_menus",
-	}
-	SysMenuParamsTable.ForeignKeys[0].RefTable = SysMenusTable
-	SysMenuParamsTable.Annotation = &entsql.Annotation{
-		Table: "sys_menu_params",
 	}
 	SysOauthProvidersTable.Annotation = &entsql.Annotation{
 		Table: "sys_oauth_providers",

@@ -5,6 +5,6 @@ package runtime
 // The schema-stitching logic is generated in formulago/data/ent/runtime.go
 
 const (
-	Version = "v0.11.5-0.20221226145649-c868f4a174d0"           // Version of ent codegen.
-	Sum     = "h1:LG/eFpw7kDleWdpif8SW0ZFDAzAYtB0kJsofIE9Lfw0=" // Sum of ent codegen.
+	Version = "v0.14.6"                                         // Version of ent codegen.
+	Sum     = "h1:/f2696BpwuWAEEG6PVGWflg6+Inrpq4pRWuNlWz/Skk=" // Sum of ent codegen.
 )

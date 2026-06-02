@@ -44,15 +44,7 @@ func Register(r *server.Hertz) {
 			_admin.DELETE("/menu", append(_deletemenuMw(), admin.DeleteMenu)...)
 			_menu := _admin.Group("/menu", _menuMw()...)
 			_menu.GET("/list", append(_menulistMw(), admin.MenuList)...)
-			_menu.DELETE("/param", append(_deletemenuparamMw(), admin.DeleteMenuParam)...)
-			_param := _menu.Group("/param", _paramMw()...)
-			_param.GET("/list", append(_menuparamlistbymenuidMw(), admin.MenuParamListByMenuID)...)
 			_menu.GET("/role", append(_menubyroleMw(), admin.MenuByRole)...)
-			{
-				_param0 := _menu.Group("/param", _param0Mw()...)
-				_param0.POST("/create", append(_createmenuparamMw(), admin.CreateMenuParam)...)
-				_param0.POST("/update", append(_updatemenuparamMw(), admin.UpdateMenuParam)...)
-			}
 			_admin.DELETE("/role", append(_deleteroleMw(), admin.DeleteRole)...)
 			_role := _admin.Group("/role", _roleMw()...)
 			_role.GET("/list", append(_rolelistMw(), admin.RoleList)...)

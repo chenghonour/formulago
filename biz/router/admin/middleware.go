@@ -152,32 +152,7 @@ func _menulistMw() []app.HandlerFunc {
 	return nil
 }
 
-func _paramMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _menuparamlistbymenuidMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
 func _menubyroleMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _param0Mw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _createmenuparamMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _updatemenuparamMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
@@ -418,11 +393,6 @@ func _deletedictionarydetailMw() []app.HandlerFunc {
 }
 
 func _deletemenuMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _deletemenuparamMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }

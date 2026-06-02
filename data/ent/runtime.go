@@ -8,7 +8,6 @@ import (
 	"formulago/data/ent/dictionarydetail"
 	"formulago/data/ent/logs"
 	"formulago/data/ent/menu"
-	"formulago/data/ent/menuparam"
 	"formulago/data/ent/oauthprovider"
 	"formulago/data/ent/role"
 	"formulago/data/ent/schema"
@@ -176,21 +175,6 @@ func init() {
 	menuDescRealPath := menuFields[21].Descriptor()
 	// menu.DefaultRealPath holds the default value on creation for the real_path field.
 	menu.DefaultRealPath = menuDescRealPath.Default.(string)
-	menuparamMixin := schema.MenuParam{}.Mixin()
-	menuparamMixinFields0 := menuparamMixin[0].Fields()
-	_ = menuparamMixinFields0
-	menuparamFields := schema.MenuParam{}.Fields()
-	_ = menuparamFields
-	// menuparamDescCreatedAt is the schema descriptor for created_at field.
-	menuparamDescCreatedAt := menuparamMixinFields0[1].Descriptor()
-	// menuparam.DefaultCreatedAt holds the default value on creation for the created_at field.
-	menuparam.DefaultCreatedAt = menuparamDescCreatedAt.Default.(func() time.Time)
-	// menuparamDescUpdatedAt is the schema descriptor for updated_at field.
-	menuparamDescUpdatedAt := menuparamMixinFields0[2].Descriptor()
-	// menuparam.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	menuparam.DefaultUpdatedAt = menuparamDescUpdatedAt.Default.(func() time.Time)
-	// menuparam.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	menuparam.UpdateDefaultUpdatedAt = menuparamDescUpdatedAt.UpdateDefault.(func() time.Time)
 	oauthproviderMixin := schema.OauthProvider{}.Mixin()
 	oauthproviderMixinFields0 := oauthproviderMixin[0].Fields()
 	_ = oauthproviderMixinFields0

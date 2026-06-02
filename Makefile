@@ -16,7 +16,7 @@ lint:
 	golangci-lint run ./...
 
 generate:
-	go run -mod=mod entgo.io/ent/cmd/ent generate --feature sql/versioned-migration ./data/ent/schema
+	go generate ./data/ent
 
 run:
 	go run .
