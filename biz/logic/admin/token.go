@@ -9,7 +9,7 @@ package admin
 import (
 	"context"
 	"fmt"
-"errors"
+	"errors"
 	"formulago/biz/domain/admin"
 	"formulago/pkg/times"
 	"formulago/data"
@@ -32,7 +32,7 @@ func NewToken(data *data.Data) admin.Token {
 
 func (t *Token) Create(ctx context.Context, req *admin.TokenInfo) error {
 	expiredAt, _ := time.ParseInLocation(times.TimeFormat, req.ExpiredAt, time.Local)
-	if expiredAt.Sub(time.Now()).Seconds() < 5 {
+	if time.Until(expiredAt).Seconds() < 5 {
 		return errors.New("expired time must be greater than now, more than 5s")
 	}
 	// whether user token exists
@@ -66,14 +66,14 @@ func (t *Token) Create(ctx context.Context, req *admin.TokenInfo) error {
 	}
 
 	// add to cache
-	t.Data.Cache.Set(fmt.Sprintf("token_%d", req.UserID), req.UserID, expiredAt.Sub(time.Now()))
+	t.Data.Cache.Set(fmt.Sprintf("token_%d", req.UserID), req.UserID, time.Until(expiredAt))
 
 	return nil
 }
 
 func (t *Token) Update(ctx context.Context, req *admin.TokenInfo) error {
 	expiredAt, _ := time.ParseInLocation(times.TimeFormat, req.ExpiredAt, time.Local)
-	if expiredAt.Sub(time.Now()).Seconds() < 5 {
+	if time.Until(expiredAt).Seconds() < 5 {
 		return errors.New("expired time must be greater than now, more than 5s")
 	}
 	_, err := t.Data.DBClient.Token.UpdateOneID(req.ID).
@@ -88,7 +88,7 @@ func (t *Token) Update(ctx context.Context, req *admin.TokenInfo) error {
 	}
 
 	// add to cache
-	t.Data.Cache.Set(fmt.Sprintf("token_%d", req.UserID), req.UserID, expiredAt.Sub(time.Now()))
+	t.Data.Cache.Set(fmt.Sprintf("token_%d", req.UserID), req.UserID, time.Until(expiredAt))
 	return nil
 }
 
@@ -146,7 +146,7 @@ func (t *Token) List(ctx context.Context, req *admin.TokenListReq) (res []*admin
 		})
 
 		// delete expired token from db
-		if userEnt.Edges.Token.ExpiredAt.Sub(time.Now()).Seconds() < 0 {
+		if time.Until(userEnt.Edges.Token.ExpiredAt).Seconds() < 0 {
 			_ = t.Delete(ctx, userEnt.ID)
 		}
 	}

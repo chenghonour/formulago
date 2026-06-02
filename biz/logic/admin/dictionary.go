@@ -75,7 +75,7 @@ func (d *Dictionary) Delete(ctx context.Context, id uint64) error {
 		return fmt.Errorf("query Dictionary failed: %w", err)
 	}
 	if dict == nil {
-		return errors.New(fmt.Sprintf("The dictionary(id=%d) try to delete is not exists", id))
+		return fmt.Errorf("The dictionary(id=%d) try to delete is not exists", id)
 	}
 	// whether dictionary has detail
 	// query dictionary detail
@@ -152,7 +152,7 @@ func (d *Dictionary) CreateDetail(ctx context.Context, req *admin.DictionaryDeta
 		return fmt.Errorf("query Dictionary failed: %w", err)
 	}
 	if dict == nil {
-		return errors.New(fmt.Sprintf("dictionary not found, please check dictionary id, %d", req.ParentID))
+		return fmt.Errorf("dictionary not found, please check dictionary id, %d", req.ParentID)
 	}
 
 	// create dictionary detail

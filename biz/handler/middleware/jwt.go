@@ -57,18 +57,18 @@ func newJWT(config configs.Config, db *Data.Data, enforcer *casbin.Enforcer) (jw
 		Timeout:     time.Duration(config.Auth.AccessExpire) * time.Second,
 		MaxRefresh:  time.Hour,
 		IdentityKey: identityKey,
-		PayloadFunc: func(data interface{}) jwt.MapClaims {
+		PayloadFunc: func(data any) jwt.MapClaims {
 			// take map which have roleID, userID as Payload
-			if v, ok := data.(map[string]interface{}); ok {
+			if v, ok := data.(map[string]any); ok {
 				return jwt.MapClaims{
 					identityKey: v,
 				}
 			}
 			return jwt.MapClaims{}
 		},
-		IdentityHandler: func(ctx context.Context, c *app.RequestContext) interface{} {
+		IdentityHandler: func(ctx context.Context, c *app.RequestContext) any {
 			claims := jwt.ExtractClaims(ctx, c)
-			payloadMap, ok := claims[identityKey].(map[string]interface{})
+			payloadMap, ok := claims[identityKey].(map[string]any)
 			if !ok {
 				hlog.Error("get payloadMap error", "claims data:", claims[identityKey])
 				return nil
@@ -78,7 +78,7 @@ func newJWT(config configs.Config, db *Data.Data, enforcer *casbin.Enforcer) (jw
 			c.Set("userID", payloadMap["userID"])
 			return payloadMap
 		},
-		Authenticator: func(ctx context.Context, c *app.RequestContext) (interface{}, error) {
+		Authenticator: func(ctx context.Context, c *app.RequestContext) (any, error) {
 			oauthLogin := ctx.Value("OAuthKey") == config.Auth.OAuthKey
 			res := new(admin.LoginResp)
 			if !oauthLogin {
@@ -142,18 +142,18 @@ func newJWT(config configs.Config, db *Data.Data, enforcer *casbin.Enforcer) (jw
 
 			// return the payload
 			// take str roleID, userID into PayloadMap
-			payloadMap := make(map[string]interface{})
+			payloadMap := make(map[string]any)
 			payloadMap["roleID"] = strconv.Itoa(int(res.RoleID))
 			payloadMap["userID"] = strconv.Itoa(int(res.UserID))
 			return payloadMap, nil
 		},
-		Authorizator: func(data interface{}, ctx context.Context, c *app.RequestContext) bool {
+		Authorizator: func(data any, ctx context.Context, c *app.RequestContext) bool {
 			// get the path
 			obj := string(c.URI().Path())
 			// get the method
 			act := string(c.Method())
 			// get the roleID
-			payloadMap, ok := data.(map[string]interface{})
+			payloadMap, ok := data.(map[string]any)
 			if !ok {
 				hlog.Error("get payloadMap error", "claims data:", data)
 				return false
@@ -198,7 +198,7 @@ func newJWT(config configs.Config, db *Data.Data, enforcer *casbin.Enforcer) (jw
 			return pass
 		},
 		Unauthorized: func(ctx context.Context, c *app.RequestContext, code int, message string) {
-			c.JSON(code, map[string]interface{}{
+			c.JSON(code, map[string]any{
 				"code":    code,
 				"message": message,
 			})
