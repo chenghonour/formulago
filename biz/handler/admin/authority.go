@@ -7,12 +7,14 @@ import (
 	admin2 "formulago/biz/domain/admin"
 	logic "formulago/biz/logic/admin"
 	"formulago/data"
+	"strconv"
+
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"github.com/jinzhu/copier"
-	"strconv"
 
 	"formulago/api/model/admin"
 	base "formulago/api/model/base"
+
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
@@ -61,6 +63,13 @@ func UpdateApiAuthority(ctx context.Context, c *app.RequestContext) {
 	if err != nil {
 		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
+		c.JSON(consts.StatusBadRequest, resp)
+		return
+	}
+
+	if len(req.Data) == 0 {
+		resp.ErrCode = base.ErrCode_Fail
+		resp.ErrMsg = "api info is empty"
 		c.JSON(consts.StatusBadRequest, resp)
 		return
 	}
@@ -159,6 +168,13 @@ func UpdateMenuAuthority(ctx context.Context, c *app.RequestContext) {
 	if err != nil {
 		resp.ErrCode = base.ErrCode_Fail
 		resp.ErrMsg = err.Error()
+		c.JSON(consts.StatusBadRequest, resp)
+		return
+	}
+
+	if len(req.MenuIDs) == 0 {
+		resp.ErrCode = base.ErrCode_Fail
+		resp.ErrMsg = "menu ids is empty"
 		c.JSON(consts.StatusBadRequest, resp)
 		return
 	}
