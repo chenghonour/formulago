@@ -29,13 +29,13 @@ func Register(r *server.Hertz) {
 			_admin := _api.Group("/admin", _adminMw()...)
 			_admin.DELETE("/api", append(_deleteapiMw(), admin.DeleteApi)...)
 			_api0 := _admin.Group("/api", _api0Mw()...)
-			_api0.GET("/list", append(_apilistMw(), admin.ApiList)...)
+			_api0.POST("/list", append(_apilistMw(), admin.ApiList)...)
 			_admin.DELETE("/dict", append(_deletedictionaryMw(), admin.DeleteDictionary)...)
 			_dict := _admin.Group("/dict", _dictMw()...)
 			_dict.DELETE("/detail", append(_deletedictionarydetailMw(), admin.DeleteDictionaryDetail)...)
 			_detail := _dict.Group("/detail", _detailMw()...)
-			_detail.GET("/list", append(_detailbydictionarynameMw(), admin.DetailByDictionaryName)...)
-			_dict.GET("/list", append(_dictionarylistMw(), admin.DictionaryList)...)
+			_detail.POST("/list", append(_detailbydictionarynameMw(), admin.DetailByDictionaryName)...)
+			_dict.POST("/list", append(_dictionarylistMw(), admin.DictionaryList)...)
 			{
 				_detail0 := _dict.Group("/detail", _detail0Mw()...)
 				_detail0.POST("/create", append(_createdictionarydetailMw(), admin.CreateDictionaryDetail)...)
@@ -43,16 +43,16 @@ func Register(r *server.Hertz) {
 			}
 			_admin.DELETE("/menu", append(_deletemenuMw(), admin.DeleteMenu)...)
 			_menu := _admin.Group("/menu", _menuMw()...)
-			_menu.GET("/list", append(_menulistMw(), admin.MenuList)...)
+			_menu.POST("/list", append(_menulistMw(), admin.MenuList)...)
 			_menu.GET("/role", append(_menubyroleMw(), admin.MenuByRole)...)
 			_admin.DELETE("/role", append(_deleteroleMw(), admin.DeleteRole)...)
 			_role := _admin.Group("/role", _roleMw()...)
-			_role.GET("/list", append(_rolelistMw(), admin.RoleList)...)
+			_role.POST("/list", append(_rolelistMw(), admin.RoleList)...)
 			_role.POST("/status", append(_updaterolestatusMw(), admin.UpdateRoleStatus)...)
 			_admin.GET("/role", append(_rolebyidMw(), admin.RoleByID)...)
 			_admin.DELETE("/token", append(_deletetokenMw(), admin.DeleteToken)...)
 			_token := _admin.Group("/token", _tokenMw()...)
-			_token.GET("/list", append(_tokenlistMw(), admin.TokenList)...)
+			_token.POST("/list", append(_tokenlistMw(), admin.TokenList)...)
 			_admin.DELETE("/user", append(_deleteuserMw(), admin.DeleteUser)...)
 			_user := _admin.Group("/user", _userMw()...)
 			_user.GET("/profile", append(_userprofileMw(), admin.UserProfile)...)
@@ -86,7 +86,7 @@ func Register(r *server.Hertz) {
 			{
 				_logs := _admin.Group("/logs", _logsMw()...)
 				_logs.DELETE("/deleteAll", append(_deletelogsMw(), admin.DeleteLogs)...)
-				_logs.GET("/list", append(_getlogslistMw(), admin.GetLogsList)...)
+				_logs.POST("/list", append(_getlogslistMw(), admin.GetLogsList)...)
 			}
 			{
 				_menu1 := _admin.Group("/menu", _menu1Mw()...)
@@ -97,7 +97,7 @@ func Register(r *server.Hertz) {
 				_oauth := _admin.Group("/oauth", _oauthMw()...)
 				_oauth.DELETE("/provider", append(_deleteproviderMw(), admin.DeleteProvider)...)
 				_provider := _oauth.Group("/provider", _providerMw()...)
-				_provider.GET("/list", append(_getproviderlistMw(), admin.GetProviderList)...)
+				_provider.POST("/list", append(_getproviderlistMw(), admin.GetProviderList)...)
 				{
 					_provider0 := _oauth.Group("/provider", _provider0Mw()...)
 					_provider0.POST("/create", append(_createproviderMw(), admin.CreateProvider)...)
@@ -118,7 +118,7 @@ func Register(r *server.Hertz) {
 				_user0.POST("/change-password", append(_changepasswordMw(), admin.ChangePassword)...)
 				_user0.POST("/create", append(_createuserMw(), admin.CreateUser)...)
 				_user0.GET("/info", append(_userinfoMw(), admin.UserInfo)...)
-				_user0.GET("/list", append(_userlistMw(), admin.UserList)...)
+				_user0.POST("/list", append(_userlistMw(), admin.UserList)...)
 				_user0.GET("/perm", append(_userpermcodeMw(), admin.UserPermCode)...)
 				_user0.POST("/update", append(_updateuserMw(), admin.UpdateUser)...)
 			}

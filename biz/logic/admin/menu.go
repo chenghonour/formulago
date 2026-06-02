@@ -8,14 +8,15 @@ package admin
 
 import (
 	"context"
+	"errors"
 	"fmt"
-"errors"
 	"formulago/biz/domain/admin"
-	"formulago/pkg/times"
 	"formulago/data"
 	"formulago/data/ent"
 	"formulago/data/ent/menu"
+	"formulago/data/ent/predicate"
 	"formulago/data/ent/role"
+	"formulago/pkg/times"
 )
 
 type Menu struct {
@@ -160,8 +161,16 @@ func (m *Menu) ListByRole(ctx context.Context, roleID uint64) (list []*admin.Men
 }
 
 func (m *Menu) List(ctx context.Context, req *admin.MenuListReq) (list []*admin.MenuInfoTree, total int, err error) {
+	var menuPredicates []predicate.Menu
+	if req.Name != "" {
+		menuPredicates = append(menuPredicates, menu.NameContains(req.Name))
+	}
+	if req.Title != "" {
+		menuPredicates = append(menuPredicates, menu.TitleContains(req.Title))
+	}
 	// query menu list
-	menus, err := m.Data.DBClient.Menu.Query().Order(ent.Asc(menu.FieldOrderNo)).
+	menus, err := m.Data.DBClient.Menu.Query().Where(menuPredicates...).
+		Order(ent.Asc(menu.FieldOrderNo)).
 		Offset(int(req.Page-1) * int(req.PageSize)).
 		Limit(int(req.PageSize)).All(ctx)
 	if err != nil {
@@ -218,4 +227,3 @@ func findMenuChildren(data []*ent.Menu, parentID uint64) []*admin.MenuInfoTree {
 	}
 	return result
 }
-

@@ -7,11 +7,13 @@ import (
 	admin2 "formulago/biz/domain/admin"
 	logic "formulago/biz/logic/admin"
 	"formulago/data"
+
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"github.com/jinzhu/copier"
 
 	"formulago/api/model/admin"
 	base "formulago/api/model/base"
+
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
@@ -149,7 +151,7 @@ func RoleByID(ctx context.Context, c *app.RequestContext) {
 // @router /api/admin/role/list [GET]
 func RoleList(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req base.PageInfoReq
+	var req admin.RoleListReq
 	resp := new(admin.RoleListResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
@@ -162,6 +164,17 @@ func RoleList(ctx context.Context, c *app.RequestContext) {
 	var listReq admin2.RoleListReq
 	listReq.Page = req.Page
 	listReq.PageSize = req.PageSize
+	listReq.Name = req.Name
+	zero := uint64(0)
+	one := uint64(1)
+	switch req.Status {
+	case "0":
+		listReq.Status = &zero
+	case "1":
+		listReq.Status = &one
+	default:
+		listReq.Status = nil
+	}
 	list, total, err := logic.NewRole(data.Default()).List(ctx, &listReq)
 	if err != nil {
 		resp.ErrCode = base.ErrCode_Fail

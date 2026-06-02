@@ -9,13 +9,15 @@ package admin
 import (
 	"context"
 	"formulago/pkg/encrypt"
-	"github.com/casbin/casbin/v3"
 	"sync"
 	"sync/atomic"
+
+	"github.com/casbin/casbin/v3"
 
 	"errors"
 	"fmt"
 	"formulago/data/ent"
+
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 )
 
@@ -197,7 +199,7 @@ func (I *InitDatabase) insertApiData(ctx context.Context) error {
 		SetPath("/api/admin/user/list").
 		SetDescription("apiDesc.userList").
 		SetAPIGroup("user").
-		SetMethod("GET")
+		SetMethod("POST")
 
 	apis[7] = I.DB.API.Create().
 		SetPath("/api/admin/user").
@@ -258,7 +260,7 @@ func (I *InitDatabase) insertApiData(ctx context.Context) error {
 		SetPath("/api/admin/role/list").
 		SetDescription("apiDesc.roleList").
 		SetAPIGroup("role").
-		SetMethod("GET")
+		SetMethod("POST")
 
 	apis[17] = I.DB.API.Create().
 		SetPath("/api/admin/role/status").
@@ -289,14 +291,13 @@ func (I *InitDatabase) insertApiData(ctx context.Context) error {
 		SetPath("/api/admin/menu/list").
 		SetDescription("apiDesc.menuList").
 		SetAPIGroup("menu").
-		SetMethod("GET")
+		SetMethod("POST")
 
 	apis[22] = I.DB.API.Create().
 		SetPath("/api/admin/menu/role").
 		SetDescription("apiDesc.roleMenu").
 		SetAPIGroup("menu").
 		SetMethod("GET")
-
 
 	// CAPTCHA
 	apis[23] = I.DB.API.Create().
@@ -365,7 +366,7 @@ func (I *InitDatabase) insertApiData(ctx context.Context) error {
 		SetPath("/api/admin/api/list").
 		SetDescription("apiDesc.APIList").
 		SetAPIGroup("api").
-		SetMethod("GET")
+		SetMethod("POST")
 
 	// DICTIONARY
 	apis[34] = I.DB.API.Create().
@@ -408,13 +409,13 @@ func (I *InitDatabase) insertApiData(ctx context.Context) error {
 		SetPath("/api/admin/dict/detail/list").
 		SetDescription("apiDesc.getDictionaryListDetail").
 		SetAPIGroup("dictionary").
-		SetMethod("GET")
+		SetMethod("POST")
 
 	apis[41] = I.DB.API.Create().
 		SetPath("/api/admin/dict/list").
 		SetDescription("apiDesc.getDictionaryList").
 		SetAPIGroup("dictionary").
-		SetMethod("GET")
+		SetMethod("POST")
 
 	// OAUTH
 	apis[42] = I.DB.API.Create().
@@ -439,7 +440,7 @@ func (I *InitDatabase) insertApiData(ctx context.Context) error {
 		SetPath("/api/admin/oauth/provider/list").
 		SetDescription("apiDesc.geProviderList").
 		SetAPIGroup("oauth").
-		SetMethod("GET")
+		SetMethod("POST")
 
 	apis[46] = I.DB.API.Create().
 		SetPath("/api/admin/oauth/login").
@@ -470,7 +471,7 @@ func (I *InitDatabase) insertApiData(ctx context.Context) error {
 		SetPath("/api/admin/token/list").
 		SetDescription("apiDesc.getTokenList").
 		SetAPIGroup("token").
-		SetMethod("GET")
+		SetMethod("POST")
 
 	apis[51] = I.DB.API.Create().
 		SetPath("/api/admin/token/status").
@@ -488,7 +489,7 @@ func (I *InitDatabase) insertApiData(ctx context.Context) error {
 		SetPath("/api/admin/logs/list").
 		SetDescription("apiDesc.getLogsList").
 		SetAPIGroup("logs").
-		SetMethod("GET")
+		SetMethod("POST")
 
 	apis[54] = I.DB.API.Create().
 		SetPath("/api/admin/logs/deleteAll").
@@ -523,9 +524,9 @@ func (I *InitDatabase) insertMenuData(ctx context.Context) error {
 		SetMenuLevel(1).
 		SetMenuType(1).
 		SetParentID(1).
-		SetPath("/dashboard/workbench/index").
+		SetPath("/dashboard").
 		SetName("Dashboard").
-		SetComponent("/dashboard/workbench/index").
+		SetComponent("views/dashboard/dashboard/index.vue").
 		SetOrderNo(0).
 		SetTitle("控制台").
 		SetIcon("ant-design:home-outlined").
@@ -547,9 +548,9 @@ func (I *InitDatabase) insertMenuData(ctx context.Context) error {
 		SetMenuLevel(2).
 		SetMenuType(1).
 		SetParentID(3).
-		SetPath("/sys/menu/index").
+		SetPath("/system/menu").
 		SetName("MenuManagement").
-		SetComponent("/sys/menu/index").
+		SetComponent("views/system/menu/index.vue").
 		SetOrderNo(1).
 		SetTitle("菜单管理").
 		SetIcon("ant-design:bars-outlined").
@@ -559,9 +560,9 @@ func (I *InitDatabase) insertMenuData(ctx context.Context) error {
 		SetMenuLevel(2).
 		SetMenuType(1).
 		SetParentID(3).
-		SetPath("/sys/role/index").
+		SetPath("/system/role").
 		SetName("Role Management").
-		SetComponent("/sys/role/index").
+		SetComponent("views/system/role/index.vue").
 		SetOrderNo(2).
 		SetTitle("角色管理").
 		SetIcon("ant-design:user-outlined").
@@ -571,9 +572,9 @@ func (I *InitDatabase) insertMenuData(ctx context.Context) error {
 		SetMenuLevel(2).
 		SetMenuType(1).
 		SetParentID(3).
-		SetPath("/sys/api/index").
+		SetPath("/system/api").
 		SetName("API Management").
-		SetComponent("/sys/api/index").
+		SetComponent("views/system/api/index.vue").
 		SetOrderNo(3).
 		SetTitle("API管理").
 		SetIcon("ant-design:api-outlined").
@@ -583,9 +584,9 @@ func (I *InitDatabase) insertMenuData(ctx context.Context) error {
 		SetMenuLevel(2).
 		SetMenuType(1).
 		SetParentID(3).
-		SetPath("/sys/user/index").
+		SetPath("/system/user").
 		SetName("User Management").
-		SetComponent("/sys/user/index").
+		SetComponent("views/system/user/index.vue").
 		SetOrderNo(4).
 		SetTitle("用户管理").
 		SetIcon("ant-design:user-outlined").
@@ -595,9 +596,9 @@ func (I *InitDatabase) insertMenuData(ctx context.Context) error {
 		SetMenuLevel(2).
 		SetMenuType(1).
 		SetParentID(3).
-		SetPath("/sys/dictionary/index").
+		SetPath("/system/dict").
 		SetName("Dictionary Management").
-		SetComponent("/sys/dictionary/index").
+		SetComponent("views/system/dict/index.vue").
 		SetOrderNo(5).
 		SetTitle("字典管理").
 		SetIcon("ant-design:book-outlined").
@@ -607,9 +608,9 @@ func (I *InitDatabase) insertMenuData(ctx context.Context) error {
 		SetMenuLevel(2).
 		SetMenuType(2).
 		SetParentID(3).
-		SetPath("/sys/dictionary/detail").
+		SetPath("/system/dict/detail").
 		SetName("Dictionary Detail").
-		SetComponent("/sys/dictionary/detail").
+		SetComponent("views/system/dict/index.vue").
 		SetOrderNo(6).
 		SetTitle("字典明细").
 		SetIcon("ant-design:align-left-outlined").
@@ -619,9 +620,9 @@ func (I *InitDatabase) insertMenuData(ctx context.Context) error {
 		SetMenuLevel(2).
 		SetMenuType(1).
 		SetParentID(3).
-		SetPath("/sys/oauth/index").
+		SetPath("/system/oauth").
 		SetName("Oauth Management").
-		SetComponent("/sys/oauth/index").
+		SetComponent("views/system/oauth/index.vue").
 		SetOrderNo(7).
 		SetTitle("Oauth管理").
 		SetIcon("ant-design:unlock-filled").
@@ -631,9 +632,9 @@ func (I *InitDatabase) insertMenuData(ctx context.Context) error {
 		SetMenuLevel(2).
 		SetMenuType(1).
 		SetParentID(3).
-		SetPath("/sys/token/index").
+		SetPath("/system/token").
 		SetName("Token Management").
-		SetComponent("/sys/token/index").
+		SetComponent("views/system/token/index.vue").
 		SetOrderNo(8).
 		SetTitle("Token管理").
 		SetIcon("ant-design:lock-outlined").
@@ -643,9 +644,9 @@ func (I *InitDatabase) insertMenuData(ctx context.Context) error {
 		SetMenuLevel(2).
 		SetMenuType(1).
 		SetParentID(3).
-		SetPath("/sys/logs/index").
+		SetPath("/system/logs").
 		SetName("Logs Management").
-		SetComponent("/sys/logs/index").
+		SetComponent("views/system/logs/index.vue").
 		SetOrderNo(9).
 		SetTitle("日志管理").
 		SetIcon("ant-design:profile-twotone").
@@ -669,7 +670,7 @@ func (I *InitDatabase) insertMenuData(ctx context.Context) error {
 		SetParentID(13).
 		SetPath("/sys/oauth/callback").
 		SetName("OauthCallbackPage").
-		SetComponent("/sys/oauth/callback").
+		SetComponent("views/_core/fallback/not-found.vue").
 		SetOrderNo(1).
 		SetTitle("回调页面").
 		SetIcon("ant-design:android-filled").
@@ -679,9 +680,9 @@ func (I *InitDatabase) insertMenuData(ctx context.Context) error {
 		SetMenuLevel(1).
 		SetMenuType(1).
 		SetParentID(13).
-		SetPath("/sys/profile/index").
+		SetPath("/profile").
 		SetName("Profile").
-		SetComponent("/sys/profile/index").
+		SetComponent("views/_core/profile/index.vue").
 		SetOrderNo(2).
 		SetTitle("用户信息").
 		SetIcon("ant-design:profile-outlined").
@@ -703,9 +704,9 @@ func (I *InitDatabase) insertMenuData(ctx context.Context) error {
 		SetMenuLevel(2).
 		SetMenuType(1).
 		SetParentID(16).
-		SetPath("/devtool/structToProto").
+		SetPath("/devtool/struct-to-proto").
 		SetName("StructToProto").
-		SetComponent("/devtool/structToProto").
+		SetComponent("views/_core/fallback/coming-soon.vue").
 		SetOrderNo(1).
 		SetTitle("StructToProto").
 		SetIcon("ant-design:disconnect-outlined").
@@ -715,9 +716,9 @@ func (I *InitDatabase) insertMenuData(ctx context.Context) error {
 		SetMenuLevel(2).
 		SetMenuType(1).
 		SetParentID(16).
-		SetPath("/devtool/structTag").
+		SetPath("/devtool/delete-struct-tag").
 		SetName("DeleteStructTag").
-		SetComponent("/devtool/structTag").
+		SetComponent("views/_core/fallback/coming-soon.vue").
 		SetOrderNo(2).
 		SetTitle("DeleteStructTag").
 		SetIcon("ant-design:disconnect-outlined").

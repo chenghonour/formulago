@@ -30,6 +30,8 @@ type RoleInfo struct {
 }
 
 type RoleListReq struct {
+	Name     string
+	Status   *uint64
 	Page     uint64
 	PageSize uint64
 }

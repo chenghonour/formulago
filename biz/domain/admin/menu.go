@@ -47,6 +47,8 @@ type MenuMeta struct {
 }
 
 type MenuListReq struct {
+	Name     string
+	Title    string
 	Page     uint64
 	PageSize uint64
 }

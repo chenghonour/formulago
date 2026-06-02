@@ -113,7 +113,7 @@ service user {
   }
   // Get user list | 获取用户列表
   rpc UserList (UserListReq) returns (UserListResp) {
-    option (api.get) = "/api/admin/user/list";
+    option (api.post) = "/api/admin/user/list";
   }
   // Delete user information | 删除用户信息
   rpc DeleteUser (base.IDReq) returns (base.BaseResp) {
@@ -265,7 +265,7 @@ service apis {
   }
   // Get API list | 获取API列表
   rpc ApiList (ApiPageReq) returns (ApiListResp) {
-    option (api.get) = "/api/admin/api/list";
+    option (api.post) = "/api/admin/api/list";
   }
 }
 
@@ -381,8 +381,8 @@ service menu {
     option (api.get) = "/api/admin/menu/role";
   }
   // Get menu list | 获取菜单列表
-  rpc MenuList (base.PageInfoReq) returns (MenuInfoListResp) {
-    option (api.get) = "/api/admin/menu/list";
+  rpc MenuList (MenuListReq) returns (MenuInfoListResp) {
+    option (api.post) = "/api/admin/menu/list";
   }
 }
 
@@ -438,6 +438,14 @@ message Meta {
   string realPath = 13;
 }
 
+// The request data of menu list | 菜单列表请求数据
+message MenuListReq {
+  uint64 page = 1;
+  uint64 pageSize = 2;
+  string name = 3;
+  string title = 4;
+}
+
 // The data of menu list | 菜单列表数据
 message MenuInfoListResp {
   base.ErrCode errCode = 1;
@@ -479,8 +487,8 @@ service role {
     option (api.get) = "/api/admin/role";
   }
   // Get role list | 获取角色列表
-  rpc RoleList (base.PageInfoReq) returns (RoleListResp) {
-    option (api.get) = "/api/admin/role/list";
+  rpc RoleList (RoleListReq) returns (RoleListResp) {
+    option (api.post) = "/api/admin/role/list";
   }
   // Set role status | 设置角色状态, 启用1/禁用0
   rpc UpdateRoleStatus (base.StatusCodeReq) returns (base.BaseResp) {
@@ -518,6 +526,14 @@ message RoleInfoResp {
   string updatedAt = 11;
 }
 
+// The request data of role list | 角色列表请求数据
+message RoleListReq {
+  uint64 page = 1;
+  uint64 pageSize = 2;
+  string name = 3;
+  string status = 4; // 0: 禁用, 1: 启用
+}
+
 // Get role list response | 获取角色列表响应
 message RoleListResp {
   base.ErrCode errCode = 1;
@@ -538,7 +554,7 @@ service token {
   }
   // Get Token list | 获取token列表
   rpc TokenList (TokenListReq) returns (TokenListResp) {
-    option (api.get) = "/api/admin/token/list";
+    option (api.post) = "/api/admin/token/list";
   }
 }
 
@@ -591,7 +607,7 @@ service dictionary {
   }
   // Get dictionary list | 获取字典列表
   rpc DictionaryList (DictionaryPageReq) returns (DictionaryListResp) {
-    option (api.get) = "/api/admin/dict/list";
+    option (api.post) = "/api/admin/dict/list";
   }
   // Create dictionary KV information | 创建字典键值信息
   rpc CreateDictionaryDetail (DictionaryDetail) returns (base.BaseResp) {
@@ -607,7 +623,7 @@ service dictionary {
   }
   // Get dictionary detail list by dictionary name | 根据字典名获取字典键值列表
   rpc DetailByDictionaryName (DictionaryDetailReq) returns (DictionaryDetailListResp) {
-    option (api.get) = "/api/admin/dict/detail/list";
+    option (api.post) = "/api/admin/dict/detail/list";
   }
 }
 
@@ -681,7 +697,7 @@ service oauth {
   }
   // Get provider list | 获取提供商列表
   rpc GetProviderList (base.PageInfoReq) returns (ProviderListResp) {
-    option (api.get) = "/api/admin/oauth/provider/list";
+    option (api.post) = "/api/admin/oauth/provider/list";
   }
   // Oauth log in | Oauth 登录
   rpc OauthLogin (OauthLoginReq) returns (OauthRedirectResp) {
@@ -751,7 +767,7 @@ message CallbackReq {
 service logs {
   // Get logs list | 获取日志列表
   rpc GetLogsList (LogsListReq) returns (LogsListResp) {
-    option (api.get) = "/api/admin/logs/list";
+    option (api.post) = "/api/admin/logs/list";
   }
   // Delete logs | 删除日志信息
   rpc DeleteLogs (base.Empty) returns (base.BaseResp) {

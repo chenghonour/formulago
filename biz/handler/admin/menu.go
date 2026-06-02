@@ -7,12 +7,14 @@ import (
 	admin2 "formulago/biz/domain/admin"
 	logic "formulago/biz/logic/admin"
 	"formulago/data"
+	"strconv"
+
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"github.com/jinzhu/copier"
-	"strconv"
 
 	"formulago/api/model/admin"
 	base "formulago/api/model/base"
+
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
@@ -166,7 +168,7 @@ func MenuByRole(ctx context.Context, c *app.RequestContext) {
 // @router /api/admin/menu/list [GET]
 func MenuList(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req base.PageInfoReq
+	var req admin.MenuListReq
 	resp := new(admin.MenuInfoListResp)
 	err = c.BindAndValidate(&req)
 	if err != nil {
@@ -179,6 +181,8 @@ func MenuList(ctx context.Context, c *app.RequestContext) {
 	var listReq admin2.MenuListReq
 	listReq.Page = req.Page
 	listReq.PageSize = req.PageSize
+	listReq.Name = req.Name
+	listReq.Title = req.Title
 	menuTree, total, err := logic.NewMenu(data.Default()).List(ctx, &listReq)
 	if err != nil {
 		resp.ErrCode = base.ErrCode_Fail

@@ -11,11 +11,12 @@ import (
 	"errors"
 	"fmt"
 	"formulago/biz/domain/admin"
-	"formulago/pkg/times"
 	"formulago/data"
 	"formulago/data/ent"
+	"formulago/data/ent/predicate"
 	"formulago/data/ent/role"
 	"formulago/data/ent/user"
+	"formulago/pkg/times"
 	"strconv"
 	"time"
 )
@@ -132,7 +133,15 @@ func (r *Role) RoleInfoByID(ctx context.Context, ID uint64) (roleInfo *admin.Rol
 }
 
 func (r *Role) List(ctx context.Context, req *admin.RoleListReq) (roleInfoList []*admin.RoleInfo, total int, err error) {
-	roleEntList, err := r.Data.DBClient.Role.Query().Order(ent.Asc(role.FieldOrderNo)).
+	var rolePredicate []predicate.Role
+	if req.Name != "" {
+		rolePredicate = append(rolePredicate, role.NameContains(req.Name))
+	}
+	if req.Status != nil {
+		rolePredicate = append(rolePredicate, role.StatusEQ(uint8(*req.Status)))
+	}
+	roleEntList, err := r.Data.DBClient.Role.Query().Where(rolePredicate...).
+		Order(ent.Asc(role.FieldOrderNo)).
 		Offset(int(req.Page-1) * int(req.PageSize)).
 		Limit(int(req.PageSize)).All(ctx)
 	if err != nil {
