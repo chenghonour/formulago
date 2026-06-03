@@ -10,6 +10,8 @@
 
 **FormulaGo** 是一个高性能的企业后台管理框架，基于 [Hertz](https://github.com/cloudwego/hertz) 和 [Ent](https://entgo.io/) 构建。遵循 Clean Architecture / DDD 设计理念，开箱即用的 RBAC 权限管理系统。
 
+> 前端项目地址：[formulago-front](https://github.com/chenghonour/formulago-front)
+
 - **高性能** — 使用字节跳动核心框架 Hertz，已在数万个服务上验证。
 - **模块化架构** — 4 层清晰分层：Handler → Logic → Domain → Data。
 - **类型安全 ORM** — Ent 生成类型安全的 Go 数据库操作代码。

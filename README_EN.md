@@ -10,6 +10,8 @@ English | [中文](README.md)
 
 **FormulaGo** is a high-performance backend admin framework built with [Hertz](https://github.com/cloudwego/hertz) and [Ent](https://entgo.io/). It follows Clean Architecture / DDD principles and provides a modern RBAC management system out of the box.
 
+> Frontend repo: [formulago-front](https://github.com/chenghonour/formulago-front)
+
 - **High Performance** — Powered by Hertz, the most performant Go HTTP framework used by ByteDance across tens of thousands of services.
 - **Modular Architecture** — Clean 4-layer design: Handler → Logic → Domain → Data.
 - **Type-Safe ORM** — Ent generates type-safe Go code for all database operations.
