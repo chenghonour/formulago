@@ -50,6 +50,8 @@ Casbin:
 # Simple Storage Service
 S3:
   Type: "AliyunOSS"
+  AllowFileType: [ ".jpg", ".png",".pdf",".xlsx",".xls",".docx",".doc",".ofd" ]
+  MaxFileSize: 15728640 # 1024 * 1024 * 15=15MB
   AliyunOSS:
     Region: "cn-shenzhen"
     Endpoint:   "oss-cn-shenzhen.aliyuncs.com"

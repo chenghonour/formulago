@@ -213,8 +213,10 @@ type CasbinConf struct {
 
 // S3 Simple Storage Service
 type S3 struct {
-	Type      string `yaml:"Type"`
-	AliyunOSS struct {
+	Type          string   `yaml:"Type"`
+	AllowFileType []string `yaml:"AllowFileType"`
+	MaxFileSize   int64    `yaml:"MaxFileSize"`
+	AliyunOSS     struct {
 		Region     string `yaml:"Region"`
 		Endpoint   string `yaml:"Endpoint"`
 		BucketName string `yaml:"BucketName"`
