@@ -11,73 +11,68 @@ package wecom
 import (
 	"context"
 	"fmt"
-
-	wechatSDK "github.com/chenghonour/wechat-sdk"
-	"github.com/chenghonour/wechat-sdk/corp"
-	"github.com/chenghonour/wechat-sdk/corp/addrbook"
 )
+
+// OAuthUser 企业微信网页授权登录解析出的用户身份
+type OAuthUser struct {
+	UserID string
+}
+
+// User 企业微信成员信息
+type User struct {
+	UserID string
+	Mobile string
+	Email  string
+}
 
 // GetUserIDByPhone get user id from wecom by phone
 func (w *Wecom) GetUserIDByPhone(ctx context.Context, phone string) (userID string, err error) {
-	cp := wechatSDK.NewCorp(w.Config.Wecom.CorpID)
-	// set debug mode (support custom log)
-	// cp.SetClient(wx.WithDebug(), wx.WithLogger(wx.DefaultLogger()))
-	// get token
-	token, err := cp.AccessToken(ctx, w.Config.Wecom.SecretID)
+	app, err := w.app()
 	if err != nil {
-		err = fmt.Errorf("get wecom token failed: %w", err)
-		return "", err
+		return "", fmt.Errorf("init wecom app failed: %w", err)
 	}
-	// execute
-	res := new(addrbook.ResultUserID)
-	apply := addrbook.GetUserID(phone, res)
-	if err := cp.Do(ctx, token.Token, apply); err != nil {
-		err = fmt.Errorf("get wecom user id failed: %w", err)
-		return "", err
+	res, err := app.User.MobileToUserID(ctx, phone)
+	if err != nil {
+		return "", fmt.Errorf("get wecom user id failed: %w", err)
 	}
-	userID = res.UserID
-	return
+	if res.IsError() {
+		return "", fmt.Errorf("get wecom user id failed: %w", res)
+	}
+	return res.UserID, nil
 }
 
 // GetUserByID get user info from wecom by userID
-func (w *Wecom) GetUserByID(ctx context.Context, userID string) (userInfo *addrbook.User, err error) {
-	cp := wechatSDK.NewCorp(w.Config.Wecom.CorpID)
-	// set debug mode (support custom log)
-	// cp.SetClient(wx.WithDebug(), wx.WithLogger(wx.DefaultLogger()))
-	// get token
-	token, err := cp.AccessToken(ctx, w.Config.Wecom.SecretID)
+func (w *Wecom) GetUserByID(ctx context.Context, userID string) (*User, error) {
+	app, err := w.app()
 	if err != nil {
-		err = fmt.Errorf("get wecom token failed: %w", err)
-		return nil, err
+		return nil, fmt.Errorf("init wecom app failed: %w", err)
 	}
-	// execute
-	userInfo = new(addrbook.User)
-	apply := addrbook.GetUser(userID, userInfo)
-	if err := cp.Do(ctx, token.Token, apply); err != nil {
-		err = fmt.Errorf("get wecom user id failed: %w", err)
-		return nil, err
+	res, err := app.User.Get(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("get wecom user failed: %w", err)
 	}
-	return
+	if res.IsError() {
+		return nil, fmt.Errorf("get wecom user failed: %w", res)
+	}
+	return &User{
+		UserID: res.UserID,
+		Mobile: res.Mobile,
+		Email:  res.Email,
+	}, nil
 }
 
 // GetOAuthUser get user info from wecom by auth code
-func (w *Wecom) GetOAuthUser(ctx context.Context, code string) (userInfo *corp.ResultOAuthUser, err error) {
-	cp := wechatSDK.NewCorp(w.Config.Wecom.CorpID)
-	// set debug mode (support custom log)
-	// cp.SetClient(wx.WithDebug(), wx.WithLogger(wx.DefaultLogger()))
-	// get token
-	token, err := cp.AccessToken(ctx, w.Config.Wecom.SecretID)
+func (w *Wecom) GetOAuthUser(ctx context.Context, code string) (*OAuthUser, error) {
+	app, err := w.app()
 	if err != nil {
-		err = fmt.Errorf("get wecom token failed: %w", err)
-		return nil, err
+		return nil, fmt.Errorf("init wecom app failed: %w", err)
 	}
-
-	// execute
-	userInfo = new(corp.ResultOAuthUser)
-	apply := corp.GetOAuthUser(code, userInfo)
-	if err := cp.Do(ctx, token.Token, apply); err != nil {
-		err = fmt.Errorf("get wecom user id failed: %w", err)
-		return nil, err
+	res, err := app.OAuth.Provider.GetUserInfo(code)
+	if err != nil {
+		return nil, fmt.Errorf("get wecom oauth user failed: %w", err)
 	}
-	return
+	if res.ErrCode != 0 {
+		return nil, fmt.Errorf("get wecom oauth user failed: errcode=%d errmsg=%s", res.ErrCode, res.ErrMSG)
+	}
+	return &OAuthUser{UserID: res.UserID}, nil
 }

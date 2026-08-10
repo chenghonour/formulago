@@ -61,7 +61,7 @@ hz update -I api -idl api/admin/admin.proto -model_dir api/model --unset_omitemp
 ### Configuration
 - YAML configs are embedded via `//go:embed` — only non-sensitive defaults
 - All sensitive fields (passwords, keys, tokens) have env-var override in `overrideSecretFromEnv()`
-- Config env vars: `DB_PASSWORD`, `ACCESS_SECRET`, `OAUTH_KEY`, `OSS_SECRET_ID`, `OSS_SECRET_KEY`, `WECOM_CORP_ID`, `WECOM_SECRET_ID`, `WECOM_TOKEN`, `WECOM_AES_KEY`, `REDIS_PASSWORD`
+- Config env vars: `DB_PASSWORD`, `ACCESS_SECRET`, `OAUTH_KEY`, `OSS_SECRET_ID`, `OSS_SECRET_KEY`, `WECOM_CORP_ID`, `WECOM_AGENT_ID`, `WECOM_SECRET_ID`, `WECOM_TOKEN`, `WECOM_AES_KEY`, `REDIS_PASSWORD`
 
 ### Testing
 - Unit tests in `pkg/*_test.go` (no external dependencies)

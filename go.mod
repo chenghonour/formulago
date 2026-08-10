@@ -5,10 +5,10 @@ go 1.26.3
 require (
 	ariga.io/atlas v1.2.0
 	entgo.io/ent v0.14.6
+	github.com/ArtisanCloud/PowerWeChat/v3 v3.4.43
 	github.com/aliyun/alibabacloud-oss-go-sdk-v2 v1.5.1
 	github.com/casbin/casbin/v3 v3.10.0
 	github.com/casbin/ent-adapter v1.4.0
-	github.com/chenghonour/wechat-sdk v0.0.0-20240416081535-4a5442611a87
 	github.com/cloudwego/hertz v0.10.4
 	github.com/go-sql-driver/mysql v1.10.0
 	github.com/hertz-contrib/jwt v1.0.4
@@ -28,6 +28,8 @@ require (
 
 require (
 	filippo.io/edwards25519 v1.2.0 // indirect
+	github.com/ArtisanCloud/PowerLibs/v3 v3.3.2 // indirect
+	github.com/ArtisanCloud/PowerSocialite/v3 v3.0.11 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
 	github.com/bmatcuk/doublestar v1.3.4 // indirect
@@ -37,6 +39,7 @@ require (
 	github.com/bytedance/sonic/loader v0.5.1 // indirect
 	github.com/casbin/govaluate v1.10.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/clbanning/mxj/v2 v2.7.0 // indirect
 	github.com/cloudwego/base64x v0.1.7 // indirect
 	github.com/cloudwego/gopkg v0.2.0 // indirect
 	github.com/cloudwego/netpoll v0.7.2 // indirect
@@ -48,6 +51,7 @@ require (
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
+	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/hashicorp/hcl/v2 v2.24.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
@@ -67,7 +71,11 @@ require (
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/zclconf/go-cty v1.18.1 // indirect
 	github.com/zclconf/go-cty-yaml v1.2.0 // indirect
+	go.opentelemetry.io/otel v1.4.0 // indirect
+	go.opentelemetry.io/otel/trace v1.4.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
+	go.uber.org/multierr v1.11.0 // indirect
+	go.uber.org/zap v1.27.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/arch v0.27.0 // indirect
 	golang.org/x/image v0.40.0 // indirect
@@ -77,5 +85,6 @@ require (
 	golang.org/x/text v0.37.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
 	golang.org/x/tools v0.45.0 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

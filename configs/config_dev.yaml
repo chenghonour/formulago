@@ -62,6 +62,7 @@ S3:
 # Wecom（企业微信）
 Wecom:
   CorpId: "change-me"
+  AgentId: "change-me"
   SecretId: "change-me"
   Token: "change-me"
   EncodingAESKey: "change-me"

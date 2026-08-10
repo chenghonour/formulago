@@ -11,6 +11,7 @@ package configs
 import (
 	"embed"
 	"os"
+	"strconv"
 	"sync"
 	"sync/atomic"
 
@@ -106,6 +107,14 @@ func overrideSecretFromEnv(config *Config) {
 	}
 	if v := os.Getenv("WECOM_CORP_ID"); v != "" {
 		config.Wecom.CorpID = v
+	}
+	if v := os.Getenv("WECOM_AGENT_ID"); v != "" {
+		agentID, err := strconv.Atoi(v)
+		if err != nil {
+			hlog.Warn("parse WECOM_AGENT_ID failed: ", err)
+		} else {
+			config.Wecom.AgentID = agentID
+		}
 	}
 	if v := os.Getenv("WECOM_SECRET_ID"); v != "" {
 		config.Wecom.SecretID = v
@@ -219,6 +228,7 @@ type S3 struct {
 // Wecom corp
 type Wecom struct {
 	CorpID         string `yaml:"CorpId"`
+	AgentID        int    `yaml:"AgentId"`
 	SecretID       string `yaml:"SecretId"`
 	Token          string `yaml:"Token"`
 	EncodingAESKey string `yaml:"EncodingAESKey"`
