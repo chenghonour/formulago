@@ -12,6 +12,7 @@
 
 > 前端项目地址：[formulago-front](https://github.com/chenghonour/formulago-front)
 
+- **AI 原生 MCP Server** — 内置 MCP(Model Context Protocol)服务，Claude 等 AI 助手可直接对话操作后台数据，进入"AI 管理后台"时代。
 - **高性能** — 使用字节跳动核心框架 Hertz，已在数万个服务上验证。
 - **模块化架构** — 4 层清晰分层：Handler → Logic → Domain → Data。
 - **类型安全 ORM** — Ent 生成类型安全的 Go 数据库操作代码。
@@ -35,6 +36,7 @@ biz/handler/  →  biz/logic/  →  biz/domain/  →  data/
 | ORM | [Ent](https://entgo.io) |
 | 认证 | [hertz-contrib/jwt](https://github.com/hertz-contrib/jwt) |
 | 权限 | [Casbin](https://github.com/casbin/casbin) |
+| MCP | [mcp-go](https://github.com/mark3labs/mcp-go) |
 | 数据库 | MySQL / PostgreSQL |
 | 缓存 | [go-cache](https://github.com/patrickmn/go-cache) + Redis |
 | 配置 | [koanf](https://github.com/knadh/koanf) |
@@ -97,6 +99,21 @@ curl http://localhost:8191/api/initDatabase
 | 文件管理 | 文件上传，阿里云 OSS 适配，图片压缩 |
 | OAuth 2.0 登录 | 支持 Google、GitHub、企业微信认证 |
 | 验证码 | 数字验证码，支持配置长度和尺寸 |
+| MCP Server | 向 Claude 等 AI 助手暴露管理能力，与 HTTP 同一套鉴权 |
+
+## MCP Server（AI 助手接入）
+
+FormulaGo 内置 MCP（Model Context Protocol）服务端 —— 把整个后台"变成"AI 可以调用的工具集，向 Claude 等 AI 原生应用打开一个受控的数据入口：
+
+- **AI 直接对话管理数据** — 例如"帮我列出前 10 个用户"即可查询后台数据，无需教它 HTTP 接口。
+- **浏览器 OAuth 授权** — 用户在 Claude 里粘贴一个地址，自动打开浏览器登录授权（PKCE 保护），无二次密码管理。
+- **与 HTTP 同等的安全边界** — 复用同一套 JWT 会话与 Casbin 权限：网页上没权限的，AI 同样调不了；token 必须经 PKCE 授权流下发，杜绝"裸 token 直连"旁路。
+- **部署零成本** — 挂在主 Hertz 服务下（`/api/mcp`），不另起端口。
+
+```bash
+# Claude Code 一行接入
+claude mcp add --transport http formulago https://your-domain/api/mcp
+```
 
 ## 项目结构
 
@@ -109,7 +126,8 @@ curl http://localhost:8191/api/initDatabase
 │   ├── handler/          # HTTP 处理层（参数绑定、响应）
 │   │   └── middleware/   # JWT 认证、Casbin 权限、日志
 │   ├── logic/            # 业务逻辑实现
-│   └── router/           # 路由注册
+│   ├── mcp/              # MCP Server（工具、OAuth/PKCE、鉴权）
+│   └── router/           # 路由注册（含 mcp/ 的 Hertz 挂载）
 ├── configs/              # YAML 配置文件（嵌入二进制）
 ├── data/                 # 数据访问层
 │   ├── ent/              # Ent ORM 生成代码

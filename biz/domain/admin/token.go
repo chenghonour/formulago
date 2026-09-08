@@ -21,6 +21,10 @@ type TokenSession struct {
 	// ExpiredAt is the absolute session deadline. A refresh never extends it,
 	// so a session lives at most AccessExpire after its first issue.
 	ExpiredAt time.Time
+	// Source is the session channel label: "web" for a normal web login;
+	// "web-mcp" once the same token was also handed out through the MCP OAuth
+	// flow (the browser-login token is dual-used, never re-issued).
+	Source string
 }
 
 // Token manages the server-side login session of a user. The row stores the
@@ -36,6 +40,11 @@ type Token interface {
 	// It fails with ErrSessionInvalid when the session was revoked or already
 	// rotated by a concurrent login/refresh (compare-and-swap on the digest).
 	Rotate(ctx context.Context, userID uint64, oldHash, newHash string) error
+	// MarkSource relabels the user's current session source (e.g. "web" →
+	// "web-mcp" when the browser-login token is additionally handed out through
+	// the MCP OAuth flow). CAS'd on the digest; fails with ErrSessionInvalid
+	// when the session was revoked or rotated concurrently.
+	MarkSource(ctx context.Context, userID uint64, tokenHash, source string) error
 	Delete(ctx context.Context, userID uint64) error
 	List(ctx context.Context, req *TokenListReq) (res []*TokenInfo, total int, err error)
 }

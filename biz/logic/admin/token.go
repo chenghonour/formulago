@@ -120,7 +120,25 @@ func (t *Token) ActiveSession(ctx context.Context, userID uint64, tokenHash stri
 	if !session.ExpiredAt.After(time.Now()) || session.Token != tokenHash {
 		return nil, admin.ErrSessionInvalid
 	}
-	return &admin.TokenSession{ExpiredAt: session.ExpiredAt}, nil
+	return &admin.TokenSession{ExpiredAt: session.ExpiredAt, Source: session.Source}, nil
+}
+
+// MarkSource relabels the source of the current session only when its digest
+// still equals tokenHash, mirroring Rotate's compare-and-swap: a session that
+// was revoked or rotated away by a concurrent login must not be relabeled.
+func (t *Token) MarkSource(ctx context.Context, userID uint64, tokenHash, source string) error {
+	affected, err := t.Data.DBClient.Token.Update().
+		Where(token.UserIDEQ(userID), token.TokenEQ(tokenHash)).
+		SetSource(source).
+		SetUpdatedAt(time.Now()).
+		Save(ctx)
+	if err != nil {
+		return fmt.Errorf("mark token source failed: %w", err)
+	}
+	if affected == 0 {
+		return admin.ErrSessionInvalid
+	}
+	return nil
 }
 
 // Rotate replaces the digest of the current session only when it still equals

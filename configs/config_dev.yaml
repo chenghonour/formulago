@@ -68,3 +68,9 @@ Wecom:
   SecretId: "change-me"
   Token: "change-me"
   EncodingAESKey: "change-me"
+
+# MCP Server（The routing is placed under the main Hertz engine /api/mcp and no separate port is set up.）
+Mcp:
+  ExternalURL: "change-me"   # The externally visible base (TLS endpoint) is provided, such as https://admin.example.com; otherwise, it will fall back to using the Host in the request.
+  FrontendAuthURL: "change-me" # The absolute URL of the frontend bridge page, e.g., https://admin.example.com/#/mcp/oauth/bridge
+  FrontendOrigins: ["https://admin.example.com"] # The origins of the frontend that are allowed to call /api/mcp/oauth/exchange

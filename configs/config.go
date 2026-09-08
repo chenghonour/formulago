@@ -167,6 +167,17 @@ type Config struct {
 	Casbin   CasbinConf `yaml:"Casbin"`
 	S3       S3         `yaml:"S3"`
 	Wecom    Wecom      `yaml:"Wecom"`
+	Mcp      McpConf    `yaml:"Mcp"`
+}
+
+// McpConf is the configuration of the MCP (Model Context Protocol) server.
+// Routes live on the main Hertz engine under /api/mcp; ExternalURL is the
+// externally visible base (TLS endpoint) used as the OAuth issuer, empty means
+// fall back to the request Host.
+type McpConf struct {
+	ExternalURL     string   `yaml:"ExternalURL"`
+	FrontendAuthURL string   `yaml:"FrontendAuthURL"`
+	FrontendOrigins []string `yaml:"FrontendOrigins"`
 }
 
 // Captcha is the configuration of the captcha.

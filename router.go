@@ -8,6 +8,7 @@ package main
 
 import (
 	"formulago/biz/handler/middleware"
+	mcprouter "formulago/biz/router/mcp"
 	"formulago/configs"
 	"formulago/data"
 	"github.com/cloudwego/hertz/pkg/app/server"
@@ -23,4 +24,7 @@ func customizedRegister(r *server.Hertz) {
 		middleware.GetJWTMiddleware(configs.Data(), data.Default(), data.CasbinEnforcer()).LoginHandler)
 	r.POST("/api/logout", middleware.LogoutHandler)
 	r.POST("/api/refresh_token", middleware.RefreshHandler)
+
+	// MCP endpoint (/api/mcp) and its OAuth browser flow
+	mcprouter.Register(r)
 }

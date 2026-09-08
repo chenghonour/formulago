@@ -47,6 +47,16 @@ const (
 	signingAlgo  = "HS256"
 )
 
+// sys_tokens.source labels of a user's single session row.
+const (
+	// TokenSourceWeb marks a session born from a normal browser/web login.
+	TokenSourceWeb = "web"
+	// TokenSourceWebMCP marks a web-born session whose token is additionally
+	// handed out through the MCP OAuth flow (dual use of the same JWT). The MCP
+	// server only accepts tokens whose session carries this label.
+	TokenSourceWebMCP = "web-mcp"
+)
+
 // auth errors that may reach the client without leaking internals; everything
 // else is logged server-side and replaced with a generic message
 var (
@@ -242,6 +252,7 @@ func loginResponse(ctx context.Context, c *app.RequestContext, tokenStr string, 
 	err := logic.NewToken(jwtDB).Create(ctx, &admin.TokenInfo{
 		UserID:    uid,
 		Token:     tokenStr,
+		Source:    TokenSourceWeb, // the MCP OAuth flow upgrades it to TokenSourceWebMCP
 		ExpiredAt: expire.Format(times.TimeFormat),
 	})
 	if err != nil {
@@ -289,35 +300,9 @@ func authorizator(data any, ctx context.Context, c *app.RequestContext) bool {
 		hlog.CtxErrorf(ctx, "authorizator: unexpected raw token type %T", tokenVal)
 		return false
 	}
-	if _, err := logic.NewToken(jwtDB).ActiveSession(ctx, userID, encrypt.Sha256Hex(tokenRaw)); err != nil {
-		if !errors.Is(err, admin.ErrSessionInvalid) {
-			hlog.CtxErrorf(ctx, "authorizator: session check failed: %v", err)
-		} else {
-			hlog.CtxDebugf(ctx, "authorizator: no active session for user %d", userID)
-		}
-		return false
-	}
-
-	// 2. user must exist and be enabled (disable takes effect immediately)
-	userInfo, err := logic.NewUser(jwtDB).UserInfo(ctx, userID)
-	if err != nil {
-		hlog.CtxErrorf(ctx, "authorizator: get user %d failed: %v", userID, err)
-		return false
-	}
-	if userInfo.Status != 1 {
-		hlog.CtxDebugf(ctx, "authorizator: user %d is disabled", userID)
-		return false
-	}
-
-	// 3. the role must exist and be active
-	roleID := userInfo.RoleID
-	roleInfo, err := logic.NewRole(jwtDB).RoleInfoByID(ctx, roleID)
-	if err != nil {
-		hlog.CtxErrorf(ctx, "authorizator: get role %d failed: %v", roleID, err)
-		return false
-	}
-	if roleInfo.Status != 1 {
-		hlog.CtxDebugf(ctx, "authorizator: role %d is not active", roleID)
+	// 1-3. session + enabled user + active role (shared with ValidateTokenString)
+	_, roleID, ok := sessionState(ctx, userID, tokenRaw)
+	if !ok {
 		return false
 	}
 
@@ -338,6 +323,78 @@ func authorizator(data any, ctx context.Context, c *app.RequestContext) bool {
 	c.Set("roleID", sub)
 	c.Set("userID", userIDStr)
 	return true
+}
+
+// sessionState performs the shared credential/state checks of authorizator
+// steps 1-3 for a raw token: the exact server-side session match, an enabled
+// user, and an active role. The permission subject is the user's CURRENT role
+// from the DB, so role changes take effect immediately. Returns the session
+// row (its Source tells whether this token also went through the MCP OAuth
+// flow) and the current roleID.
+func sessionState(ctx context.Context, userID uint64, tokenRaw string) (*admin.TokenSession, uint64, bool) {
+	session, err := logic.NewToken(jwtDB).ActiveSession(ctx, userID, encrypt.Sha256Hex(tokenRaw))
+	if err != nil {
+		if !errors.Is(err, admin.ErrSessionInvalid) {
+			hlog.CtxErrorf(ctx, "authorizator: session check failed: %v", err)
+		} else {
+			hlog.CtxDebugf(ctx, "authorizator: no active session for user %d", userID)
+		}
+		return nil, 0, false
+	}
+	userInfo, err := logic.NewUser(jwtDB).UserInfo(ctx, userID)
+	if err != nil {
+		hlog.CtxErrorf(ctx, "authorizator: get user %d failed: %v", userID, err)
+		return nil, 0, false
+	}
+	if userInfo.Status != 1 {
+		hlog.CtxDebugf(ctx, "authorizator: user %d is disabled", userID)
+		return nil, 0, false
+	}
+	roleID := userInfo.RoleID
+	roleInfo, err := logic.NewRole(jwtDB).RoleInfoByID(ctx, roleID)
+	if err != nil {
+		hlog.CtxErrorf(ctx, "authorizator: get role %d failed: %v", roleID, err)
+		return nil, 0, false
+	}
+	if roleInfo.Status != 1 {
+		hlog.CtxDebugf(ctx, "authorizator: role %d is not active", roleID)
+		return nil, 0, false
+	}
+	return session, roleID, true
+}
+
+// ValidateTokenString validates a raw bearer token exactly like the HTTP
+// middleware chain (SessionGuard + authorizator steps 1-3): signature and exp,
+// an active server-side session whose digest matches, an enabled user and an
+// active role. It returns the user's CURRENT roleID from the DB plus the
+// session row. All failures collapse into admin.ErrSessionInvalid; internal
+// errors are logged here and also returned wrapped so callers can tell them
+// apart. Used by the MCP server to authenticate tool calls without a Hertz
+// request context.
+func ValidateTokenString(ctx context.Context, tokenStr string) (userID, roleID uint64, session *admin.TokenSession, err error) {
+	GetJWTMiddleware(configs.Data(), Data.Default(), Data.CasbinEnforcer())
+	token, err := jwtMW.ParseTokenString(tokenStr)
+	if err != nil {
+		return 0, 0, nil, admin.ErrSessionInvalid
+	}
+	claims := hzjwt.ExtractClaimsFromToken(token)
+	payloadMap, ok := claims[identityKey].(map[string]any)
+	if !ok || payloadMap == nil {
+		return 0, 0, nil, admin.ErrSessionInvalid
+	}
+	userIDStr, ok := payloadMap["userID"].(string)
+	if !ok || userIDStr == "" {
+		return 0, 0, nil, admin.ErrSessionInvalid
+	}
+	userID, err = strconv.ParseUint(userIDStr, 10, 64)
+	if err != nil {
+		return 0, 0, nil, admin.ErrSessionInvalid
+	}
+	session, roleID, ok = sessionState(ctx, userID, tokenStr)
+	if !ok {
+		return userID, 0, nil, admin.ErrSessionInvalid
+	}
+	return userID, roleID, session, nil
 }
 
 // SessionGuard is a pre-middleware for protected route groups. The library

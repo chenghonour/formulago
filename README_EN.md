@@ -12,6 +12,7 @@ English | [中文](README.md)
 
 > Frontend repo: [formulago-front](https://github.com/chenghonour/formulago-front)
 
+- **AI-Native MCP Server** — Built-in Model Context Protocol (MCP) server lets Claude and other AI agents operate your backend data through natural conversation — the "AI-managed admin" era.
 - **High Performance** — Powered by Hertz, the most performant Go HTTP framework used by ByteDance across tens of thousands of services.
 - **Modular Architecture** — Clean 4-layer design: Handler → Logic → Domain → Data.
 - **Type-Safe ORM** — Ent generates type-safe Go code for all database operations.
@@ -35,6 +36,7 @@ biz/handler/  →  biz/logic/  →  biz/domain/  →  data/
 | ORM | [Ent](https://entgo.io) |
 | Auth | [hertz-contrib/jwt](https://github.com/hertz-contrib/jwt) |
 | RBAC | [Casbin](https://github.com/casbin/casbin) |
+| MCP | [mcp-go](https://github.com/mark3labs/mcp-go) |
 | Database | MySQL / PostgreSQL |
 | Cache | [go-cache](https://github.com/patrickmn/go-cache) + Redis |
 | Config | [koanf](https://github.com/knadh/koanf) |
@@ -96,6 +98,21 @@ Default admin account: `admin` / `formulago`
 | File Management | File upload with Aliyun OSS adapter and image compression |
 | OAuth 2.0 Login | Google, GitHub, and WeCom authentication |
 | Captcha | Digit captcha with configurable length and size |
+| MCP Server | Exposes admin capabilities to AI agents with the same auth as HTTP |
+
+## MCP Server (AI Agent Access)
+
+FormulaGo ships a built-in MCP (Model Context Protocol) server — it turns the whole admin backend into a toolset AI agents can call, opening a controlled data entry point for AI-native applications:
+
+- **Talk to your data** — e.g. "list the first 10 users" queries the backend directly; no need to teach the agent raw HTTP endpoints.
+- **Browser OAuth authorization** — users paste one URL into Claude and the browser opens automatically for login & consent (PKCE protected); no second set of credentials.
+- **Same security boundary as HTTP** — reuses the very same JWT sessions and Casbin policies: what a role cannot do on the web, the AI cannot do either. Tokens are only issued through the PKCE authorization flow — no "raw token bypass".
+- **Zero extra deployment** — mounted under the existing Hertz service at `/api/mcp`, no separate port. 
+
+```bash
+# One-line Claude Code integration
+claude mcp add --transport http formulago https://your-domain/api/mcp
+```
 
 ## Project Structure
 
@@ -108,7 +125,8 @@ Default admin account: `admin` / `formulago`
 │   ├── handler/          # HTTP handlers (request binding, response)
 │   │   └── middleware/   # JWT auth, Casbin RBAC, logging
 │   ├── logic/            # Business logic implementation
-│   └── router/           # Route registration
+│   ├── mcp/              # MCP server (tools, OAuth/PKCE, auth)
+│   └── router/           # Route registration (incl. mcp/ Hertz mount)
 ├── configs/              # YAML configuration (embedded)
 ├── data/                 # Data access layer
 │   ├── ent/              # Generated Ent ORM code
