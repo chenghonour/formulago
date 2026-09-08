@@ -86,39 +86,7 @@ func load(data []byte) (config Config, err error) {
 	}
 	// override secrets from environment variables
 	overrideSecretFromEnv(&config)
-	// fail fast when the JWT signing key is missing or the known placeholder
-	validateAccessSecret(config)
 	return
-}
-
-// minAccessSecretLen is the minimum HS256 key size recommended by RFC 7518
-const minAccessSecretLen = 32
-
-// validateAccessSecret refuses to boot in prod with an empty / placeholder /
-// too-short JWT signing key: a publicly-known key lets anyone forge tokens.
-// In non-prod it only warns, so local development keeps working out of the box.
-func validateAccessSecret(config Config) {
-	if reason := accessSecretProblem(config); reason != "" {
-		if config.IsProd {
-			hlog.Fatal(reason)
-		}
-		hlog.Warn(reason)
-	}
-}
-
-// accessSecretProblem returns a human-readable reason when Auth.AccessSecret
-// is missing or too weak, empty string otherwise.
-func accessSecretProblem(config Config) string {
-	secret := config.Auth.AccessSecret
-	switch {
-	case secret == "":
-		return "ACCESS_SECRET is empty: set a random key via the ACCESS_SECRET env var, e.g. openssl rand -base64 32"
-	case secret == "change-me":
-		return "ACCESS_SECRET is still the known placeholder \"change-me\": set it via the ACCESS_SECRET env var, e.g. openssl rand -base64 32"
-	case len(secret) < minAccessSecretLen:
-		return "ACCESS_SECRET is shorter than " + strconv.Itoa(minAccessSecretLen) + " bytes: use a random key, e.g. openssl rand -base64 32"
-	}
-	return ""
 }
 
 func overrideSecretFromEnv(config *Config) {

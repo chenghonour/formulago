@@ -20,7 +20,7 @@ import (
 // /api/login and /api/refresh_token add up per client IP.
 var loginLimiter = ratelimit.New(ratelimit.Config{
 	MaxRequests: 30,               // per Window
-	Window:      time.Minute,      // counting window
+	Window:      2 * time.Minute,  // counting window
 	MaxFailures: 10,               // consecutive-window failures before lockout
 	Lockout:     30 * time.Minute, // applied once the budget is exhausted
 })

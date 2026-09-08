@@ -11,6 +11,7 @@ package middleware
 import (
 	"context"
 	"errors"
+	"fmt"
 	"formulago/biz/domain/admin"
 	"formulago/configs"
 	Data "formulago/data"
@@ -18,6 +19,7 @@ import (
 	"formulago/pkg/times"
 	"net/http"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -59,10 +61,43 @@ var (
 	jwtEnforcer *casbin.Enforcer
 )
 
+// accessSecretProblem 返回 AccessSecret 不合规的原因；合规返回空串。
+func accessSecretProblem(secret string) string {
+	switch {
+	case secret == "":
+		return "auth.accessSecret is empty"
+	case strings.EqualFold(secret, "change-me"):
+		return "auth.accessSecret is still the placeholder 'change-me'"
+	case len(secret) < 32:
+		return fmt.Sprintf("auth.accessSecret is too short: %d bytes, want at least 32", len(secret))
+	}
+	return ""
+}
+
+// ValidateAccessSecret prod 下签名密钥不合规直接终止启动，dev 下仅告警。
+func ValidateAccessSecret(config *configs.Config) error {
+	if reason := accessSecretProblem(config.Auth.AccessSecret); reason != "" {
+		if config.IsProd {
+			hlog.Fatalf("invalid access secret: %s", reason)
+			return errors.New(fmt.Sprintf("invalid access secret: %s", reason))
+		}
+		hlog.Warnf("invalid access secret (dev, please set ACCESS_SECRET): %s", reason)
+	}
+	return nil
+}
+
 // GetJWTMiddleware returns the process-wide JWT middleware singleton.
 // It is safe to call from every route registration: only the first call
 // builds the middleware, later calls return the same instance.
 func GetJWTMiddleware(c configs.Config, d *Data.Data, e *casbin.Enforcer) *hzjwt.HertzJWTMiddleware {
+	// JWT signing secret must be strong enough; fail fast in prod instead of
+	// silently running with a placeholder/weak key
+	AccessSecretErr := ValidateAccessSecret(&c)
+	if AccessSecretErr != nil {
+		hlog.Fatalf("invalid access secret: %v", AccessSecretErr)
+		return nil
+	}
+
 	jwtInitOnce.Do(func() {
 		jwtDB = d
 		jwtEnforcer = e
@@ -303,6 +338,69 @@ func authorizator(data any, ctx context.Context, c *app.RequestContext) bool {
 	c.Set("roleID", sub)
 	c.Set("userID", userIDStr)
 	return true
+}
+
+// SessionGuard is a pre-middleware for protected route groups. The library
+// authorizator only returns a bool, so every deny becomes a 403 ErrForbidden
+// (kicked/logged-out/disabled is indistinguishable from a real permission
+// denial). This guard intercepts "session invalid" early and answers 401 so
+// the frontend can redirect to login as agreed
+func SessionGuard(cfg configs.Config, d *Data.Data, e *casbin.Enforcer) app.HandlerFunc {
+	return func(ctx context.Context, c *app.RequestContext) {
+		GetJWTMiddleware(cfg, d, e)
+		if _, err := jwtMW.ParseToken(ctx, c); err != nil {
+			// missing/expired/bad-signature
+			hlog.CtxDebugf(ctx, "missing/expired/bad-signature")
+			c.JSON(http.StatusUnauthorized, map[string]any{
+				"code":    http.StatusUnauthorized,
+				"message": statusMessage(admin.ErrSessionInvalid, ctx),
+			})
+			c.Abort()
+			return
+		}
+		tokenVal, exists := c.Get(tokenCtxKey)
+		if !exists {
+			c.JSON(http.StatusUnauthorized, map[string]any{
+				"code":    http.StatusUnauthorized,
+				"message": statusMessage(admin.ErrSessionInvalid, ctx),
+			})
+			c.Abort()
+			return
+		}
+		tokenRaw, ok := tokenVal.(string)
+		if !ok || tokenRaw == "" {
+			c.JSON(http.StatusUnauthorized, map[string]any{
+				"code":    http.StatusUnauthorized,
+				"message": statusMessage(admin.ErrSessionInvalid, ctx),
+			})
+			c.Abort()
+			return
+		}
+		uid, ok := userIDOfToken(ctx, tokenRaw)
+		if !ok {
+			// signature is valid but the claims are malformed (should not
+			// happen); treat it as an invalid session
+			hlog.CtxDebugf(ctx, "session guard: malformed claims")
+			c.JSON(http.StatusUnauthorized, map[string]any{
+				"code":    http.StatusUnauthorized,
+				"message": statusMessage(admin.ErrSessionInvalid, ctx),
+			})
+			c.Abort()
+			return
+		}
+		if _, err := logic.NewToken(jwtDB).ActiveSession(ctx, uid, encrypt.Sha256Hex(tokenRaw)); err != nil {
+			if err != nil {
+				hlog.CtxErrorf(ctx, "session guard: session invalid userID=%d: %v", uid, err)
+				c.JSON(http.StatusUnauthorized, map[string]any{
+					"code":    http.StatusUnauthorized,
+					"message": statusMessage(admin.ErrSessionInvalid, ctx),
+				})
+			}
+			c.Abort()
+			return
+		}
+		c.Next(ctx)
+	}
 }
 
 // LogoutHandler revokes the server-side session of the presented token.
