@@ -69,7 +69,7 @@ func initApp(w *Wecom) (*work.Work, error) {
 	}
 	// share the project Redis for access token caching (falls back to
 	// PowerWeChat's in-memory cache when Redis is disabled)
-	if w.Data != nil && w.Data.Redis != nil {
+	if w.Config.Redis.Enable && w.Data != nil && w.Data.Redis != nil {
 		opts := w.Data.Redis.Options()
 		config.Cache = kernel.NewRedisClient(&kernel.UniversalOptions{
 			Addrs:    []string{opts.Addr},
