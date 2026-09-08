@@ -146,11 +146,9 @@ func authenticator(ctx context.Context, c *app.RequestContext, config configs.Co
 		if err := c.BindAndValidate(&loginVal); err != nil {
 			return "", err
 		}
-		// verify captcha while IsProd is true
-		if config.IsProd {
-			if !logic.CaptchaStore.Verify(loginVal.CaptchaID, loginVal.Captcha, true) {
-				return nil, errInvalidCaptcha
-			}
+		// verify captcha
+		if !logic.CaptchaStore.Verify(loginVal.CaptchaID, loginVal.Captcha, true) {
+			return nil, errInvalidCaptcha
 		}
 		// Login
 		var err error
