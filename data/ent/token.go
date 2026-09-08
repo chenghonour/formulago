@@ -24,7 +24,7 @@ type Token struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	//  User's ID | 用户的ID
 	UserID uint64 `json:"user_id,omitempty"`
-	// Token string | Token 字符串
+	// Token hash string | Token hash 字符串
 	Token string `json:"token,omitempty"`
 	// Log in source such as GitHub | Token 来源 （本地为core, 第三方如github等）
 	Source string `json:"source,omitempty"`

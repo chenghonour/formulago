@@ -11,6 +11,7 @@ require (
 	github.com/casbin/ent-adapter v1.4.0
 	github.com/cloudwego/hertz v0.10.4
 	github.com/go-sql-driver/mysql v1.10.0
+	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/hertz-contrib/jwt v1.0.4
 	github.com/jinzhu/copier v0.4.0
 	github.com/knadh/koanf/parsers/yaml v1.1.0
@@ -21,7 +22,6 @@ require (
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/redis/go-redis/v9 v9.19.0
 	github.com/samber/lo v1.53.0
-	github.com/spf13/cast v1.10.0
 	golang.org/x/crypto v0.51.0
 	golang.org/x/oauth2 v0.36.0
 	google.golang.org/protobuf v1.36.11
@@ -48,7 +48,6 @@ require (
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
 	github.com/go-openapi/inflect v0.21.5 // indirect
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
-	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
@@ -60,6 +59,7 @@ require (
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
 	github.com/knadh/koanf/maps v0.1.2 // indirect
+	github.com/kr/pretty v0.3.1 // indirect
 	github.com/lib/pq v1.12.3 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect

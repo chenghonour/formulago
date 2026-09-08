@@ -86,6 +86,9 @@ func (u *User) Update(ctx context.Context, req admin.CreateOrUpdateUserReq) erro
 	if err != nil {
 		return fmt.Errorf("update user failed: %w", err)
 	}
+	// role/status/password edits must not linger in the 72h userInfo cache:
+	// the JWT authorizator reads the current role/status from there
+	u.Data.Cache.Delete("userInfo" + strconv.Itoa(int(req.ID)))
 
 	return nil
 }
@@ -106,8 +109,18 @@ func (u *User) ChangePassword(ctx context.Context, userID uint64, oldPassword, n
 	// update password
 	password, _ := encrypt.BcryptEncrypt(newPassword)
 	_, err = u.Data.DBClient.User.Update().Where(user.IDEQ(userID)).SetPassword(password).Save(ctx)
+	if err != nil {
+		return fmt.Errorf("update password failed: %w", err)
+	}
 
-	return err
+	// a password change must revoke every issued session: old tokens would
+	// otherwise stay valid until their 3-day deadline
+	if err := NewToken(u.Data).Delete(ctx, userID); err != nil {
+		return fmt.Errorf("revoke sessions after password change failed: %w", err)
+	}
+	// the userInfo cache embeds the password hash, keep it fresh
+	u.Data.Cache.Delete("userInfo" + strconv.Itoa(int(userID)))
+	return nil
 }
 
 func (u *User) UserInfo(ctx context.Context, id uint64) (userInfo *admin.UserInfo, err error) {
@@ -190,12 +203,33 @@ func (u *User) List(ctx context.Context, req admin.UserListReq) (userList []*adm
 
 func (u *User) UpdateUserStatus(ctx context.Context, id uint64, status uint64) error {
 	_, err := u.Data.DBClient.User.Update().Where(user.IDEQ(id)).SetStatus(uint8(status)).Save(ctx)
-	return err
+	if err != nil {
+		return fmt.Errorf("update user status failed: %w", err)
+	}
+	// purge cached profile so a disabled user is no longer reported as enabled
+	u.Data.Cache.Delete("userInfo" + strconv.Itoa(int(id)))
+	// disabling a user must revoke the issued session immediately, otherwise
+	// an already-issued token keeps working until its deadline
+	if status != 1 {
+		if err := NewToken(u.Data).Delete(ctx, id); err != nil {
+			return fmt.Errorf("revoke sessions of disabled user failed: %w", err)
+		}
+	}
+	return nil
 }
 
 func (u *User) DeleteUser(ctx context.Context, id uint64) error {
+	// revoke sessions first: the sys_tokens row references the user (FK), and
+	// the redis/memory cache must not keep a deleted user "alive"
+	if err := NewToken(u.Data).Delete(ctx, id); err != nil {
+		return fmt.Errorf("revoke sessions before deleting user failed: %w", err)
+	}
+	u.Data.Cache.Delete("userInfo" + strconv.Itoa(int(id)))
 	_, err := u.Data.DBClient.User.Delete().Where(user.IDEQ(id)).Exec(ctx)
-	return err
+	if err != nil {
+		return fmt.Errorf("delete user failed: %w", err)
+	}
+	return nil
 }
 
 func (u *User) UpdateProfile(ctx context.Context, req admin.UpdateUserProfileReq) error {

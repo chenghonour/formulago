@@ -25,7 +25,7 @@ type FileInfo struct {
 	URL string `json:"fileURL"`
 	// File type, eg: img/file
 	Type string `json:"fileType"`
-	// FileReader
+	// FileBytes
 	Reader io.Reader `json:"fileReader"`
 }
 
@@ -54,7 +54,7 @@ type Adapter interface {
 	UploadFile(ctx context.Context, file *FileInfo) (fileInfo *FileInfo, err error)
 	SignedUrl(ctx context.Context, filePath string) (signedURL string, err error)
 	DeleteFile(ctx context.Context, filePath []string) (deletedObjects []string, err error)
-	FileReader(ctx context.Context, filePath string) (fileReader io.ReadCloser, err error)
+	FileBytes(ctx context.Context, filePath string) (fileBytes []byte, err error)
 	ListObjects(ctx context.Context, prefix string) (results []ObjectProperties, err error)
 	// RestoreObject 解冻对象, restoreDays 文件解冻后持续天数,例如3天
 	// 建议先调用ListObjects获取文件StorageClass，如非Standard才需要解冻

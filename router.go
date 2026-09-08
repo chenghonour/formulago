@@ -16,8 +16,11 @@ import (
 // customizeRegister registers customize routers.
 func customizedRegister(r *server.Hertz) {
 	// your code ...
-	// login and refresh_token power by jwt Auth middleware
-	r.POST("/api/login", middleware.GetJWTMiddleware(configs.Data(), data.Default(), data.CasbinEnforcer()).LoginHandler)
-	r.POST("/api/logout", middleware.GetJWTMiddleware(configs.Data(), data.Default(), data.CasbinEnforcer()).LogoutHandler)
-	r.POST("/api/refresh_token", middleware.GetJWTMiddleware(configs.Data(), data.Default(), data.CasbinEnforcer()).RefreshHandler)
+	// login and refresh_token power by jwt Auth middleware.
+	// logout & refresh_token use server-side session revocation: only a token
+	// whose digest still lives in sys_tokens can refresh or keep access.
+	r.POST("/api/login", middleware.LoginRateLimit(),
+		middleware.GetJWTMiddleware(configs.Data(), data.Default(), data.CasbinEnforcer()).LoginHandler)
+	r.POST("/api/logout", middleware.LogoutHandler)
+	r.POST("/api/refresh_token", middleware.RefreshHandler)
 }

@@ -8,7 +8,12 @@
 
 package encrypt
 
-import "golang.org/x/crypto/bcrypt"
+import (
+	"crypto/sha256"
+	"encoding/hex"
+
+	"golang.org/x/crypto/bcrypt"
+)
 
 func BcryptEncrypt(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -18,4 +23,10 @@ func BcryptEncrypt(password string) (string, error) {
 func BcryptCheck(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
+}
+
+// Sha256Hex returns the lowercase hex-encoded SHA-256 digest of input.
+func Sha256Hex(input string) string {
+	sum := sha256.Sum256([]byte(input))
+	return hex.EncodeToString(sum[:])
 }

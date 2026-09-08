@@ -8,15 +8,16 @@ package admin
 
 import (
 	"context"
-	"fmt"
 	"errors"
+	"fmt"
 	"formulago/biz/domain/admin"
-	"formulago/pkg/times"
 	"formulago/data"
 	"formulago/data/ent"
 	"formulago/data/ent/predicate"
 	"formulago/data/ent/token"
 	"formulago/data/ent/user"
+	"formulago/pkg/encrypt"
+	"formulago/pkg/times"
 	"time"
 )
 
@@ -30,10 +31,24 @@ func NewToken(data *data.Data) admin.Token {
 	}
 }
 
-func (t *Token) Create(ctx context.Context, req *admin.TokenInfo) error {
-	expiredAt, _ := time.ParseInLocation(times.TimeFormat, req.ExpiredAt, time.Local)
+// parseExpiredAt parses and validates the ExpiredAt string of a TokenInfo.
+func parseExpiredAt(req *admin.TokenInfo) (time.Time, error) {
+	expiredAt, err := time.ParseInLocation(times.TimeFormat, req.ExpiredAt, time.Local)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("parse expiredAt failed: %w", err)
+	}
 	if time.Until(expiredAt).Seconds() < 5 {
-		return errors.New("expired time must be greater than now, more than 5s")
+		return time.Time{}, errors.New("expired time must be greater than now, more than 5s")
+	}
+	return expiredAt, nil
+}
+
+// Create stores or refreshes the single login session of a user. req.Token
+// is the raw JWT: its SHA-256 digest is stored, never the token itself.
+func (t *Token) Create(ctx context.Context, req *admin.TokenInfo) error {
+	expiredAt, err := parseExpiredAt(req)
+	if err != nil {
+		return err
 	}
 	// whether user token exists
 	tokenExist, err := t.Data.DBClient.Token.Query().Where(token.UserID(req.UserID)).Only(ctx)
@@ -57,51 +72,73 @@ func (t *Token) Create(ctx context.Context, req *admin.TokenInfo) error {
 	_, err = t.Data.DBClient.Token.Create().
 		SetOwner(userInfo).
 		SetUserID(req.UserID).
-		SetToken(req.Token).
+		SetToken(encrypt.Sha256Hex(req.Token)).
 		SetSource(req.Source).
 		SetExpiredAt(expiredAt).
 		Save(ctx)
 	if err != nil {
 		return fmt.Errorf("create Token failed: %w", err)
 	}
-
-	// add to cache
-	t.Data.Cache.Set(fmt.Sprintf("token_%d", req.UserID), req.UserID, time.Until(expiredAt))
-
 	return nil
 }
 
+// Update refreshes an existing session row (admin edit path). req.Token, when
+// non-empty, is the raw credential and is stored as its SHA-256 digest.
 func (t *Token) Update(ctx context.Context, req *admin.TokenInfo) error {
-	expiredAt, _ := time.ParseInLocation(times.TimeFormat, req.ExpiredAt, time.Local)
-	if time.Until(expiredAt).Seconds() < 5 {
-		return errors.New("expired time must be greater than now, more than 5s")
+	expiredAt, err := parseExpiredAt(req)
+	if err != nil {
+		return err
 	}
-	_, err := t.Data.DBClient.Token.UpdateOneID(req.ID).
+	update := t.Data.DBClient.Token.UpdateOneID(req.ID).
 		SetUserID(req.UserID).
-		SetToken(req.Token).
 		SetSource(req.Source).
 		SetUpdatedAt(time.Now()).
-		SetExpiredAt(expiredAt).
-		Save(ctx)
+		SetExpiredAt(expiredAt)
+	// an empty token field means "keep the current credential", so admins can
+	// extend/limit a session without knowing the issued JWT
+	if req.Token != "" {
+		update = update.SetToken(encrypt.Sha256Hex(req.Token))
+	}
+	_, err = update.Save(ctx)
 	if err != nil {
 		return fmt.Errorf("update Token failed: %w", err)
 	}
-
-	// add to cache
-	t.Data.Cache.Set(fmt.Sprintf("token_%d", req.UserID), req.UserID, time.Until(expiredAt))
 	return nil
 }
 
-func (t *Token) IsExistByUserID(ctx context.Context, userID uint64) bool {
-	// get token from cache
-	_, exist := t.Data.Cache.Get(fmt.Sprintf("token_%d", userID))
-	if exist {
-		return true
+// ActiveSession validates that userID has a not-yet-expired session whose
+// stored digest equals tokenHash. The session row is the source of truth
+// (no cache) so a Delete is effective immediately on every instance.
+func (t *Token) ActiveSession(ctx context.Context, userID uint64, tokenHash string) (*admin.TokenSession, error) {
+	session, err := t.Data.DBClient.Token.Query().Where(token.UserIDEQ(userID)).Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, admin.ErrSessionInvalid
+		}
+		return nil, fmt.Errorf("get Token failed: %w", err)
 	}
+	if !session.ExpiredAt.After(time.Now()) || session.Token != tokenHash {
+		return nil, admin.ErrSessionInvalid
+	}
+	return &admin.TokenSession{ExpiredAt: session.ExpiredAt}, nil
+}
 
-	// get token from db
-	exist, _ = t.Data.DBClient.Token.Query().Where(token.UserID(userID)).Exist(ctx)
-	return exist
+// Rotate replaces the digest of the current session only when it still equals
+// oldHash, so a refresh cannot resurrect a session that was revoked or already
+// rotated away by a concurrent login.
+func (t *Token) Rotate(ctx context.Context, userID uint64, oldHash, newHash string) error {
+	affected, err := t.Data.DBClient.Token.Update().
+		Where(token.UserIDEQ(userID), token.TokenEQ(oldHash)).
+		SetToken(newHash).
+		SetUpdatedAt(time.Now()).
+		Save(ctx)
+	if err != nil {
+		return fmt.Errorf("rotate Token failed: %w", err)
+	}
+	if affected == 0 {
+		return admin.ErrSessionInvalid
+	}
+	return nil
 }
 
 func (t *Token) Delete(ctx context.Context, userID uint64) error {
@@ -109,9 +146,8 @@ func (t *Token) Delete(ctx context.Context, userID uint64) error {
 	if err != nil {
 		return fmt.Errorf("delete Token failed: %w", err)
 	}
-
-	// delete from cache
-	t.Data.Cache.Delete(fmt.Sprintf("token_%d", userID))
+	// best-effort cleanup of legacy cache keys
+	_ = t.Data.CacheDelete(ctx, fmt.Sprintf("token_%d", userID))
 	return nil
 }
 

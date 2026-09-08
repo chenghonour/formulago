@@ -25,7 +25,7 @@ func (Token) Fields() []ent.Field {
 	return []ent.Field{
 		field.Uint64("id"),
 		field.Uint64("user_id").Comment(" User's ID | 用户的ID").Unique(),
-		field.String("token").Comment("Token string | Token 字符串"),
+		field.String("token").Comment("Token hash string | Token hash 字符串"),
 		field.String("source").Comment("Log in source such as GitHub | Token 来源 （本地为core, 第三方如github等）"),
 		field.Time("expired_at").Comment(" Expire time | 过期时间"),
 	}

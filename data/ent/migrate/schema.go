@@ -197,7 +197,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime, Comment: "created time"},
 		{Name: "updated_at", Type: field.TypeTime, Comment: "last update time"},
 		{Name: "user_id", Type: field.TypeUint64, Unique: true, Comment: " User's ID | 用户的ID"},
-		{Name: "token", Type: field.TypeString, Comment: "Token string | Token 字符串"},
+		{Name: "token", Type: field.TypeString, Comment: "Token hash string | Token hash 字符串"},
 		{Name: "source", Type: field.TypeString, Comment: "Log in source such as GitHub | Token 来源 （本地为core, 第三方如github等）"},
 		{Name: "expired_at", Type: field.TypeTime, Comment: " Expire time | 过期时间"},
 		{Name: "user_token", Type: field.TypeUint64, Unique: true, Nullable: true},

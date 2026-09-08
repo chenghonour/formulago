@@ -23,7 +23,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func NewUploadAliyunOSSAdapter(c configs.Config) *UploadAliyunOSSAdapter {
+func NewAliyunOSSAdapter(c configs.Config) *UploadAliyunOSSAdapter {
 	return &UploadAliyunOSSAdapter{
 		Region:        c.S3.AliyunOSS.Region,
 		Endpoint:      c.S3.AliyunOSS.Endpoint,
@@ -219,8 +219,8 @@ func (u *UploadAliyunOSSAdapter) RestoreObject(ctx context.Context, filePath str
 	return nil
 }
 
-// FileReader get file bytes
-func (u *UploadAliyunOSSAdapter) FileReader(ctx context.Context, filePath string) (fileBytes []byte, err error) {
+// FileBytes get file bytes
+func (u *UploadAliyunOSSAdapter) FileBytes(ctx context.Context, filePath string) (fileBytes []byte, err error) {
 	u.sem <- struct{}{} // acquire semaphore (max 10 concurrent)
 	defer func() { <-u.sem }()
 
